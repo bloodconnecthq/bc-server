@@ -25,3 +25,19 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+
+.leaflet-container {
+  z-index: 0;
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0 !important;
+}
+.leaflet-control {
+  z-index: 1 !important;
+}
+.leaflet-popup {
+  z-index: 2 !important;
+}
