@@ -18,7 +18,6 @@ export default function SignInPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-6 lg:hidden">
           <div className="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center">
@@ -32,7 +31,6 @@ export default function SignInPage() {
         </p>
       </div>
 
-      {/* Formulaire */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextField isRequired>
           <Label className="text-sm font-medium text-gray-700">

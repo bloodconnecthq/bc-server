@@ -47,7 +47,6 @@ export function StockCard({ group, level, units, status }: StockCardProps) {
           <span className="text-xs text-gray-400 mb-1">poches</span>
         </div>
 
-        {/* Barre de progression */}
         <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className={clsx("h-full rounded-full transition-all", config.bar)}
