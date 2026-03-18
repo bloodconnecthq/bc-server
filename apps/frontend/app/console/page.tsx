@@ -1,74 +1,50 @@
-"use client";
-import StatCard from "@/components/console/stat-card";
-import { Button, ListBox } from "@heroui/react";
-import { Export } from "iconsax-reactjs";
-import { Select } from "@heroui/react";
-import DashboardLayout from "@/components/console/dashboard-layout";
+import { RecentActivity } from "@/components/console/recent-activity";
+import { NationalStats } from "@/components/console/stats/national-stats";
+import { NationalStocksMap } from "@/components/console/stats/national-stocks-maps";
+import { TopHospitals } from "@/components/console/stats/top-hospital";
+import { Button } from "@heroui/react";
 
-const VERSUS = [
-    { slug: "hour", label: "Heure" },
-    { slug: "day", label: "Jour" },
-    { slug: "week", label: "Semaine" },
-    { slug: "month", label: "Mois" },
-    { slug: "year", label: "Année" }
-]
-
-export default function Overview() {
-
+export default function ConsoleDashboard() {
     return (
-        <DashboardLayout>
-            <div className="">
-                <div className="flex bg-white p-4 items-center justify-between mb-4">
-                    <div className="">
-                        <h2 className="text-2xl font-semibold">Bonjour, Sébastien</h2>
-                        <p className="text-foreground/70 text-sm">Bienvenue sur votre tableau de bord Xèdo Business</p>
-                    </div>
-                    <div className="hidden lg:flex items-center gap-4">
-                        <Select defaultValue="hour" className="w-50">
-                            <Select.Trigger className="w-full data-[hovered=true]:bg-gray-50 border shadow-none border-gray-200 rounded-lg px-3 py-2 text-sm
-                                                                 bg-white flex items-center justify-between outline-none focus:ring-[1px] focus:ring-primary">
-                                <Select.Value className="text-sm text-gray-700" />
-                                <Select.Indicator className="text-gray-400" />
-                            </Select.Trigger>
-                            <Select.Popover className="bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50">
-                                <ListBox>
-                                    {VERSUS.map((v) => (
-                                        <ListBox.Item
-                                            key={v.slug}
-                                            id={v.slug}
-                                            textValue={v.slug}
-                                            className="px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"
-                                        >
-                                            {v.label}
-                                        </ListBox.Item>
-                                    ))}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
-
-                        <Button
-                            className="rounded-xl"
-                            variant="primary">
-                            <Export size={24} className="text-white font-bold" />
-                            Exporter
-                        </Button>
-                    </div>
+        <div className="space-y-8 max-w-7xl">
+            { }
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        Vue d'ensemble nationale
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Centre National de Transfusion Sanguine — Bénin · 16 mars 2026
+                    </p>
                 </div>
-                <div className="p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <StatCard title="Revenus" value="147 000 Fcfa" change="+25%" />
-                        <StatCard title="Ventes" value="120" change="-10%" positive={false} />
-                        <StatCard title="Visiteurs" value="561" change="+15%" />
-                        <StatCard title="Taux de conversion" value="7%" change="+25%" />
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-xs font-medium text-green-700">
+                            Système opérationnel
+                        </span>
                     </div>
-                    <div className="bg-white rounded-xl border p-4 mb-6 h-64 flex items-center justify-center">
-
-                    </div>
-                    <div className="bg-white rounded-xl border p-4 mb-6 h-64 flex items-center justify-center">
-
-                    </div>
+                    <Button className="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">
+                        + Nouvelle campagne
+                    </Button>
                 </div>
             </div>
-        </DashboardLayout>
+
+            { }
+            <NationalStats />
+
+            { }
+            <div className="grid grid-cols-5 gap-6">
+                <div className="col-span-3">
+                    <NationalStocksMap />
+                </div>
+                <div className="col-span-2">
+                    <RecentActivity />
+                </div>
+            </div>
+
+            { }
+            <TopHospitals />
+        </div>
     );
 }

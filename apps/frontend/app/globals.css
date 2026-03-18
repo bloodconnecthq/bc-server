@@ -1,14 +1,37 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../tailwind.config.js";
-@import "@heroui/styles";
+@import '@heroui/styles';
 
 :root {
   --accent: #005456;
+  --font-body: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+}
+html,
+body {
+  font-family: var(--font-body), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 600;
 }
 
 @keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0; }
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
 }
 
 .animate-blink {
@@ -16,16 +39,13 @@
 }
 
 .no-scrollbar {
-  /* Chrome, Edge, Safari */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE et Edge Legacy */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* Chrome, Edge, Safari */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 
 .leaflet-container {
   z-index: 0;
