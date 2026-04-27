@@ -46,7 +46,7 @@ export function SettingsSecurity() {
                 <Input
                   type={show[field] ? "text" : "password"}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                  className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
                 />
                 <Button
                   type="button"

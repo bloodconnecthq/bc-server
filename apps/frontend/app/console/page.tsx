@@ -7,7 +7,6 @@ import { Button } from "@heroui/react";
 export default function ConsoleDashboard() {
     return (
         <div className="space-y-8 max-w-7xl">
-            { }
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">
@@ -24,16 +23,11 @@ export default function ConsoleDashboard() {
                             Système opérationnel
                         </span>
                     </div>
-                    <Button className="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">
-                        + Nouvelle campagne
-                    </Button>
                 </div>
             </div>
 
-            { }
             <NationalStats />
 
-            { }
             <div className="grid grid-cols-5 gap-6">
                 <div className="col-span-3">
                     <NationalStocksMap />
@@ -43,7 +37,6 @@ export default function ConsoleDashboard() {
                 </div>
             </div>
 
-            { }
             <TopHospitals />
         </div>
     );

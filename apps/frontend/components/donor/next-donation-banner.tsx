@@ -1,3 +1,6 @@
+import { Calendar } from "iconsax-reactjs";
+import Link from "next/link";
+
 interface NextDonationBannerProps {
     isEligible: boolean;
     daysLeft: number;
@@ -19,24 +22,24 @@ export function NextDonationBanner({
 }: NextDonationBannerProps) {
     if (isEligible) {
         return (
-            <div className="bg-green-600 rounded-2xl p-5 text-white flex items-center justify-between">
+            <div className="bg-red-600/20 rounded-2xl p-5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
-                        🩸
+                        <Calendar size="16" className="text-foreground"/>
                     </div>
                     <div>
-                        <p className="font-bold text-base">Vous êtes éligible au don !</p>
-                        <p className="text-sm text-green-100">
+                        <p className="font-bold text-base text-black">Vous êtes éligible au don !</p>
+                        <p className="text-sm text-foreground">
                             Trouvez un centre de collecte près de chez vous
                         </p>
                     </div>
                 </div>
-                <a
+                <Link
                     href="/donor/centers"
                     className="shrink-0 px-4 py-2 bg-white text-green-700 text-sm font-bold rounded-xl hover:bg-green-50 transition-colors"
                 >
                     Trouver un centre
-                </a>
+                </Link>
             </div>
         );
     }

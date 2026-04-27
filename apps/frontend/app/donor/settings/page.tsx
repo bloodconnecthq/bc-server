@@ -15,9 +15,8 @@ export default function SettingsPage() {
 
             <div className="mx-auto max-w-2xl space-y-4">
                 <SettingsProfile />
-                <SettingsNotifications />
                 <SettingsSecurity />
-                <SettingsDanger />
+                {/* <SettingsDanger /> */}
             </div>
         </div>
     );

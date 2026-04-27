@@ -26,7 +26,6 @@ export function DonorStats({
   isEligible,
   daysLeft,
 }: DonorStatsProps) {
-  // Calcul progression vers prochain badge
   const current = BADGE_THRESHOLDS.find(
     (b) => totalDonations >= b.min && totalDonations <= b.max
   ) || BADGE_THRESHOLDS[BADGE_THRESHOLDS.length - 1];
@@ -38,7 +37,7 @@ export function DonorStats({
 
   return (
     <div className="space-y-4 h-full">
-      {/* Badge actuel */}
+
       <div className="bg-white rounded-2xl p-5 border border-gray-100">
         <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">
           Niveau actuel
@@ -77,13 +76,12 @@ export function DonorStats({
         )}
       </div>
 
-      {/* Statut don */}
+
       <div
-        className={`rounded-2xl p-5 border ${
-          isEligible
+        className={`rounded-2xl p-5 border ${isEligible
             ? "bg-green-50 border-green-200"
             : "bg-white border-gray-100"
-        }`}
+          }`}
       >
         <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
           Statut
@@ -115,7 +113,7 @@ export function DonorStats({
         )}
       </div>
 
-      {/* Impact */}
+
       <div className="bg-red-50 border border-red-100 rounded-2xl p-5">
         <p className="text-xs text-red-400 uppercase tracking-wider mb-2">
           Votre impact

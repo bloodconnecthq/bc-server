@@ -3,7 +3,7 @@
 @import '@heroui/styles';
 
 :root {
-  --accent: #005456;
+  --accent: rgb(91%, 0%, 4%);
   --font-body: var(--font-inter);
   --font-heading: var(--font-space-grotesk);
 }

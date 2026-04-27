@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Input, TextField, Label } from "@heroui/react";
+import { Input, TextField, Label, Button, Checkbox, CheckboxContent, CheckboxControl } from "@heroui/react";
 import { Eye, EyeSlash, Drop, Lock, Sms } from "iconsax-reactjs";
 
 export default function SignInPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setTimeout(() => setIsLoading(false), 1500);
@@ -41,8 +41,8 @@ export default function SignInPage() {
                         </span>
                         <Input
                             type="email"
-                            placeholder="vous@exemple.com"
-                            className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                            placeholder="Entrer votre adresse mail"
+                            className="w-full pl-9 rounded-xl shadow-none! focus:shadow-none! border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
                         />
                     </div>
                 </TextField>
@@ -58,15 +58,16 @@ export default function SignInPage() {
                         <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                            className="w-full pl-9 pr-10 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
                         />
-                        <button
+                        <Button
+                            variant="ghost"
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute p-0 bg-transparent right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                             {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
-                        </button>
+                        </Button>
                     </div>
                 </TextField>
 
@@ -80,16 +81,17 @@ export default function SignInPage() {
                     </Link>
                 </div>
 
-                <button
+                <Button
                     type="submit"
-                    disabled={isLoading}
+                    variant="danger"
+                    isDisabled={isLoading}
                     className="w-full py-3 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2"
                 >
                     {isLoading ? "Connexion en cours..." : "Se connecter"}
-                </button>
+                </Button>
             </form>
 
-            
+
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-100" />
@@ -103,7 +105,7 @@ export default function SignInPage() {
 
             <p className="text-center text-sm text-gray-600">
                 Vous êtes donneur ?{" "}
-                <Link href="/auth/signup" className="text-red-600 font-semibold hover:underline">
+                <Link href="/auth/signup" className="text-primary font-semibold hover:underline">
                     Créer un compte donneur
                 </Link>
             </p>
