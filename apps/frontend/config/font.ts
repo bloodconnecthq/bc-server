@@ -6,12 +6,6 @@ export const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-const spacegrotesk = Space_Grotesk({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-spacegrotesk",
-});
-
 const bricolageGrotesk = Bricolage_Grotesque({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
@@ -20,6 +14,5 @@ const bricolageGrotesk = Bricolage_Grotesque({
 
 export const fonts = {
   poppins: poppins,
-  spacegrotesk: spacegrotesk,
   bricolageGrotesk: bricolageGrotesk,
 };

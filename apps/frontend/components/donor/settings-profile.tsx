@@ -30,7 +30,6 @@ export function SettingsProfile() {
       </div>
 
       <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
-        { }
         <div className="flex items-center gap-4 mb-2">
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
             <User size={28} color="#dc2626" variant="Bold" />
@@ -55,17 +54,22 @@ export function SettingsProfile() {
               </span>
               <Input
                 defaultValue="Koffi"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
               />
             </div>
           </TextField>
 
           <TextField>
             <Label className="text-sm font-medium text-gray-700">Nom</Label>
-            <Input
-              defaultValue="Agossou"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
-            />
+            <div className="relative mt-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <User size={15} color="#9ca3af" />
+              </span>
+              <Input
+                defaultValue="Agossou"
+                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+              />
+            </div>
           </TextField>
         </div>
 
@@ -78,7 +82,7 @@ export function SettingsProfile() {
             <Input
               type="tel"
               defaultValue="+229 97 45 12 38"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+              className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
             />
           </div>
         </TextField>
@@ -92,7 +96,7 @@ export function SettingsProfile() {
             <Input
               type="email"
               defaultValue="koffi.agossou@gmail.com"
-              className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500"
+              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
             />
           </div>
         </TextField>
@@ -101,7 +105,7 @@ export function SettingsProfile() {
           <Label className="text-sm font-medium text-gray-700">
             Commune de résidence
           </Label>
-          <Select.Trigger className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
+          <Select.Trigger className="mt-1 shadow-none! w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>

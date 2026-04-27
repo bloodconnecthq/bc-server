@@ -4,8 +4,8 @@ import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { SearchNormal1, Location } from "iconsax-reactjs";
 import { CenterCard } from "./center-card";
+import { Button, Input, TextField } from "@heroui/react";
 
-// Import dynamique pour éviter SSR avec Leaflet
 const CentersMap = dynamic(() => import("./centers-map"), { ssr: false });
 
 export type Center = {
@@ -142,50 +142,55 @@ export function CentersPageClient() {
 
   return (
     <div className="grid grid-cols-5 gap-6 h-[calc(100vh-220px)]">
-      {/* Panneau gauche — liste */}
       <div className="col-span-2 flex flex-col gap-4 overflow-hidden">
-        {/* Recherche */}
+
         <div className="space-y-3">
           <div className="relative">
-            <SearchNormal1
-              size={16}
-              color="#9ca3af"
-              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="Rechercher un centre..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
-            />
+            <TextField>
+              <div className="relative mt-1">
+                <span className="absolute  top-1/2 -translate-y-1/2 pointer-events-none">
+                  <SearchNormal1
+                    size={16}
+                    color="#9ca3af"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  />
+                </span>
+                <Input
+                  type="text"
+                  placeholder="Rechercher un centre..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  defaultValue="koffi.agossou@gmail.com"
+                  className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+                />
+              </div>
+            </TextField>
           </div>
 
-          {/* Filtre communes */}
+
           <div className="flex gap-2 flex-wrap">
             {communes.map((c) => (
-              <button
+              <Button
                 key={c}
                 onClick={() => setSelectedCommune(c)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  selectedCommune === c
-                    ? "bg-red-600 text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:border-red-300"
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCommune === c
+                  ? "bg-red-600 text-white"
+                  : "bg-white border border-gray-200 text-gray-600 hover:border-red-300"
+                  }`}
               >
                 {c}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
-        {/* Résultats */}
+
         <p className="text-xs text-gray-400">
           {filtered.length} centre{filtered.length > 1 ? "s" : ""} trouvé
           {filtered.length > 1 ? "s" : ""}
         </p>
 
-        {/* Liste scrollable */}
+
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -208,7 +213,6 @@ export function CentersPageClient() {
         </div>
       </div>
 
-      {/* Carte — 3 colonnes */}
       <div className="col-span-3 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
         <CentersMap
           centers={filtered}

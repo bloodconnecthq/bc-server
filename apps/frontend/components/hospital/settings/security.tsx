@@ -46,7 +46,7 @@ export function HospitalSettingsSecurity() {
               <Input
                 type={show[field.key] ? "text" : "password"}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500"
+                className="w-full pl-9 shadow-none pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
               />
               <button
                 type="button"

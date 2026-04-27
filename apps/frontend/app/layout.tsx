@@ -5,9 +5,7 @@ import { fonts } from "@/config/font";
 import clsx from "clsx";
 
 export const metadata: Metadata = {
-  title: "Xèdo Business – Merchant Dashboard",
-  description: "Importe ton catalogue WhatsApp en 1 clic. Reçois des commandes et gère tes paiements de façon automatique et 100% gratuit.",
-  keywords: ["Xèdo", "e-commerce", "WhatsApp Business", "marketplace", "Mobile Money", "Afrique", "vendeurs", "commerçants", "paiements en ligne"],
+  title: "Blood Connect - Chaque don compte, chaque vie aussi.",
 };
 
 export default function RootLayout({

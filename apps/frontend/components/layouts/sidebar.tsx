@@ -1,5 +1,4 @@
 import { usePathname } from "next/navigation";
-import XedoBusinessIcon from "../shared/xedo-business-icon";
 import clsx from "clsx";
 import { CloseSquare } from "iconsax-reactjs";
 import Link from "next/link";
@@ -32,9 +31,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     transition-transform duration-300 overflow-y-auto overscroll-contain no-scrollbar
                     ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
             >
-                <div className="flex items-center py-5 px-4 justify-between border-b sticky top-0 bg-white">
+                {/* <div className="flex items-center py-5 px-4 justify-between border-b sticky top-0 bg-white">
                     <XedoBusinessIcon />
-                </div>
+                </div> */}
 
                 <nav className="p-4 space-y-2 overflow-y-auto">
                     <div className="">

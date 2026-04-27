@@ -28,7 +28,7 @@ const statusConfig = {
     dot: "bg-red-300",
     badge: "bg-red-50 text-red-500",
   },
-};
+}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -52,7 +52,7 @@ export function DonationTimeline({ donations }: { donations: Donation[] }) {
 
       <div className="px-6 py-4">
         <div className="relative">
-          {/* Ligne verticale */}
+          
           <div className="absolute left-3 top-2 bottom-2 w-px bg-gray-100" />
 
           <div className="space-y-6">
@@ -60,15 +60,15 @@ export function DonationTimeline({ donations }: { donations: Donation[] }) {
               const config = statusConfig[donation.status];
               return (
                 <div key={donation.id} className="relative pl-10">
-                  {/* Point sur la timeline */}
+                  
                   <div
                     className={clsx(
                       "absolute left-0 top-1 w-7 h-7 rounded-full border-2 border-white flex items-center justify-center shadow-sm",
                       donation.status === "validated"
                         ? "bg-green-500"
                         : donation.status === "rejected"
-                        ? "bg-red-200"
-                        : "bg-amber-400"
+                          ? "bg-red-200"
+                          : "bg-amber-400"
                     )}
                   >
                     <span className="text-white text-xs font-bold">
@@ -76,9 +76,9 @@ export function DonationTimeline({ donations }: { donations: Donation[] }) {
                     </span>
                   </div>
 
-                  {/* Contenu */}
+                  
                   <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
-                    {/* Badge spécial si présent */}
+                    
                     {donation.badge && (
                       <div className="inline-flex items-center gap-1.5 text-xs font-medium text-purple-700 bg-purple-50 px-3 py-1 rounded-full mb-2">
                         🏅 {donation.badge}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Input, TextField, Label, ListBox, Select } from "@heroui/react";
+import { Input, TextField, Label, ListBox, Select, Button } from "@heroui/react";
 import { Eye, EyeSlash, Drop, Lock, Sms, User, Call } from "iconsax-reactjs";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -84,7 +84,7 @@ export default function SignUpPage() {
                 </span>
                 <Input
                   placeholder="Koffi"
-                  className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                  className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
                 />
               </div>
             </TextField>
@@ -93,7 +93,7 @@ export default function SignUpPage() {
               <Label className="text-sm font-medium text-gray-700">Nom</Label>
               <Input
                 placeholder="Agossou"
-                className="w-full mt-1 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full mt-1 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
               />
             </TextField>
           </div>
@@ -107,7 +107,7 @@ export default function SignUpPage() {
               <Input
                 type="tel"
                 placeholder="+229 97 00 00 00"
-                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
               />
             </div>
           </TextField>
@@ -121,7 +121,7 @@ export default function SignUpPage() {
               <Input
                 type="email"
                 placeholder="vous@exemple.com"
-                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
               />
             </div>
           </TextField>
@@ -144,7 +144,7 @@ export default function SignUpPage() {
             </Label>
             <Input
               type="date"
-              className="w-full mt-1 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+              className="w-full mt-1 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
             />
           </TextField>
 
@@ -153,7 +153,7 @@ export default function SignUpPage() {
             <Label className="text-sm font-medium text-gray-700">
               Groupe sanguin
             </Label>
-            <Select.Trigger className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
+            <Select.Trigger className="mt-1 shadow-none w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>
@@ -174,7 +174,7 @@ export default function SignUpPage() {
             <Label className="text-sm font-medium text-gray-700">
               Commune de résidence
             </Label>
-            <Select.Trigger className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
+            <Select.Trigger className="mt-1 shadow-none w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>
@@ -222,15 +222,16 @@ export default function SignUpPage() {
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="8 caractères minimum"
-                className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
               />
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute p-0 bg-transparent right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
-              </button>
+              </Button>
             </div>
           </TextField>
 
@@ -245,7 +246,7 @@ export default function SignUpPage() {
               <Input
                 type="password"
                 placeholder="••••••••"
-                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0 shadow-none"
               />
             </div>
           </TextField>
@@ -269,20 +270,21 @@ export default function SignUpPage() {
           </label>
 
           <div className="flex gap-3 mt-2">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setStep(1)}
               className="flex-1 py-3 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-all"
             >
               ← Retour
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isLoading}
+              isDisabled={isLoading}
               className="flex-1 py-3 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-all disabled:opacity-60"
             >
               {isLoading ? "Création..." : "Créer mon compte"}
-            </button>
+            </Button>
           </div>
         </form>
       )}
