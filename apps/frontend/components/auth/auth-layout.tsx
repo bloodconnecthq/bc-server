@@ -5,13 +5,13 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Panneau gauche — visuel */}
+      
       <div className="hidden lg:flex lg:w-1/2 bg-red-600 flex-col justify-between p-12 relative overflow-hidden">
-        {/* Cercles décoratifs */}
+        
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-500 rounded-full opacity-50" />
         <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-red-700 rounded-full opacity-40" />
 
-        {/* Logo */}
+        
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
@@ -21,7 +21,7 @@ export default function AuthLayout({
           <span className="text-white font-bold text-lg">Blood-Connect</span>
         </div>
 
-        {/* Texte central */}
+        
         <div className="relative z-10 space-y-4">
           <h2 className="text-4xl font-bold text-white leading-tight">
             Chaque don compte.<br />Chaque vie aussi.
@@ -32,7 +32,7 @@ export default function AuthLayout({
           </p>
         </div>
 
-        {/* Stats */}
+        
         <div className="relative z-10 grid grid-cols-3 gap-4">
           {[
             { value: "50K+", label: "Donneurs" },
@@ -47,7 +47,7 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Panneau droit — formulaire */}
+      
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           {children}

@@ -5,9 +5,34 @@
 
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
+import type DonTransformer from '#transformers/don_transformer'
+import type DonorTransformer from '#transformers/donor_transformer'
+import type HopitalTransformer from '#transformers/hopital_transformer'
+import type RendezVousTransformer from '#transformers/rendez_vous_transformer'
+import type StockSanguinTransformer from '#transformers/stock_sanguin_transformer'
 import type UserTransformer from '#transformers/user_transformer'
 
 export namespace Data {
+  export type Don = InferData<DonTransformer>
+  export namespace Don {
+    export type Variants = InferVariants<DonTransformer>
+  }
+  export type Donor = InferData<DonorTransformer>
+  export namespace Donor {
+    export type Variants = InferVariants<DonorTransformer>
+  }
+  export type Hopital = InferData<HopitalTransformer>
+  export namespace Hopital {
+    export type Variants = InferVariants<HopitalTransformer>
+  }
+  export type RendezVous = InferData<RendezVousTransformer>
+  export namespace RendezVous {
+    export type Variants = InferVariants<RendezVousTransformer>
+  }
+  export type StockSanguin = InferData<StockSanguinTransformer>
+  export namespace StockSanguin {
+    export type Variants = InferVariants<StockSanguinTransformer>
+  }
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { HospitalSidebar } from "@/components/hospital/sidebar";
 
 export const metadata: Metadata = {
-  title: "Blood-Connect — Espace Hôpital",
+  title: "eBloodSys — Espace Hôpital",
   description: "Gestion des stocks sanguins et suivi des dons",
 };
 

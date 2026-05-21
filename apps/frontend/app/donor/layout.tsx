@@ -2,7 +2,7 @@ import { DonorSidebar } from "@/components/donor/sidebar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blood-Connect — Espace Donneur",
+  title: "eBloodSys — Espace Donneur",
   description: "Votre espace personnel de don de sang",
 };
 

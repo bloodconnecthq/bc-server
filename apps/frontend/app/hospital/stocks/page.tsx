@@ -1,127 +1,138 @@
-import { StocksHistory } from "@/components/hospital/stocks/history";
-import { StocksOverview } from "@/components/hospital/stocks/overview";
-import { StocksTable } from "@/components/hospital/stocks/table";
-import { Button } from "@heroui/react";
-import { Add } from "iconsax-reactjs";
+'use client';
 
-const stocks = [
-    {
-        group: "A+",
-        available: 36,
-        capacity: 50,
-        lastUpdated: "2026-03-16T08:30:00",
-        status: "ok" as const,
-        expiringIn7Days: 4,
-    },
-    {
-        group: "A-",
-        available: 9,
-        capacity: 50,
-        lastUpdated: "2026-03-15T14:00:00",
-        status: "low" as const,
-        expiringIn7Days: 1,
-    },
-    {
-        group: "B+",
-        available: 42,
-        capacity: 50,
-        lastUpdated: "2026-03-16T09:00:00",
-        status: "ok" as const,
-        expiringIn7Days: 6,
-    },
-    {
-        group: "B-",
-        available: 4,
-        capacity: 50,
-        lastUpdated: "2026-03-14T11:00:00",
-        status: "critical" as const,
-        expiringIn7Days: 0,
-    },
-    {
-        group: "AB+",
-        available: 30,
-        capacity: 50,
-        lastUpdated: "2026-03-16T07:45:00",
-        status: "ok" as const,
-        expiringIn7Days: 3,
-    },
-    {
-        group: "AB-",
-        available: 2,
-        capacity: 50,
-        lastUpdated: "2026-03-13T16:00:00",
-        status: "critical" as const,
-        expiringIn7Days: 0,
-    },
-    {
-        group: "O+",
-        available: 22,
-        capacity: 50,
-        lastUpdated: "2026-03-16T10:00:00",
-        status: "ok" as const,
-        expiringIn7Days: 5,
-    },
-    {
-        group: "O-",
-        available: 6,
-        capacity: 50,
-        lastUpdated: "2026-03-15T09:30:00",
-        status: "low" as const,
-        expiringIn7Days: 2,
-    },
-];
+import { useAuth } from '@/app/providers/auth-provider';
+import { useHospitalDashboard } from "@/lib/hooks/useHospitalDashboard";
+import { StockCard } from "@/components/hospital/stock-card";
+import { Button } from '@heroui/react';
+import { ArrowDown, ArrowUp, Warning2 } from 'iconsax-reactjs';
 
-const history = [
-    { date: "16 mars", in: 12, out: 8 },
-    { date: "15 mars", in: 6, out: 14 },
-    { date: "14 mars", in: 18, out: 10 },
-    { date: "13 mars", in: 8, out: 12 },
-    { date: "12 mars", in: 14, out: 6 },
-    { date: "11 mars", in: 10, out: 9 },
-    { date: "10 mars", in: 16, out: 11 },
-];
+export default function HospitalStocksPage() {
+    const { stocks, isLoading: loading, stocksError } = useHospitalDashboard();
 
-export default function StocksPage() {
-    const total = stocks.reduce((sum, s) => sum + s.available, 0);
-    const critical = stocks.filter((s) => s.status === "critical").length;
-    const low = stocks.filter((s) => s.status === "low").length;
-    const expiring = stocks.reduce((sum, s) => sum + s.expiringIn7Days, 0);
+    // Convertir les stocks API en format StockCard
+    const stockCards = stocks?.map(stock => ({
+        group: stock.groupeSanguin || 'Inconnu',
+        level: Math.min((stock.quantite / 50) * 100, 100), // Calculer le niveau basé sur une capacité max de 50
+        units: stock.quantite,
+        status: stock.quantite < 5 ? "critical" as const : stock.quantite < 15 ? "low" as const : "ok" as const,
+    })) || [];
+
+    // Statistiques des stocks
+    const totalUnits = stocks?.reduce((sum, stock) => sum + stock.quantite, 0) || 0;
+    const criticalStocks = stocks?.filter(stock => stock.quantite < 5).length || 0;
+    const lowStocks = stocks?.filter(stock => stock.quantite >= 5 && stock.quantite < 15).length || 0;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Chargement des stocks...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (stocksError) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600">Erreur lors du chargement des stocks</p>
+                    <p className="text-sm text-gray-500 mt-2">{stocksError}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-8 max-w-5xl">
-
+        <div className="space-y-8 max-w-6xl">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Stocks sanguins</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Gestion des stocks</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        Suivi en temps réel des poches disponibles
+                        CHU de Cotonou — Mise à jour en temps réel
                     </p>
                 </div>
-                <Button className="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">
-                    <Add size="16"/>
-                    Mise à jour manuelle
+                <Button className="bg-red-600 text-white hover:bg-red-700">
+                    + Enregistrer un don
                 </Button>
             </div>
 
-
-            <StocksOverview
-                total={total}
-                critical={critical}
-                low={low}
-                expiring={expiring}
-            />
-
-            <div className="grid grid-cols-5 gap-6">
-
-                <div className="col-span-3">
-                    <StocksTable stocks={stocks} />
+            {/* Statistiques générales */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Total poches</p>
+                            <p className="text-2xl font-bold text-gray-900">{totalUnits}</p>
+                        </div>
+                        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                            <ArrowUp size={24} />
+                        </div>
+                    </div>
                 </div>
 
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Stocks critiques</p>
+                            <p className="text-2xl font-bold text-red-600">{criticalStocks}</p>
+                        </div>
+                        <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
+                            <Warning2 size={24} />
+                        </div>
+                    </div>
+                </div>
 
-                <div className="col-span-2">
-                    <StocksHistory history={history} />
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Stocks faibles</p>
+                            <p className="text-2xl font-bold text-amber-600">{lowStocks}</p>
+                        </div>
+                        <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+                            <ArrowDown size={24} />
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* Grille des stocks par groupe sanguin */}
+            <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                    Stocks par groupe sanguin
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {stockCards.map((stock) => (
+                        <StockCard key={stock.group} {...stock} />
+                    ))}
+                </div>
+            </div>
+
+            {/* Alertes pour stocks critiques */}
+            {criticalStocks > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+                    <div className="flex items-start gap-3">
+                        <Warning2 size={24} className="text-red-600 mt-0.5" />
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-900 mb-2">
+                                Alertes de stock critique
+                            </h3>
+                            <p className="text-red-700 mb-4">
+                                {criticalStocks} groupe(s) sanguin(s) ont un stock critique (moins de 5 poches).
+                                Veuillez contacter le CNTS pour réapprovisionnement.
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {stocks?.filter(stock => stock.quantite < 5).map(stock => (
+                                    <span key={stock.groupeSanguin} className="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
+                                        {stock.groupeSanguin}: {stock.quantite} poches
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

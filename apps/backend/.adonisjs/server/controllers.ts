@@ -5,7 +5,13 @@
 
 export const controllers = {
   AccessToken: () => import('#controllers/access_token_controller'),
+  Alertes: () => import('#controllers/alertes_controller'),
   Donors: () => import('#controllers/donors_controller'),
+  Hopitaux: () => import('#controllers/hopitaux_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
+  Notifications: () => import('#controllers/notifications_controller'),
   Profile: () => import('#controllers/profile_controller'),
+  RendezVous: () => import('#controllers/rendez_vous_controller'),
+  Stocks: () => import('#controllers/stocks_controller'),
+  Dons: () => import('#controllers/dons_controller'),
 }

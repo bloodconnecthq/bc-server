@@ -6,6 +6,7 @@ import * as React from "react";
 import { HeroUIProvider } from "@heroui/system";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { AuthProvider } from "./providers/auth-provider";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -31,7 +32,9 @@ export function Providers({ children, themeProps }: ProvidersProps) {
         enableSystem={false}
         {...themeProps}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </NextThemesProvider>
     </HeroUIProvider>
   );

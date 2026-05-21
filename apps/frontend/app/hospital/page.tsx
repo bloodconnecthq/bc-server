@@ -48,7 +48,7 @@ export default function HospitalDashboard() {
       />
 
       {/* Stats globales */}
-      <StatsOverview />
+      
 
       {/* Stocks par groupe sanguin */}
       <div>

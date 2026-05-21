@@ -1,18 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Input, TextField, Label } from "@heroui/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Input, TextField, Label, Button } from "@heroui/react";
 import { Eye, EyeSlash, Drop, Lock, Sms } from "iconsax-reactjs";
+import { useAuth } from "@/app/providers/auth-provider";
 
 export default function SignInPage() {
+    const { connexion, isAuthenticated, isLoading: authLoading } = useAuth();
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [email, setEmail] = useState("");
+    const [motDePasse, setMotDePasse] = useState("");
+
+    useEffect(() => {
+        if (isAuthenticated && !authLoading) {
+            router.push("/console");
+        }
+    }, [isAuthenticated, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 1500);
+
+        try {
+            await connexion({ email, motDePasse });
+            router.push("/console");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Erreur de connexion");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -31,6 +53,12 @@ export default function SignInPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                        {error}
+                    </div>
+                )}
+
                 <TextField isRequired>
                     <Label className="text-sm font-medium text-gray-700">
                         Adresse email
@@ -41,8 +69,11 @@ export default function SignInPage() {
                         </span>
                         <Input
                             type="email"
-                            placeholder="vous@exemple.com"
-                            className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                            placeholder="Entrer votre adresse mail"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={isLoading}
+                            className="w-full pl-9 rounded-xl shadow-none! focus:shadow-none! border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
                         />
                     </div>
                 </TextField>
@@ -58,21 +89,25 @@ export default function SignInPage() {
                         <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                            value={motDePasse}
+                            onChange={(e) => setMotDePasse(e.target.value)}
+                            disabled={isLoading}
+                            className="w-full pl-9 pr-10 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
                         />
-                        <button
+                        <Button
+                            variant="ghost"
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute p-0 bg-transparent right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                             {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
-                        </button>
+                        </Button>
                     </div>
                 </TextField>
 
                 <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 accent-red-600 rounded" />
+                        <input type="checkbox" className="w-4 h-4 accent-red-600 rounded" disabled={isLoading} />
                         <span className="text-sm text-gray-600">Se souvenir de moi</span>
                     </label>
                     <Link href="/auth/forgot-password" className="text-sm text-red-600 font-medium hover:underline">
@@ -80,16 +115,17 @@ export default function SignInPage() {
                     </Link>
                 </div>
 
-                <button
+                <Button
                     type="submit"
-                    disabled={isLoading}
+                    variant="danger"
+                    isDisabled={isLoading}
                     className="w-full py-3 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2"
                 >
                     {isLoading ? "Connexion en cours..." : "Se connecter"}
-                </button>
+                </Button>
             </form>
 
-            
+
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-100" />
@@ -103,7 +139,7 @@ export default function SignInPage() {
 
             <p className="text-center text-sm text-gray-600">
                 Vous êtes donneur ?{" "}
-                <Link href="/auth/signup" className="text-red-600 font-semibold hover:underline">
+                <Link href="/auth/signup" className="text-primary font-semibold hover:underline">
                     Créer un compte donneur
                 </Link>
             </p>

@@ -1,5 +1,9 @@
+'use client';
+
 import { DonationsStats } from "@/components/hospital/donations/stats";
 import { DonationsTable } from "@/components/hospital/donations/table";
+import { useHospitalDashboard } from "@/lib/hooks/useHospitalDashboard";
+import { useAuth } from "@/app/providers/auth-provider";
 
 const donations = [
     {
@@ -101,9 +105,48 @@ const donations = [
 ];
 
 export default function DonationsPage() {
-    const validated = donations.filter((d) => d.status === "validated").length;
-    const pending = donations.filter((d) => d.status === "pending").length;
-    const rejected = donations.filter((d) => d.status === "rejected").length;
+    const { user } = useAuth();
+    const { donations: apiDonations, isLoading: loading, donationsError } = useHospitalDashboard();
+
+    // Convertir les données API au format attendu par les composants
+    const donationsData = apiDonations?.map(don => ({
+        id: `DON-${don.id}`,
+        donorName: don.donneur?.codeDonneur || "Anonyme",
+        donorId: don.donneur?.codeDonneur ? `BC-${don.donneur.codeDonneur}` : `BC-${don.id}`,
+        bloodGroup: don.donneur?.groupeSanguin || 'O+',
+        volume: don.volume ?? 450,
+        date: don.dateDon || don.creeLe || new Date().toISOString(),
+        agent: don.agent?.nomComplet || user?.nomComplet || "Agent inconnu",
+        center: "CNTS Cotonou",
+        status: don.statut === 'valide' ? "validated" as const : don.statut === 'en_attente' ? "pending" as const : "rejected" as const,
+        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
+    })) || [];
+
+    const validated = donationsData.filter((d) => d.status === "validated").length;
+    const pending = donationsData.filter((d) => d.status === "pending").length;
+    const rejected = donationsData.filter((d) => d.status === "rejected").length;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Chargement des dons...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (donationsError) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600">Erreur lors du chargement des dons</p>
+                    <p className="text-sm text-gray-500 mt-2">{donationsError}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 max-w-6xl">
@@ -120,13 +163,13 @@ export default function DonationsPage() {
             </div>
 
             <DonationsStats
-                total={donations.length}
+                total={donationsData.length}
                 validated={validated}
                 pending={pending}
                 rejected={rejected}
             />
 
-            <DonationsTable donations={donations} />
+            <DonationsTable donations={donationsData} />
         </div>
     );
 }

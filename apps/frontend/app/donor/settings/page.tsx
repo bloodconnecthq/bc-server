@@ -1,7 +1,5 @@
 import { SettingsProfile } from "@/components/donor/settings-profile";
-import { SettingsNotifications } from "@/components/donor/settings-notifications";
 import { SettingsSecurity } from "@/components/donor/settings-security";
-import { SettingsDanger } from "@/components/donor/settings-danger";
 
 export default function SettingsPage() {
     return (
@@ -15,9 +13,7 @@ export default function SettingsPage() {
 
             <div className="mx-auto max-w-2xl space-y-4">
                 <SettingsProfile />
-                <SettingsNotifications />
-                <SettingsSecurity />
-                <SettingsDanger />
+                {/* <SettingsSecurity /> */}
             </div>
         </div>
     );

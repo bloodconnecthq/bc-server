@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input, TextField, Label, Select, ListBox, Button } from "@heroui/react";
-import { User, Call, Sms, Location } from "iconsax-reactjs";
+import { User, Call, Sms } from "iconsax-reactjs";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useProfile } from "@/lib/hooks/useProfile";
 
 const communes = [
   "Cotonou", "Porto-Novo", "Parakou",
@@ -10,13 +12,70 @@ const communes = [
 ];
 
 export function SettingsProfile() {
-  const [saved, setSaved] = useState(false);
+  const { token } = useAuth();
+  const { profile, isLoading, isSaving, error, saveError, updateProfile } = useProfile(token);
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const [saved, setSaved] = useState(false);
+  const [formData, setFormData] = useState({
+    prenom: "",
+    nom: "",
+    telephone: "",
+    email: "",
+    commune: "",
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        prenom: profile.prenom || "",
+        nom: profile.nom || "",
+        telephone: profile.telephone || "",
+        email: profile.email || "",
+        commune: profile.commune || "",
+      });
+    }
+  }, [profile]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await updateProfile({
+        prenom: formData.prenom,
+        nom: formData.nom,
+        telephone: formData.telephone,
+        email: formData.email,
+        commune: formData.commune,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      console.error("Erreur lors de la sauvegarde:", err);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-6">
+        <p className="text-gray-600">Chargement du profil...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-6">
+        <p className="text-red-600">Erreur: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -30,7 +89,6 @@ export function SettingsProfile() {
       </div>
 
       <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
-        { }
         <div className="flex items-center gap-4 mb-2">
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
             <User size={28} color="#dc2626" variant="Bold" />
@@ -54,18 +112,25 @@ export function SettingsProfile() {
                 <User size={15} color="#9ca3af" />
               </span>
               <Input
-                defaultValue="Koffi"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+                value={formData.prenom}
+                onChange={(e) => handleInputChange("prenom", e.target.value)}
+                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
               />
             </div>
           </TextField>
 
           <TextField>
             <Label className="text-sm font-medium text-gray-700">Nom</Label>
-            <Input
-              defaultValue="Agossou"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
-            />
+            <div className="relative mt-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <User size={15} color="#9ca3af" />
+              </span>
+              <Input
+                value={formData.nom}
+                onChange={(e) => handleInputChange("nom", e.target.value)}
+                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+              />
+            </div>
           </TextField>
         </div>
 
@@ -77,8 +142,9 @@ export function SettingsProfile() {
             </span>
             <Input
               type="tel"
-              defaultValue="+229 97 45 12 38"
-              className="w-full pl-9 pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-100"
+              value={formData.telephone}
+              onChange={(e) => handleInputChange("telephone", e.target.value)}
+              className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
             />
           </div>
         </TextField>
@@ -91,17 +157,19 @@ export function SettingsProfile() {
             </span>
             <Input
               type="email"
-              defaultValue="koffi.agossou@gmail.com"
-              className="w-full pl-9 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500"
+              value={formData.email}
+              readOnly
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
             />
           </div>
         </TextField>
 
-        <Select fullWidth placeholder="Sélectionner" defaultSelectedKey="Cotonou">
+        <Select fullWidth placeholder="Sélectionner" value={formData.commune} onChange={(e) => handleInputChange("commune", e.target.value)}>
           <Label className="text-sm font-medium text-gray-700">
             Commune de résidence
           </Label>
-          <Select.Trigger className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
+          <Select.Trigger className="mt-1 shadow-none! w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>
@@ -117,6 +185,10 @@ export function SettingsProfile() {
           </Select.Popover>
         </Select>
 
+        {saveError && (
+          <p className="text-sm text-red-600 font-medium">Erreur: {saveError}</p>
+        )}
+
         <div className="flex items-center justify-between pt-2">
           {saved && (
             <p className="text-sm text-green-600 font-medium">
@@ -126,9 +198,10 @@ export function SettingsProfile() {
           <div className={saved ? "" : "ml-auto"}>
             <Button
               type="submit"
-              className="px-5 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-all"
+              isDisabled={isSaving}
+              className="px-5 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-all disabled:opacity-50"
             >
-              Enregistrer
+              {isSaving ? "Enregistrement..." : "Enregistrer"}
             </Button>
           </div>
         </div>

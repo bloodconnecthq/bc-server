@@ -1,5 +1,9 @@
+'use client';
+
 import { AlertsList } from "@/components/hospital/alerts/list";
 import { AlertsStats } from "@/components/hospital/alerts/stats";
+import { useAuth } from "@/app/providers/auth-provider";
+import { useHospitalDashboard } from "@/lib/hooks/useHospitalDashboard";
 
 const alerts = [
     {
@@ -82,11 +86,74 @@ const alerts = [
 ];
 
 export default function AlertsPage() {
-    const active = alerts.filter((a) => !a.resolved);
+    const { user } = useAuth();
+    const { stocks, isLoading: loading, stocksError } = useHospitalDashboard();
+
+    // Générer les alertes dynamiquement basées sur les stocks
+    const dynamicAlerts = stocks?.flatMap((stock, index) => {
+        const alerts = [];
+
+        // Alerte critique
+        if (stock.quantite <= stock.seuilCritique) {
+            alerts.push({
+                id: `ALT-CRIT-${stock.id}`,
+                type: "critical" as const,
+                bloodGroup: stock.groupeSanguin || "Inconnu",
+                title: `Stock critique — ${stock.groupeSanguin}`,
+                message: `Le stock de sang ${stock.groupeSanguin} est tombé à ${stock.quantite} poche${stock.quantite > 1 ? 's' : ''}. Un approvisionnement urgent est nécessaire.`,
+                date: new Date().toISOString(),
+                read: false,
+                resolved: false,
+                triggeredBy: "Système automatique",
+            });
+        }
+        // Alerte faible
+        else if (stock.quantite <= stock.seuilFaible) {
+            alerts.push({
+                id: `ALT-LOW-${stock.id}`,
+                type: "low" as const,
+                bloodGroup: stock.groupeSanguin || "Inconnu",
+                title: `Stock faible — ${stock.groupeSanguin}`,
+                message: `Le stock ${stock.groupeSanguin} est en dessous du seuil minimal (${stock.quantite} poches). Pensez à lancer une campagne ciblée.`,
+                date: new Date(Date.now() - 86400000).toISOString(), // Hier
+                read: false,
+                resolved: false,
+                triggeredBy: "Système automatique",
+            });
+        }
+
+        return alerts;
+    }) || [];
+
+    const allAlerts = [...dynamicAlerts, ...alerts]; // Combiner avec les alertes statiques pour l'instant
+
+    const active = allAlerts.filter((a) => !a.resolved);
     const critical = active.filter((a) => a.type === "critical").length;
     const low = active.filter((a) => a.type === "low").length;
     const expiry = active.filter((a) => a.type === "expiry").length;
-    const resolved = alerts.filter((a) => a.resolved).length;
+    const resolved = allAlerts.filter((a) => a.resolved).length;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Chargement des alertes...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (stocksError) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600">Erreur lors du chargement des alertes</p>
+                    <p className="text-sm text-gray-500 mt-2">{stocksError}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 max-w-">
@@ -110,7 +177,7 @@ export default function AlertsPage() {
                 resolved={resolved}
             />
 
-            <AlertsList alerts={alerts} />
+            <AlertsList alerts={allAlerts} />
         </div>
     );
 }
