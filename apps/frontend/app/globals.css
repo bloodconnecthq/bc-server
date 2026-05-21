@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+@config "../tailwind.config.js";
+@import '@heroui/styles';
+
+:root {
+  --accent: rgb(91%, 0%, 4%);
+  --font-body: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+}
+html,
+body {
+  font-family: var(--font-body), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 600;
+}
+
+@keyframes blink {
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.leaflet-container {
+  z-index: 0;
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0 !important;
+}
+.leaflet-control {
+  z-index: 1 !important;
+}
+.leaflet-popup {
+  z-index: 2 !important;
+}

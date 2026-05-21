@@ -1,0 +1,33 @@
+{
+  "name": "bc-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Blood Connect Project",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "@adonisjs/prettier-config": "^1.4.5",
+    "prettier": "^3.8.1",
+    "turbo": "^2.8.12"
+  },
+  "packageManager": "pnpm@10.30.0",
+  "prettier": "@adonisjs/prettier-config",
+  "dependencies": {
+    "mysql2": "^3.19.1"
+  }
+}
