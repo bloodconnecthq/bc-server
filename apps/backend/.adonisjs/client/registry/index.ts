@@ -450,6 +450,24 @@ const routes = {
     tokens: [{"old":"/api/v1/rendez-vous/:id/effectue","type":0,"val":"api","end":""},{"old":"/api/v1/rendez-vous/:id/effectue","type":0,"val":"v1","end":""},{"old":"/api/v1/rendez-vous/:id/effectue","type":0,"val":"rendez-vous","end":""},{"old":"/api/v1/rendez-vous/:id/effectue","type":1,"val":"id","end":""},{"old":"/api/v1/rendez-vous/:id/effectue","type":0,"val":"effectue","end":""}],
     types: placeholder as Registry['rendezVous.rendez_vous.marquer_effectue']['types'],
   },
+  'resultats.resultats.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/dons/:donId/resultats',
+    tokens: [{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"api","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"v1","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"dons","end":""},{"old":"/api/v1/dons/:donId/resultats","type":1,"val":"donId","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"resultats","end":""}],
+    types: placeholder as Registry['resultats.resultats.store']['types'],
+  },
+  'resultats.resultats.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/dons/:donId/resultats',
+    tokens: [{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"api","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"v1","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"dons","end":""},{"old":"/api/v1/dons/:donId/resultats","type":1,"val":"donId","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"resultats","end":""}],
+    types: placeholder as Registry['resultats.resultats.show']['types'],
+  },
+  'resultats.resultats.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/dons/:donId/resultats',
+    tokens: [{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"api","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"v1","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"dons","end":""},{"old":"/api/v1/dons/:donId/resultats","type":1,"val":"donId","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"resultats","end":""}],
+    types: placeholder as Registry['resultats.resultats.update']['types'],
+  },
   'rapports.stocks.rapport_dons': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/rapports/dons',

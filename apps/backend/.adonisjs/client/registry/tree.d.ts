@@ -128,6 +128,13 @@ export interface ApiDefinition {
       marquerEffectue: typeof routes['rendezVous.rendez_vous.marquer_effectue']
     }
   }
+  resultats: {
+    resultats: {
+      store: typeof routes['resultats.resultats.store']
+      show: typeof routes['resultats.resultats.show']
+      update: typeof routes['resultats.resultats.update']
+    }
+  }
   rapports: {
     stocks: {
       rapportDons: typeof routes['rapports.stocks.rapport_dons']

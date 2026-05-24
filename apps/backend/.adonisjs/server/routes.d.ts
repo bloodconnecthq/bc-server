@@ -78,6 +78,9 @@ export type ScannedRoutes = {
     'rendezVous.rendez_vous.confirmer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.annuler': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.marquer_effectue': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'resultats.resultats.store': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
+    'resultats.resultats.show': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
+    'resultats.resultats.update': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
     'rapports.stocks.rapport_dons': { paramsTuple?: []; params?: {} }
     'rapports.donors.rapport_donneurs': { paramsTuple?: []; params?: {} }
     'rapports.stocks.rapport_stocks': { paramsTuple?: []; params?: {} }
@@ -126,6 +129,7 @@ export type ScannedRoutes = {
     'rendezVous.rendez_vous.rendez_vous_attribues': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.index': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'resultats.resultats.show': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
     'rapports.stocks.rapport_dons': { paramsTuple?: []; params?: {} }
     'rapports.donors.rapport_donneurs': { paramsTuple?: []; params?: {} }
     'rapports.stocks.rapport_stocks': { paramsTuple?: []; params?: {} }
@@ -174,6 +178,7 @@ export type ScannedRoutes = {
     'rendezVous.rendez_vous.rendez_vous_attribues': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.index': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'resultats.resultats.show': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
     'rapports.stocks.rapport_dons': { paramsTuple?: []; params?: {} }
     'rapports.donors.rapport_donneurs': { paramsTuple?: []; params?: {} }
     'rapports.stocks.rapport_stocks': { paramsTuple?: []; params?: {} }
@@ -192,6 +197,7 @@ export type ScannedRoutes = {
     'alertes.alertes.store': { paramsTuple?: []; params?: {} }
     'membresdemandes.hopitaux.demandes_acces_store': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.store': { paramsTuple?: []; params?: {} }
+    'resultats.resultats.store': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
   }
   PUT: {
     'compte.profile.update': { paramsTuple?: []; params?: {} }
@@ -200,6 +206,7 @@ export type ScannedRoutes = {
     'hopitaux.hopitaux.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'stocks.stocks.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'notifications.notifications.preferences': { paramsTuple?: []; params?: {} }
+    'resultats.resultats.update': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
   }
   PATCH: {
     'donors.update_statut': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

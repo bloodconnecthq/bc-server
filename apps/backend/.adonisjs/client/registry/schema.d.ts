@@ -895,6 +895,42 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'resultats.resultats.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/dons/:donId/resultats'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { donId: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'resultats.resultats.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/dons/:donId/resultats'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { donId: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'resultats.resultats.update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/dons/:donId/resultats'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { donId: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'rapports.stocks.rapport_dons': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/rapports/dons'
