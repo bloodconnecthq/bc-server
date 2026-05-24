@@ -30,6 +30,7 @@ export interface ApiDefinition {
     show: typeof routes['donors.show']
     update: typeof routes['donors.update']
     updateStatut: typeof routes['donors.update_statut']
+    destroy: typeof routes['donors.destroy']
   }
   hopitaux: {
     hopitaux: {

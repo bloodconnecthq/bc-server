@@ -43,7 +43,7 @@ const stockConfig: { [key in StockStatus]: { badge: string } } = {
 
 const typeFilters = ["Tous", "CNTS", "CHU", "Antenne", "Hôpital", "Centre", "Mobile"];
 
-export function HospitalsList({ hospitals }: { hospitals: Hospital[] }) {
+export function HospitalsList({ hospitals, isLoading }: { hospitals: Hospital[]; isLoading?: boolean }) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Tous");
   const [selected, setSelected] = useState<Hospital | null>(null);

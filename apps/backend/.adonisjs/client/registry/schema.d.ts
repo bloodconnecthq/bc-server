@@ -211,6 +211,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'donors.destroy': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/donneurs/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'hopitaux.hopitaux.index': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/hopitaux'

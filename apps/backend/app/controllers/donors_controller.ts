@@ -16,7 +16,10 @@ export default class DonorsController {
 
   async index({ response }: HttpContext) {
     const donneurs = await this.donorService.getAll()
-    return response.ok({ succes: true, donnees: donneurs })
+    return response.ok({
+      succes: true,
+      donnees: donneurs.map((d) => DonorTransformer.transform(d)),
+    })
   }
 
   async store({ request, auth, response }: HttpContext) {
@@ -173,6 +176,26 @@ export default class DonorsController {
       }
 
       return response.ok({ succes: true, message: 'Statut du donneur mis à jour' })
+    } catch (_) {
+      return response.notFound({ succes: false, erreur: 'Donneur non trouvé' })
+    }
+  }
+
+  async destroy({ params, auth, response }: HttpContext) {
+    try {
+      const donneur = await this.donorService.findById(params.id)
+      const userId = donneur.utilisateurId
+
+      await Don.query().where('donneur_id', donneur.id).delete()
+      await Badge.query().where('donneur_id', donneur.id).delete()
+      await donneur.delete()
+
+      if (userId) {
+        await User.query().where('id', userId).delete()
+      }
+
+      await this.logService.create('DELETE', 'DONNEUR', auth.user?.id, `Donneur supprimé: ${params.id}`)
+      return response.ok({ succes: true, message: 'Donneur supprimé avec succès' })
     } catch (_) {
       return response.notFound({ succes: false, erreur: 'Donneur non trouvé' })
     }

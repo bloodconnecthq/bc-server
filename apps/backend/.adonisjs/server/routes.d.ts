@@ -21,6 +21,7 @@ export type ScannedRoutes = {
     'donors.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'donors.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'donors.update_statut': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'donors.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.index': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.store': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -228,6 +229,7 @@ export type ScannedRoutes = {
     'rendezVous.rendez_vous.marquer_effectue': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   DELETE: {
+    'donors.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'membresdemandes.hopitaux.supprimer_membre': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }

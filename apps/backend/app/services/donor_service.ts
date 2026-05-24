@@ -2,7 +2,7 @@ import Donor from '#models/donneur'
 
 export default class DonorService {
   async getAll() {
-    return await Donor.all()
+    return await Donor.query().preload('utilisateur').orderBy('created_at', 'desc')
   }
 
   async create(data: any) {

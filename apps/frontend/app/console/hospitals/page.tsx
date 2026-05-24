@@ -1,150 +1,57 @@
-import { HospitalsList } from "@/components/console/hospitals/list";
-import { HospitalsStats } from "@/components/console/hospitals/stats";
+"use client";
 
-const hospitals = [
-  {
-    id: "h1",
-    name: "CNTS Cotonou",
-    type: "cnts" as const,
-    commune: "Cotonou",
-    department: "Littoral",
-    address: "Avenue Jean-Paul II, Cotonou",
-    phone: "+229 21 31 20 02",
-    email: "cnts.cotonou@sante.bj",
-    members: 12,
-    donations: 342,
-    stock: 151,
-    status: "active" as const,
-    stockStatus: "critical" as const,
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "h2",
-    name: "CHU de Cotonou",
-    type: "chu" as const,
-    commune: "Cotonou",
-    department: "Littoral",
-    address: "BP 386, Cotonou",
-    phone: "+229 21 30 01 15",
-    email: "chu.cotonou@sante.bj",
-    members: 8,
-    donations: 289,
-    stock: 203,
-    status: "active" as const,
-    stockStatus: "ok" as const,
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "h3",
-    name: "Antenne CNTS Parakou",
-    type: "antenne" as const,
-    commune: "Parakou",
-    department: "Borgou",
-    address: "Avenue du Stade, Parakou",
-    phone: "+229 23 61 07 44",
-    email: "cnts.parakou@sante.bj",
-    members: 6,
-    donations: 198,
-    stock: 178,
-    status: "active" as const,
-    stockStatus: "ok" as const,
-    createdAt: "2024-02-01",
-  },
-  {
-    id: "h4",
-    name: "Hôpital de Zone Porto-Novo",
-    type: "hopital" as const,
-    commune: "Porto-Novo",
-    department: "Ouémé",
-    address: "Rue des Jardins, Porto-Novo",
-    phone: "+229 20 21 43 78",
-    email: "hz.portonovo@sante.bj",
-    members: 5,
-    donations: 145,
-    stock: 89,
-    status: "active" as const,
-    stockStatus: "low" as const,
-    createdAt: "2024-02-10",
-  },
-  {
-    id: "h5",
-    name: "Centre de Santé Godomey",
-    type: "centre" as const,
-    commune: "Abomey-Calavi",
-    department: "Atlantique",
-    address: "Carrefour Godomey",
-    phone: "+229 97 55 44 33",
-    email: "cs.godomey@sante.bj",
-    members: 4,
-    donations: 112,
-    stock: 64,
-    status: "active" as const,
-    stockStatus: "low" as const,
-    createdAt: "2024-03-05",
-  },
-  {
-    id: "h6",
-    name: "Antenne CNTS Natitingou",
-    type: "antenne" as const,
-    commune: "Natitingou",
-    department: "Atacora",
-    address: "Route de l'Hôpital, Natitingou",
-    phone: "+229 23 82 11 44",
-    email: "cnts.natitingou@sante.bj",
-    members: 3,
-    donations: 87,
-    stock: 134,
-    status: "active" as const,
-    stockStatus: "ok" as const,
-    createdAt: "2024-03-20",
-  },
-  {
-    id: "h7",
-    name: "Hôpital de Zone Lokossa",
-    type: "hopital" as const,
-    commune: "Lokossa",
-    department: "Mono",
-    address: "Quartier Administratif, Lokossa",
-    phone: "+229 22 41 03 55",
-    email: "hz.lokossa@sante.bj",
-    members: 2,
-    donations: 43,
-    stock: 28,
-    status: "inactive" as const,
-    stockStatus: "critical" as const,
-    createdAt: "2024-04-01",
-  },
-  {
-    id: "h8",
-    name: "Centre Mobile UAC",
-    type: "mobile" as const,
-    commune: "Abomey-Calavi",
-    department: "Atlantique",
-    address: "Université d'Abomey-Calavi",
-    phone: "+229 21 36 00 74",
-    email: "mobile.uac@sante.bj",
-    members: 3,
-    donations: 156,
-    stock: 0,
-    status: "active" as const,
-    stockStatus: "ok" as const,
-    createdAt: "2024-04-15",
-  },
-];
+import { useAuth } from "@/app/providers/auth-provider";
+import { useHopitaux, useRapportStocks } from "@/lib/hooks/useConsole";
+import { HospitalsStats } from "@/components/console/hospitals/stats";
+import { HospitalsList } from "@/components/console/hospitals/list";
+import type { HopitalAPI, RapportStocksAPI } from "@/lib/api/consoleApi";
+
+function toStockStatus(h: { stocksCritiques: number; stocksFaibles: number; quantiteTotale: number }) {
+  if (h.stocksCritiques > 0) return "critical" as const;
+  if (h.stocksFaibles > 0) return "low" as const;
+  return "ok" as const;
+}
+
+function mapHospital(h: HopitalAPI, stockInfo?: RapportStocksAPI["parHopital"][0]) {
+  return {
+    id: h.id,
+    name: h.nom,
+    type: (h.type ?? "hopital") as any,
+    commune: h.commune || "",
+    department: h.departement || "",
+    address: h.adresse || "",
+    phone: h.telephone || "",
+    email: h.email || "",
+    members: 0,
+    donations: 0,
+    stock: stockInfo?.quantiteTotale ?? 0,
+    status: (h.estActif ? "active" : "inactive") as "active" | "inactive",
+    stockStatus: stockInfo ? toStockStatus(stockInfo) : ("ok" as const),
+    createdAt: h.createdAt || "",
+  };
+}
 
 export default function HospitalsPage() {
+  const { token } = useAuth();
+  const { data: hopitaux, isLoading, error } = useHopitaux(token);
+  const { data: rapportStocks } = useRapportStocks(token);
+
+  const stockMap = Object.fromEntries(
+    (rapportStocks?.parHopital ?? []).map((h) => [h.hopitalId, h])
+  );
+
+  const hospitals = (hopitaux ?? []).map((h) => mapHospital(h, stockMap[h.id]));
+
   const active = hospitals.filter((h) => h.status === "active").length;
   const inactive = hospitals.filter((h) => h.status === "inactive").length;
   const critical = hospitals.filter((h) => h.stockStatus === "critical").length;
-  const totalMembers = hospitals.reduce((s, h) => s + h.members, 0);
+  const totalMembers = 0;
 
   return (
     <div className="space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Hôpitaux & Centres
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Hôpitaux & Centres</h1>
           <p className="text-sm text-gray-500 mt-1">
             Gestion de tous les établissements affiliés au CNTS
           </p>
@@ -154,14 +61,28 @@ export default function HospitalsPage() {
         </button>
       </div>
 
-      <HospitalsStats
-        active={active}
-        inactive={inactive}
-        critical={critical}
-        totalMembers={totalMembers}
-      />
+      {isLoading ? (
+        <div className="grid grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <HospitalsStats
+          active={active}
+          inactive={inactive}
+          critical={critical}
+          totalMembers={totalMembers}
+        />
+      )}
 
-      <HospitalsList hospitals={hospitals} />
+      {error ? (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-600 text-sm">
+          Erreur : {error}
+        </div>
+      ) : (
+        <HospitalsList hospitals={hospitals} isLoading={isLoading} />
+      )}
     </div>
   );
 }

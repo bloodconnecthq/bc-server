@@ -92,6 +92,10 @@ router
       .patch('/donneurs/:id/statut', [DonorsController, 'updateStatut'])
       .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
 
+    router
+      .delete('/donneurs/:id', [DonorsController, 'destroy'])
+      .use(middleware.auth(), middleware.verifierRole(['super_admin']))
+
     // ============== HÔPITAUX ==============
     router
       .group(() => {

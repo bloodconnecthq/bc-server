@@ -108,6 +108,12 @@ const routes = {
     tokens: [{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/:id/statut","type":1,"val":"id","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"statut","end":""}],
     types: placeholder as Registry['donors.update_statut']['types'],
   },
+  'donors.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/donneurs/:id',
+    tokens: [{"old":"/api/v1/donneurs/:id","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/:id","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['donors.destroy']['types'],
+  },
   'hopitaux.hopitaux.index': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/hopitaux',

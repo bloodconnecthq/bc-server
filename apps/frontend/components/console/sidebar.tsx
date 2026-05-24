@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import {
   Chart2,
   Hospital,
   People,
   Drop,
-  Brodcast,
   DocumentText,
   Setting2,
   LogoutCurve,
   ShieldTick,
   ClipboardText,
 } from "iconsax-reactjs";
+import { useAuth } from "@/app/providers/auth-provider";
 
 const navItems = [
   { label: "Vue d'ensemble", href: "/console", icon: Chart2 },
@@ -29,6 +29,13 @@ const navItems = [
 
 export function ConsoleSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, deconnexion } = useAuth();
+
+  const handleLogout = async () => {
+    await deconnexion();
+    router.push("/auth/signin");
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-900 flex flex-col">
@@ -95,11 +102,16 @@ export function ConsoleSidebar() {
             <ShieldTick size={14} color="#f87171" variant="Bold" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate">Super Admin</p>
+            <p className="text-xs font-semibold text-white truncate">
+              {user?.nomComplet || user?.email || "Super Admin"}
+            </p>
             <p className="text-xs text-gray-500">CNTS Bénin</p>
           </div>
         </div>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-red-900 hover:text-red-400 transition-all">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-red-900 hover:text-red-400 transition-all"
+        >
           <LogoutCurve size={18} />
           Déconnexion
         </button>
