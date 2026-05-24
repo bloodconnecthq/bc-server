@@ -11,6 +11,7 @@ import type HopitalTransformer from '#transformers/hopital_transformer'
 import type RendezVousTransformer from '#transformers/rendez_vous_transformer'
 import type StockSanguinTransformer from '#transformers/stock_sanguin_transformer'
 import type UserTransformer from '#transformers/user_transformer'
+import type NotificationTransformer from '#transformers/notification_transformer'
 
 export namespace Data {
   export type Don = InferData<DonTransformer>
@@ -36,5 +37,9 @@ export namespace Data {
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
+  }
+  export type Notification = InferData<NotificationTransformer>
+  export namespace Notification {
+    export type Variants = InferVariants<NotificationTransformer>
   }
 }

@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import RendezVous from '#models/rendez_vous'
 import RendezVousTransformer from '#transformers/rendez_vous_transformer'
 import Donneur from '#models/donneur'
+import NotificationService from '#services/notification_service'
 import { DateTime } from 'luxon'
 
 export default class RendezVousController {
@@ -38,6 +39,17 @@ export default class RendezVousController {
 
     await rdv.load('donneur')
     await rdv.load('hopital')
+
+    const dateFormatee = DateTime.fromISO(data.dateRdv)
+      .setLocale('fr')
+      .toLocaleString(DateTime.DATETIME_MED)
+
+    await NotificationService.create({
+      utilisateurId: user.id,
+      type: 'confirm',
+      titre: 'Rendez-vous planifié',
+      message: `Votre rendez-vous au ${rdv.hopital?.nom ?? 'centre'} est planifié pour le ${dateFormatee}.`,
+    })
 
     return serialize(RendezVousTransformer.transform(rdv))
   }
@@ -102,13 +114,39 @@ export default class RendezVousController {
     rdv.statut = 'confirme'
     await rdv.save()
 
+    await rdv.load('donneur')
+    await rdv.load('hopital')
+
+    if (rdv.donneur) {
+      const dateFormatee = rdv.dateRdv.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
+      await NotificationService.create({
+        utilisateurId: rdv.donneur.utilisateurId,
+        type: 'confirm',
+        titre: 'Rendez-vous confirmé ✅',
+        message: `Votre rendez-vous du ${dateFormatee} au ${rdv.hopital?.nom ?? 'centre'} a été confirmé.`,
+      })
+    }
+
     return { succes: true, message: 'RDV confirmé' }
   }
 
-  async annuler({ params }: HttpContext) {
+  async annuler({ params, auth }: HttpContext) {
     const rdv = await RendezVous.findOrFail(params.id)
     rdv.statut = 'annule'
     await rdv.save()
+
+    await rdv.load('donneur')
+    await rdv.load('hopital')
+
+    if (rdv.donneur) {
+      const dateFormatee = rdv.dateRdv.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
+      await NotificationService.create({
+        utilisateurId: rdv.donneur.utilisateurId,
+        type: 'urgent',
+        titre: 'Rendez-vous annulé',
+        message: `Votre rendez-vous du ${dateFormatee} au ${rdv.hopital?.nom ?? 'centre'} a été annulé.`,
+      })
+    }
 
     return { succes: true, message: 'RDV annulé' }
   }

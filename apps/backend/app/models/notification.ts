@@ -14,7 +14,7 @@ export default class Notification extends BaseModel {
   declare utilisateurId: string
 
   @column()
-  declare type: 'rappel' | 'alerte' | 'confirmation' | 'urgence'
+  declare type: 'confirm' | 'urgent' | 'eligible' | 'badge' | 'campaign'
 
   @column()
   declare titre: string
@@ -25,7 +25,7 @@ export default class Notification extends BaseModel {
   @column()
   declare estLue: boolean
 
-  @column()
+  @column.dateTime()
   declare envoyeeLe: DateTime | null
 
   @column.dateTime({ columnName: 'created_at', autoCreate: true })
