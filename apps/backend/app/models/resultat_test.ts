@@ -32,16 +32,16 @@ export default class ResultatTest extends BaseModel {
   @column()
   declare groupeSanguinConfirme: string | null
 
-  @column()
+  @column.dateTime()
   declare testeLe: DateTime | null
 
-  @column()
+  @column({ columnName: 'teste_par' })
   declare testeParId: string | null
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ columnName: 'created_at', autoCreate: true })
   declare creeLe: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ columnName: 'updated_at', autoCreate: true, autoUpdate: true })
   declare misAJourLe: DateTime
 
   @belongsTo(() => Don)
@@ -53,5 +53,9 @@ export default class ResultatTest extends BaseModel {
   @beforeCreate()
   static assignUuid(test: ResultatTest) {
     test.id = randomUUID()
+  }
+
+  estNegatif(): boolean {
+    return !this.vih && !this.hepatiteB && !this.hepatiteC && !this.tpha && !this.vdl
   }
 }

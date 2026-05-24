@@ -11,7 +11,7 @@ export default class NotificationsController {
     return serialize(notifications)
   }
 
-  async marquerLue({ params, response }: HttpContext) {
+  async marquerLue({ params }: HttpContext) {
     const notification = await Notification.findOrFail(params.id)
     notification.estLue = true
     await notification.save()
@@ -27,5 +27,14 @@ export default class NotificationsController {
       .update({ estLue: true })
 
     return { succes: true, message: 'Toutes les notifications marquées comme lues' }
+  }
+
+  async preferences({ request, response }: HttpContext) {
+    const data = request.only(['rappelDon', 'alertesStock', 'confirmationsRdv', 'urgences'])
+    return response.ok({
+      succes: true,
+      message: 'Préférences de notifications enregistrées',
+      donnees: data,
+    })
   }
 }
