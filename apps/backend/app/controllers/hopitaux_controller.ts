@@ -8,6 +8,9 @@ import DonTransformer from '#transformers/don_transformer'
 import MembresHopital from '#models/membres_hopital'
 import RendezVous from '#models/rendez_vous'
 import RendezVousTransformer from '#transformers/rendez_vous_transformer'
+import DemandesAcces from '#models/demandes_acces'
+import User from '#models/user'
+import { randomUUID } from 'crypto'
 
 export default class HopitauxController {
   async index({ serialize }: HttpContext) {
@@ -44,13 +47,28 @@ export default class HopitauxController {
     return serialize(HopitalTransformer.transform(hopital))
   }
 
+  async updateStatut({ params, request, auth, response, serialize }: HttpContext) {
+    const user = auth.getUserOrFail()
+    if (user.role !== 'super_admin') {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const hopital = await Hopital.findOrFail(params.id)
+    hopital.estActif = request.input('estActif', true)
+    await hopital.save()
+
+    return serialize(HopitalTransformer.transform(hopital))
+  }
+
   async membres({ params, auth, serialize, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (!['admin_hopital', 'super_admin'].includes(user.role)) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    const membres = await MembresHopital.query().where('hopital_id', params.id)
+    const membres = await MembresHopital.query()
+      .where('hopital_id', params.id)
+      .preload('utilisateur')
     return serialize(membres)
   }
 
@@ -77,7 +95,7 @@ export default class HopitauxController {
     return serialize(stocks.map((stock) => StockSanguinTransformer.transform(stock)))
   }
 
-  async dons({ params, auth, serialize, response }: HttpContext) {
+  async dons({ params, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (!['infirmier', 'medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
@@ -94,7 +112,7 @@ export default class HopitauxController {
     return dons.map((don) => new DonTransformer(don).toObject())
   }
 
-  async mesDons({ auth, serialize, response }: HttpContext) {
+  async mesDons({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (!['infirmier', 'medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
@@ -127,7 +145,6 @@ export default class HopitauxController {
       .where('hopital_id', params.id)
       .preload('donneur')
       .orderBy('date_rdv', 'asc')
-      .orderBy('heure_rdv', 'asc')
 
     return serialize(rendezVous.map((rdv) => RendezVousTransformer.transform(rdv)))
   }
@@ -148,16 +165,197 @@ export default class HopitauxController {
       .where('hopital_id', membre.hopitalId)
       .preload('donneur')
       .orderBy('date_rdv', 'asc')
-      .orderBy('heure_rdv', 'asc')
 
     return serialize(rendezVous.map((rdv) => RendezVousTransformer.transform(rdv)))
   }
 
   async getCentres({ serialize }: HttpContext) {
     const centres = await Hopital.query()
-      .select('id', 'nom', 'latitude', 'longitude', 'commune', 'adresse', 'telephone')
+      .select('id', 'nom', 'latitude', 'longitude', 'commune', 'adresse', 'telephone', 'type')
       .where('est_actif', true)
 
     return serialize(centres)
+  }
+
+  async centresProches({ request, serialize }: HttpContext) {
+    const lat = parseFloat(request.input('latitude', 0))
+    const lon = parseFloat(request.input('longitude', 0))
+    const rayon = parseFloat(request.input('rayon', 50))
+
+    const centres = await Hopital.query()
+      .select('id', 'nom', 'latitude', 'longitude', 'commune', 'adresse', 'telephone', 'type')
+      .where('est_actif', true)
+      .whereNotNull('latitude')
+      .whereNotNull('longitude')
+
+    const avecDistance = centres
+      .map((c) => {
+        const dLat = ((c.latitude! - lat) * Math.PI) / 180
+        const dLon = ((c.longitude! - lon) * Math.PI) / 180
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos((lat * Math.PI) / 180) *
+            Math.cos((c.latitude! * Math.PI) / 180) *
+            Math.sin(dLon / 2) ** 2
+        const distanceKm = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return { ...c.toJSON(), distanceKm: Math.round(distanceKm * 10) / 10 }
+      })
+      .filter((c) => c.distanceKm <= rayon)
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+
+    return serialize(avecDistance)
+  }
+
+  async detailCentre({ params, serialize }: HttpContext) {
+    const centre = await Hopital.query()
+      .where('id', params.id)
+      .where('est_actif', true)
+      .preload('stocks')
+      .firstOrFail()
+
+    const stocksDisponibles = centre.stocks.map((s) => StockSanguinTransformer.transform(s))
+
+    return serialize({
+      ...HopitalTransformer.transform(centre),
+      stocks: stocksDisponibles,
+    })
+  }
+
+  async demandesAccesIndex({ auth, serialize, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    let query = DemandesAcces.query().preload('hopital').orderBy('created_at', 'desc')
+
+    if (user.role === 'admin_hopital') {
+      const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+      if (!membre?.hopitalId) {
+        return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+      }
+      query = query.where('hopital_id', membre.hopitalId)
+    }
+
+    const demandes = await query
+    return serialize(demandes)
+  }
+
+  async demandesAccesStore({ request, serialize }: HttpContext) {
+    const data = request.only([
+      'hopitalId',
+      'nomDemandeur',
+      'emailDemandeur',
+      'roleDemande',
+      'message',
+    ])
+
+    const demande = await DemandesAcces.create({
+      hopitalId: data.hopitalId,
+      nomDemandeur: data.nomDemandeur,
+      emailDemandeur: data.emailDemandeur,
+      roleDemande: data.roleDemande,
+      message: data.message ?? null,
+      statut: 'en_attente',
+    })
+
+    return serialize(demande)
+  }
+
+  async demandesAccesApprouver({ params, serialize }: HttpContext) {
+    const demande = await DemandesAcces.findOrFail(params.id)
+
+    demande.statut = 'approuvee'
+    await demande.save()
+
+    const user = await User.findBy('email', demande.emailDemandeur)
+
+    if (user) {
+      user.role = demande.roleDemande
+      await user.save()
+
+      const membreExistant = await MembresHopital.query()
+        .where('utilisateur_id', user.id)
+        .where('hopital_id', demande.hopitalId)
+        .first()
+
+      if (!membreExistant) {
+        await MembresHopital.create({
+          id: randomUUID(),
+          utilisateurId: user.id,
+          hopitalId: demande.hopitalId,
+        })
+      }
+    }
+
+    return serialize({
+      succes: true,
+      message: user
+        ? `Demande approuvée. ${user.nomComplet || user.email} a été ajouté comme membre.`
+        : 'Demande approuvée. Le membre pourra rejoindre après son inscription.',
+      membreAjoute: !!user,
+    })
+  }
+
+  async demandesAccesRejeter({ params, serialize }: HttpContext) {
+    const demande = await DemandesAcces.findOrFail(params.id)
+    demande.statut = 'rejetee'
+    await demande.save()
+
+    return serialize({ succes: true, message: 'Demande rejetée' })
+  }
+
+  async supprimerMembre({ params, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const membre = await MembresHopital.findOrFail(params.id)
+
+    if (user.role === 'admin_hopital') {
+      const monMembre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+      if (!monMembre || monMembre.hopitalId !== membre.hopitalId) {
+        return response.forbidden({ erreur: 'Accès non autorisé' })
+      }
+    }
+
+    await membre.delete()
+    return { succes: true, message: 'Membre supprimé de l\'hôpital' }
+  }
+
+  async rapportHopitaux({ serialize }: HttpContext) {
+    const hopitaux = await Hopital.query().preload('membres').preload('dons')
+
+    const total = hopitaux.length
+    const actifs = hopitaux.filter((h) => h.estActif).length
+
+    const parType: Record<string, number> = {}
+    for (const h of hopitaux) {
+      parType[h.type] = (parType[h.type] || 0) + 1
+    }
+
+    const parDepartement: Record<string, number> = {}
+    for (const h of hopitaux) {
+      if (h.departement) {
+        parDepartement[h.departement] = (parDepartement[h.departement] || 0) + 1
+      }
+    }
+
+    const parActivite = hopitaux
+      .map((h) => ({
+        hopitalId: h.id,
+        nom: h.nom,
+        commune: h.commune,
+        totalMembres: h.membres.length,
+        totalDons: h.dons.length,
+      }))
+      .sort((a, b) => b.totalDons - a.totalDons)
+
+    return serialize({
+      succes: true,
+      donnees: {
+        total,
+        actifs,
+        inactifs: total - actifs,
+        parType,
+        parDepartement,
+        parActivite,
+      },
+    })
   }
 }

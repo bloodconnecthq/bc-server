@@ -5,23 +5,23 @@ export default class RendezVousTransformer {
     return {
       id: rdv.id,
       dateRdv: rdv.dateRdv,
-      heureRdv: rdv.heureRdv,
       statut: rdv.statut,
-      notes: rdv.notes,
+      note: rdv.note ?? null,
+      donneurId: rdv.donneurId,
+      membreId: rdv.membreId ?? null,
+      hopitalId: rdv.hopitalId,
       donneur: rdv.donneur
         ? {
             id: rdv.donneur.id,
-            nomComplet: rdv.donneur.nomComplet,
-            numeroDonneur: rdv.donneur.numeroDonneur,
+            codeDonneur: rdv.donneur.codeDonneur,
             groupeSanguin: rdv.donneur.groupeSanguin,
-            telephone: rdv.donneur.telephone,
           }
         : null,
-      agent: rdv.agent
+      membre: rdv.membre
         ? {
-            id: rdv.agent.id,
-            nomComplet: rdv.agent.nomComplet,
-            role: rdv.agent.role,
+            id: (rdv.membre as any).id,
+            nomComplet: (rdv.membre as any).nomComplet,
+            role: (rdv.membre as any).role,
           }
         : null,
       hopital: rdv.hopital
@@ -30,8 +30,8 @@ export default class RendezVousTransformer {
             nom: rdv.hopital.nom,
           }
         : null,
-      createdAt: rdv.createdAt,
-      updatedAt: rdv.updatedAt,
+      creeLe: rdv.creeLe?.toISO() ?? null,
+      misAJourLe: rdv.misAJourLe?.toISO() ?? null,
     }
   }
 }

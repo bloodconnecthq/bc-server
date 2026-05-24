@@ -28,6 +28,6 @@
   "packageManager": "pnpm@10.30.0",
   "prettier": "@adonisjs/prettier-config",
   "dependencies": {
-    "mysql2": "^3.19.1"
+    "mysql2": "^3.22.3"
   }
 }

@@ -17,6 +17,7 @@ import AlertesController from '#controllers/alertes_controller'
 import StocksController from '#controllers/stocks_controller'
 import NotificationsController from '#controllers/notifications_controller'
 import RendezVousController from '#controllers/rendez_vous_controller'
+import ResultatsController from '#controllers/resultats_controller'
 
 router.get('/', () => {
   return { message: "Bienvenue sur l'API eBloodSys" }
@@ -402,6 +403,27 @@ router
       })
       .prefix('rendez-vous')
       .as('rendezVous')
+
+    // ============== RÉSULTATS DE TESTS BIOLOGIQUES ==============
+    router
+      .group(() => {
+        router
+          .post('', [ResultatsController, 'store'])
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'super_admin']))
+
+        router
+          .get('', [ResultatsController, 'show'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin'])
+          )
+
+        router
+          .put('', [ResultatsController, 'update'])
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'super_admin']))
+      })
+      .prefix('dons/:donId/resultats')
+      .as('resultats')
 
     // ============== RAPPORTS ==============
     router

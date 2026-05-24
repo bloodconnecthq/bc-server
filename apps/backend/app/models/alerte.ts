@@ -25,16 +25,16 @@ export default class Alerte extends BaseModel {
   @column()
   declare estResolue: boolean
 
-  @column()
+  @column.dateTime({ columnName: 'declenchee_le' })
   declare declencheLe: DateTime | null
 
-  @column()
+  @column.dateTime({ columnName: 'resolue_le' })
   declare resoleLe: DateTime | null
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ columnName: 'created_at', autoCreate: true })
   declare creeLe: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ columnName: 'updated_at', autoCreate: true, autoUpdate: true })
   declare misAJourLe: DateTime
 
   @belongsTo(() => Hopital)
