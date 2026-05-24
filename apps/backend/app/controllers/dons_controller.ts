@@ -3,10 +3,18 @@ import Don from '#models/don'
 import DonTransformer from '#transformers/don_transformer'
 import Donor from '#models/donneur'
 import DonorService from '#services/donor_service'
+import NotificationService from '#services/notification_service'
 import PocheSang from '#models/poche_sang'
 import BonDemande from '#models/bon_demande'
 import RegistrePsl from '#models/registre_psl'
 import { DateTime } from 'luxon'
+
+const BADGE_LABELS: Record<string, string> = {
+  bronze: 'Bronze 🥉',
+  argent: 'Argent 🥈',
+  or: 'Or 🥇',
+  platine: 'Platine 💎',
+}
 
 export default class DonsController {
   donorService = new DonorService()
@@ -105,11 +113,41 @@ export default class DonsController {
     await don.save()
 
     const donneur = await Donor.findOrFail(don.donneurId)
+    const ancienNiveau = donneur.niveauBadge
+
     donneur.totalDons += 1
     donneur.dateDernierDon = DateTime.now()
     donneur.dateEligibiliteSuivante = DateTime.now().plus({ days: 90 })
     donneur.niveauBadge = donneur.calculerNiveauBadge()
     await donneur.save()
+
+    // Notification : don validé
+    await NotificationService.create({
+      utilisateurId: donneur.utilisateurId,
+      type: 'confirm',
+      titre: 'Don validé ✅',
+      message: `Votre don du ${DateTime.now().setLocale('fr').toLocaleString(DateTime.DATE_FULL)} a été validé. Merci pour votre générosité !`,
+    })
+
+    // Notification : nouveau badge débloqué
+    if (donneur.niveauBadge !== 'aucun' && donneur.niveauBadge !== ancienNiveau) {
+      const labelBadge = BADGE_LABELS[donneur.niveauBadge] ?? donneur.niveauBadge
+      await NotificationService.create({
+        utilisateurId: donneur.utilisateurId,
+        type: 'badge',
+        titre: `Nouveau badge débloqué : ${labelBadge}`,
+        message: `Félicitations ! Vous avez atteint le niveau ${labelBadge} avec ${donneur.totalDons} dons.`,
+      })
+    }
+
+    // Notification : prochaine date d'éligibilité
+    const prochaineDonnee = donneur.dateEligibiliteSuivante.setLocale('fr').toLocaleString(DateTime.DATE_FULL)
+    await NotificationService.create({
+      utilisateurId: donneur.utilisateurId,
+      type: 'eligible',
+      titre: 'Prochaine éligibilité',
+      message: `Vous pourrez redonner à partir du ${prochaineDonnee}. Nous vous rappellerons à ce moment.`,
+    })
 
     return { succes: true, message: 'Don validé' }
   }
@@ -124,6 +162,14 @@ export default class DonsController {
     const don = await Don.findOrFail(params.id)
     don.statut = 'rejete'
     await don.save()
+
+    const donneur = await Donor.findOrFail(don.donneurId)
+    await NotificationService.create({
+      utilisateurId: donneur.utilisateurId,
+      type: 'urgent',
+      titre: 'Don non retenu',
+      message: `Votre don du ${DateTime.now().setLocale('fr').toLocaleString(DateTime.DATE_FULL)} n'a pas pu être validé. Veuillez contacter le centre pour plus d'informations.`,
+    })
 
     return { succes: true, message: 'Don rejeté' }
   }

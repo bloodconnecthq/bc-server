@@ -28,10 +28,10 @@ export interface AppointmentData {
 }
 
 /**
- * Récupère tous les rendez-vous (authentifiés)
+ * Récupère les rendez-vous du donneur connecté
  */
 export async function getAllAppointments(token: string): Promise<AppointmentData[]> {
-  const response = await fetch(`${API_BASE_URL}/rendez-vous`, {
+  const response = await fetch(`${API_BASE_URL}/rendez-vous/moi`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

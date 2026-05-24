@@ -3,7 +3,7 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import { randomUUID } from 'crypto'
 
-import User from './user.js'
+import User from './user.ts'
 import Hopital from './hopital.ts'
 
 export default class MembresHopital extends BaseModel {

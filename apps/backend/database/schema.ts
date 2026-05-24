@@ -8,18 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AlerteSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'declencheeLe',
-    'estResolue',
-    'groupeSanguin',
-    'hopitalId',
-    'id',
-    'message',
-    'resolueLe',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'declencheeLe', 'estResolue', 'groupeSanguin', 'hopitalId', 'id', 'message', 'resolueLe', 'type', 'updatedAt'] as const
   $columns = AlerteSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -44,18 +33,7 @@ export class AlerteSchema extends BaseModel {
 }
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = [
-    'abilities',
-    'createdAt',
-    'expiresAt',
-    'hash',
-    'id',
-    'lastUsedAt',
-    'name',
-    'tokenableId',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -97,17 +75,7 @@ export class BadgeSchema extends BaseModel {
 }
 
 export class BonsDemandeSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'groupeSanguinPatient',
-    'hopitalId',
-    'id',
-    'medecinId',
-    'nomPatient',
-    'quantiteNecessaire',
-    'statut',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'groupeSanguinPatient', 'hopitalId', 'id', 'medecinId', 'nomPatient', 'quantiteNecessaire', 'statut', 'updatedAt'] as const
   $columns = BonsDemandeSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -130,17 +98,7 @@ export class BonsDemandeSchema extends BaseModel {
 }
 
 export class DemandesAcceSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'emailDemandeur',
-    'hopitalId',
-    'id',
-    'message',
-    'nomDemandeur',
-    'roleDemande',
-    'statut',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'emailDemandeur', 'hopitalId', 'id', 'message', 'nomDemandeur', 'roleDemande', 'statut', 'updatedAt'] as const
   $columns = DemandesAcceSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -163,19 +121,7 @@ export class DemandesAcceSchema extends BaseModel {
 }
 
 export class DonneurSchema extends BaseModel {
-  static $columns = [
-    'codeDonneur',
-    'createdAt',
-    'dateDernierDon',
-    'dateEligibiliteSuivante',
-    'donneesQrCode',
-    'groupeSanguin',
-    'id',
-    'niveauBadge',
-    'totalDons',
-    'updatedAt',
-    'utilisateurId',
-  ] as const
+  static $columns = ['codeDonneur', 'createdAt', 'dateDernierDon', 'dateEligibiliteSuivante', 'donneesQrCode', 'groupeSanguin', 'id', 'niveauBadge', 'totalDons', 'updatedAt', 'utilisateurId'] as const
   $columns = DonneurSchema.$columns
   @column()
   declare codeDonneur: string | null
@@ -202,18 +148,7 @@ export class DonneurSchema extends BaseModel {
 }
 
 export class DonSchema extends BaseModel {
-  static $columns = [
-    'agentId',
-    'createdAt',
-    'dateDon',
-    'donneurId',
-    'hopitalId',
-    'id',
-    'statut',
-    'typePoche',
-    'updatedAt',
-    'volume',
-  ] as const
+  static $columns = ['agentId', 'createdAt', 'dateDon', 'donneurId', 'hopitalId', 'id', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
   $columns = DonSchema.$columns
   @column()
   declare agentId: string
@@ -238,21 +173,7 @@ export class DonSchema extends BaseModel {
 }
 
 export class HopitauxSchema extends BaseModel {
-  static $columns = [
-    'adresse',
-    'commune',
-    'createdAt',
-    'departement',
-    'email',
-    'estActif',
-    'id',
-    'latitude',
-    'longitude',
-    'nom',
-    'telephone',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['adresse', 'commune', 'createdAt', 'departement', 'email', 'estActif', 'id', 'latitude', 'longitude', 'nom', 'telephone', 'type', 'updatedAt'] as const
   $columns = HopitauxSchema.$columns
   @column()
   declare adresse: string | null
@@ -315,17 +236,7 @@ export class MembresHopitalSchema extends BaseModel {
 }
 
 export class NotificationSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'envoyeeLe',
-    'estLue',
-    'id',
-    'message',
-    'titre',
-    'type',
-    'updatedAt',
-    'utilisateurId',
-  ] as const
+  static $columns = ['createdAt', 'envoyeeLe', 'estLue', 'id', 'message', 'titre', 'type', 'updatedAt', 'utilisateurId'] as const
   $columns = NotificationSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -348,17 +259,7 @@ export class NotificationSchema extends BaseModel {
 }
 
 export class PochesSangSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'dateExpiration',
-    'donId',
-    'groupeSanguin',
-    'id',
-    'statut',
-    'typePoche',
-    'updatedAt',
-    'volume',
-  ] as const
+  static $columns = ['createdAt', 'dateExpiration', 'donId', 'groupeSanguin', 'id', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
   $columns = PochesSangSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -381,16 +282,7 @@ export class PochesSangSchema extends BaseModel {
 }
 
 export class RegistrePslSchema extends BaseModel {
-  static $columns = [
-    'bonDemandeId',
-    'createdAt',
-    'id',
-    'motif',
-    'retourLe',
-    'traceLe',
-    'transfereVers',
-    'updatedAt',
-  ] as const
+  static $columns = ['bonDemandeId', 'createdAt', 'id', 'motif', 'retourLe', 'traceLe', 'transfereVers', 'updatedAt'] as const
   $columns = RegistrePslSchema.$columns
   @column()
   declare bonDemandeId: string
@@ -411,17 +303,7 @@ export class RegistrePslSchema extends BaseModel {
 }
 
 export class RendezVousSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'dateRdv',
-    'donneurId',
-    'hopitalId',
-    'id',
-    'membreId',
-    'note',
-    'statut',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'dateRdv', 'donneurId', 'hopitalId', 'id', 'membreId', 'note', 'statut', 'updatedAt'] as const
   $columns = RendezVousSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -444,20 +326,7 @@ export class RendezVousSchema extends BaseModel {
 }
 
 export class ResultatsTestSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'donId',
-    'groupeSanguinConfirme',
-    'hepatiteB',
-    'hepatiteC',
-    'id',
-    'testeLe',
-    'testePar',
-    'tpha',
-    'updatedAt',
-    'vdl',
-    'vih',
-  ] as const
+  static $columns = ['createdAt', 'donId', 'groupeSanguinConfirme', 'hepatiteB', 'hepatiteC', 'id', 'testeLe', 'testePar', 'tpha', 'updatedAt', 'vdl', 'vih'] as const
   $columns = ResultatsTestSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -486,17 +355,7 @@ export class ResultatsTestSchema extends BaseModel {
 }
 
 export class StocksSanguinSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'groupeSanguin',
-    'hopitalId',
-    'id',
-    'misAJourLe',
-    'quantite',
-    'seuilCritique',
-    'seuilFaible',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'groupeSanguin', 'hopitalId', 'id', 'misAJourLe', 'quantite', 'seuilCritique', 'seuilFaible', 'updatedAt'] as const
   $columns = StocksSanguinSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -519,22 +378,7 @@ export class StocksSanguinSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'commune',
-    'createdAt',
-    'dateNaissance',
-    'departement',
-    'email',
-    'estActif',
-    'id',
-    'motDePasse',
-    'nom',
-    'nomComplet',
-    'prenom',
-    'role',
-    'telephone',
-    'updatedAt',
-  ] as const
+  static $columns = ['commune', 'createdAt', 'dateNaissance', 'departement', 'email', 'estActif', 'id', 'motDePasse', 'nom', 'nomComplet', 'photoProfil', 'prenom', 'role', 'telephone', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare commune: string | null
@@ -556,6 +400,8 @@ export class UserSchema extends BaseModel {
   declare nom: string | null
   @column()
   declare nomComplet: string | null
+  @column()
+  declare photoProfil: string | null
   @column()
   declare prenom: string | null
   @column()

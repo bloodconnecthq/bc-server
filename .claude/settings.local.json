@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "WebFetch(domain:heroui.com)",
+      "Bash(node -e \"const pkg = require\\('d:/bc-web/apps/backend/package.json'\\); console.log\\(JSON.stringify\\({...pkg.dependencies, ...pkg.devDependencies}, null, 2\\)\\)\")"
+    ]
+  }
+}

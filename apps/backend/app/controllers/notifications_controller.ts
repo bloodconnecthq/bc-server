@@ -1,14 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Notification from '#models/notification'
+import NotificationTransformer from '#transformers/notification_transformer'
 
 export default class NotificationsController {
-  async index({ auth, serialize }: HttpContext) {
+  async index({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
     const notifications = await Notification.query()
       .where('utilisateur_id', user.id)
       .orderBy('created_at', 'desc')
 
-    return serialize(notifications)
+    return notifications.map((n) => NotificationTransformer.transform(n))
   }
 
   async marquerLue({ params }: HttpContext) {
@@ -24,7 +25,7 @@ export default class NotificationsController {
     await Notification.query()
       .where('utilisateur_id', user.id)
       .where('est_lue', false)
-      .update({ estLue: true })
+      .update({ est_lue: true })
 
     return { succes: true, message: 'Toutes les notifications marquées comme lues' }
   }

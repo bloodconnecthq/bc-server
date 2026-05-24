@@ -13,6 +13,14 @@ export interface UpdateProfileData {
   dateNaissance?: string
 }
 
+function extractUser(raw: any): User {
+  const inner = raw?.data ?? raw?.donnees ?? raw
+  if (inner?.$type === 'item' && Array.isArray(inner.transformerData)) {
+    return inner.transformerData[0] as User
+  }
+  return inner as User
+}
+
 /**
  * Récupère le profil courant
  */
@@ -29,13 +37,11 @@ export async function getProfile(token: string): Promise<User> {
     throw new Error('Erreur lors de la récupération du profil')
   }
 
-  const data = await response.json()
-  return data.data || data
+  return extractUser(await response.json())
 }
 
 /**
  * Met à jour le profil courant
- * Note: Cette route peut nécessiter d'être créée/complétée au backend
  */
 export async function updateProfile(profileData: UpdateProfileData, token: string): Promise<User> {
   const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.compte.profil}`, {
@@ -52,6 +58,27 @@ export async function updateProfile(profileData: UpdateProfileData, token: strin
     throw new Error(error.message || 'Erreur lors de la mise à jour du profil')
   }
 
+  return extractUser(await response.json())
+}
+
+/**
+ * Met à jour la photo de profil (base64)
+ */
+export async function uploadProfilePhoto(photoBase64: string, token: string): Promise<{ photoProfil: string }> {
+  const response = await fetch(`${API_BASE_URL}/compte/photo`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ photoProfil: photoBase64 }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.erreur || 'Erreur lors du téléchargement de la photo')
+  }
+
   const data = await response.json()
-  return data.data || data
+  return data.donnees || data
 }

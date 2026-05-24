@@ -2,76 +2,68 @@
 
 import { useState, useEffect } from "react";
 import { Input, TextField, Label, Select, ListBox, Button } from "@heroui/react";
-import { User, Call, Sms } from "iconsax-reactjs";
+import { Call, Sms } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { AvatarUpload } from "./avatar-upload";
 
 const communes = [
   "Cotonou", "Porto-Novo", "Parakou",
   "Abomey-Calavi", "Bohicon", "Natitingou", "Abomey",
 ];
 
+function buildFormData(source: { prenom?: string | null; nom?: string | null; telephone?: string | null; email?: string; commune?: string | null } | null) {
+  return {
+    prenom: source?.prenom || "",
+    nom: source?.nom || "",
+    telephone: source?.telephone || "",
+    email: source?.email || "",
+    commune: source?.commune || "",
+  };
+}
+
 export function SettingsProfile() {
-  const { token } = useAuth();
+  const { token, user: cachedUser } = useAuth();
   const { profile, isLoading, isSaving, error, saveError, updateProfile } = useProfile(token);
 
   const [saved, setSaved] = useState(false);
-  const [formData, setFormData] = useState({
-    prenom: "",
-    nom: "",
-    telephone: "",
-    email: "",
-    commune: "",
-  });
+  const [formData, setFormData] = useState(() => buildFormData(cachedUser));
 
+  // Update form when fresh profile arrives from API
   useEffect(() => {
     if (profile) {
-      setFormData({
-        prenom: profile.prenom || "",
-        nom: profile.nom || "",
-        telephone: profile.telephone || "",
-        email: profile.email || "",
-        commune: profile.commune || "",
-      });
+      setFormData(buildFormData(profile));
     }
   }, [profile]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleInput = (field: string, value: string) =>
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       await updateProfile({
         prenom: formData.prenom,
         nom: formData.nom,
         telephone: formData.telephone,
-        email: formData.email,
         commune: formData.commune,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
-    } catch (err) {
-      console.error("Erreur lors de la sauvegarde:", err);
-    }
+    } catch {}
   };
 
-  if (isLoading) {
+  if (isLoading && !cachedUser) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <p className="text-gray-600">Chargement du profil...</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error && !cachedUser) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <p className="text-red-600">Erreur: {error}</p>
       </div>
     );
@@ -80,41 +72,28 @@ export function SettingsProfile() {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100">
-        <h2 className="text-base font-semibold text-gray-900">
-          Informations personnelles
-        </h2>
-        <p className="text-xs text-gray-400 mt-0.5">
-          Mettez à jour vos informations de profil
-        </p>
+        <h2 className="text-base font-semibold text-gray-900">Informations personnelles</h2>
+        <p className="text-xs text-gray-400 mt-0.5">Mettez à jour vos informations de profil</p>
       </div>
 
       <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
-            <User size={28} color="#dc2626" variant="Bold" />
-          </div>
-          <div>
-            <button
-              type="button"
-              className="text-sm font-medium text-red-600 hover:underline"
-            >
-              Changer la photo
-            </button>
-            <p className="text-xs text-gray-400 mt-0.5">JPG, PNG — max 2 Mo</p>
-          </div>
-        </div>
+        {/* Photo de profil */}
+        <AvatarUpload
+          currentPhoto={profile?.photoProfil ?? cachedUser?.photoProfil ?? null}
+          initials={profile?.initials ?? cachedUser?.initials ?? "?"}
+          token={token}
+          onUploaded={() => {}}
+        />
 
+        {/* Nom + Prénom */}
         <div className="grid grid-cols-2 gap-4">
           <TextField>
             <Label className="text-sm font-medium text-gray-700">Prénom</Label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <User size={15} color="#9ca3af" />
-              </span>
               <Input
                 value={formData.prenom}
-                onChange={(e) => handleInputChange("prenom", e.target.value)}
-                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+                onChange={(e) => handleInput("prenom", e.target.value)}
+                className="w-full shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
               />
             </div>
           </TextField>
@@ -122,18 +101,16 @@ export function SettingsProfile() {
           <TextField>
             <Label className="text-sm font-medium text-gray-700">Nom</Label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <User size={15} color="#9ca3af" />
-              </span>
               <Input
                 value={formData.nom}
-                onChange={(e) => handleInputChange("nom", e.target.value)}
-                className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+                onChange={(e) => handleInput("nom", e.target.value)}
+                className="w-full shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
               />
             </div>
           </TextField>
         </div>
 
+        {/* Téléphone */}
         <TextField>
           <Label className="text-sm font-medium text-gray-700">Téléphone</Label>
           <div className="relative mt-1">
@@ -143,12 +120,13 @@ export function SettingsProfile() {
             <Input
               type="tel"
               value={formData.telephone}
-              onChange={(e) => handleInputChange("telephone", e.target.value)}
-              className="w-full pl-9 shadow-none! pr-10 rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+              onChange={(e) => handleInput("telephone", e.target.value)}
+              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
             />
           </div>
         </TextField>
 
+        {/* Email (lecture seule) */}
         <TextField>
           <Label className="text-sm font-medium text-gray-700">Email</Label>
           <div className="relative mt-1">
@@ -159,16 +137,19 @@ export function SettingsProfile() {
               type="email"
               value={formData.email}
               readOnly
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white focus-visible:border-red-500 focus-visible:ring-0"
+              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"
             />
           </div>
         </TextField>
 
-        <Select fullWidth placeholder="Sélectionner" value={formData.commune} onChange={(e) => handleInputChange("commune", e.target.value)}>
-          <Label className="text-sm font-medium text-gray-700">
-            Commune de résidence
-          </Label>
+        {/* Commune */}
+        <Select
+          fullWidth
+          placeholder="Sélectionner"
+          value={formData.commune || null}
+          onChange={(key) => handleInput("commune", key as string ?? "")}
+        >
+          <Label className="text-sm font-medium text-gray-700">Commune de résidence</Label>
           <Select.Trigger className="mt-1 shadow-none! w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
             <Select.Value />
             <Select.Indicator />
@@ -186,14 +167,12 @@ export function SettingsProfile() {
         </Select>
 
         {saveError && (
-          <p className="text-sm text-red-600 font-medium">Erreur: {saveError}</p>
+          <p className="text-sm text-red-600 font-medium">Erreur : {saveError}</p>
         )}
 
         <div className="flex items-center justify-between pt-2">
           {saved && (
-            <p className="text-sm text-green-600 font-medium">
-              ✓ Modifications enregistrées
-            </p>
+            <p className="text-sm text-green-600 font-medium">✓ Modifications enregistrées</p>
           )}
           <div className={saved ? "" : "ml-auto"}>
             <Button

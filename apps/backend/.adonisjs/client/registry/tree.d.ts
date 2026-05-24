@@ -16,6 +16,7 @@ export interface ApiDefinition {
     profile: {
       show: typeof routes['compte.profile.show']
       update: typeof routes['compte.profile.update']
+      updatePhoto: typeof routes['compte.profile.update_photo']
       updatePassword: typeof routes['compte.profile.update_password']
     }
   }
@@ -126,6 +127,13 @@ export interface ApiDefinition {
       confirmer: typeof routes['rendezVous.rendez_vous.confirmer']
       annuler: typeof routes['rendezVous.rendez_vous.annuler']
       marquerEffectue: typeof routes['rendezVous.rendez_vous.marquer_effectue']
+    }
+  }
+  resultats: {
+    resultats: {
+      store: typeof routes['resultats.resultats.store']
+      show: typeof routes['resultats.resultats.show']
+      update: typeof routes['resultats.resultats.update']
     }
   }
   rapports: {

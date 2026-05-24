@@ -10,8 +10,9 @@ import {
     TickCircle,
 } from "iconsax-reactjs";
 import { Button } from "@heroui/react";
+import { markNotificationAsRead } from "@/lib/api/notificationApi";
 
-type NotifType = "eligible" | "urgent" | "badge" | "campaign" | "confirm";
+type NotifType = "eligible" | "urgent" | "badge" | "campaign" | "confirm" | "reminder";
 
 interface Notification {
     id: string;
@@ -60,7 +61,16 @@ const typeConfig: { [key in NotifType]: TypeConfig } = {
         iconColor: "#16a34a",
         label: "Confirmation",
     },
+    reminder: {
+        icon: Drop,
+        bg: "bg-green-50",
+        iconColor: "#16a34a",
+        label: "Rappel",
+    },
 };
+
+const getTypeConfig = (type: string): TypeConfig =>
+    typeConfig[type as NotifType] ?? typeConfig.confirm;
 
 const filters = ["Toutes", "Urgences", "Éligibilité", "Badges", "Campagnes"];
 
@@ -82,8 +92,10 @@ function formatDate(dateStr: string) {
 
 export function NotificationsList({
     notifications,
+    token,
 }: {
     notifications: Notification[];
+    token: string | null;
 }) {
     const [activeFilter, setActiveFilter] = useState("Toutes");
     const [items, setItems] = useState(notifications);
@@ -101,6 +113,9 @@ export function NotificationsList({
         setItems((prev) =>
             prev.map((n) => (n.id === id ? { ...n, read: true } : n))
         );
+        if (token) {
+            markNotificationAsRead(id, token).catch(() => {});
+        }
     };
 
     return (
@@ -132,7 +147,7 @@ export function NotificationsList({
                 )}
 
                 {filtered.map((notif) => {
-                    const config = typeConfig[notif.type];
+                    const config = getTypeConfig(notif.type);
                     const Icon = config.icon;
 
                     return (
