@@ -16,6 +16,7 @@ export interface ApiDefinition {
     profile: {
       show: typeof routes['compte.profile.show']
       update: typeof routes['compte.profile.update']
+      updatePhoto: typeof routes['compte.profile.update_photo']
       updatePassword: typeof routes['compte.profile.update_password']
     }
   }

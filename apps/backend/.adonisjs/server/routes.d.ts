@@ -10,6 +10,7 @@ export type ScannedRoutes = {
     'auth.access_token.verifier': { paramsTuple?: []; params?: {} }
     'compte.profile.show': { paramsTuple?: []; params?: {} }
     'compte.profile.update': { paramsTuple?: []; params?: {} }
+    'compte.profile.update_photo': { paramsTuple?: []; params?: {} }
     'compte.profile.update_password': { paramsTuple?: []; params?: {} }
     'donors.mon_profil': { paramsTuple?: []; params?: {} }
     'donors.ma_carte': { paramsTuple?: []; params?: {} }
@@ -189,6 +190,7 @@ export type ScannedRoutes = {
     'auth.new_account.store': { paramsTuple?: []; params?: {} }
     'auth.access_token.store': { paramsTuple?: []; params?: {} }
     'auth.access_token.destroy': { paramsTuple?: []; params?: {} }
+    'compte.profile.update_photo': { paramsTuple?: []; params?: {} }
     'donors.store': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.store': { paramsTuple?: []; params?: {} }
     'dons.dons.store': { paramsTuple?: []; params?: {} }

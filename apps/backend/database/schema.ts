@@ -378,7 +378,7 @@ export class StocksSanguinSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['commune', 'createdAt', 'dateNaissance', 'departement', 'email', 'estActif', 'id', 'motDePasse', 'nom', 'nomComplet', 'prenom', 'role', 'telephone', 'updatedAt'] as const
+  static $columns = ['commune', 'createdAt', 'dateNaissance', 'departement', 'email', 'estActif', 'id', 'motDePasse', 'nom', 'nomComplet', 'photoProfil', 'prenom', 'role', 'telephone', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare commune: string | null
@@ -400,6 +400,8 @@ export class UserSchema extends BaseModel {
   declare nom: string | null
   @column()
   declare nomComplet: string | null
+  @column()
+  declare photoProfil: string | null
   @column()
   declare prenom: string | null
   @column()

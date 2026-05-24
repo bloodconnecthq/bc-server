@@ -54,6 +54,7 @@ export interface User {
   departement: string | null
   dateNaissance: string | null
   estActif: boolean
+  photoProfil: string | null
   creeLe: string
   misAJourLe: string | null
   initials: string

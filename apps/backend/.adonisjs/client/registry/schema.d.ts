@@ -79,6 +79,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/profile_controller').default['update']>>>
     }
   }
+  'compte.profile.update_photo': {
+    methods: ["POST"]
+    pattern: '/api/v1/compte/photo'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/profile_controller').default['updatePhoto']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/profile_controller').default['updatePhoto']>>>
+    }
+  }
   'compte.profile.update_password': {
     methods: ["PUT"]
     pattern: '/api/v1/compte/mot-de-passe'

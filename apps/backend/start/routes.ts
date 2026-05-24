@@ -41,6 +41,7 @@ router
       .group(() => {
         router.get('profil', [controllers.Profile, 'show'])
         router.put('profil', [controllers.Profile, 'update'])
+        router.post('photo', [controllers.Profile, 'updatePhoto'])
         router.put('mot-de-passe', [controllers.Profile, 'updatePassword'])
       })
       .prefix('compte')

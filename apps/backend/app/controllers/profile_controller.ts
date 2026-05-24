@@ -68,6 +68,24 @@ export default class ProfileController {
     })
   }
 
+  async updatePhoto({ auth, request, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const { photoProfil } = request.only(['photoProfil'])
+
+    if (!photoProfil || !String(photoProfil).startsWith('data:image/')) {
+      return response.badRequest({ succes: false, erreur: 'Image invalide (base64 attendu)' })
+    }
+
+    user.photoProfil = photoProfil
+    await user.save()
+
+    return response.ok({
+      succes: true,
+      message: 'Photo de profil mise à jour',
+      donnees: { photoProfil: user.photoProfil },
+    })
+  }
+
   async updatePassword({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const { motDePasseActuel, nouveauMotDePasse } = request.only([

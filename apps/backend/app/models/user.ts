@@ -54,6 +54,9 @@ export default class User extends compose(BaseModel, AvecAuthFinder) {
   @column({ columnName: 'est_actif' })
   declare estActif: boolean
 
+  @column({ columnName: 'photo_profil' })
+  declare photoProfil: string | null
+
   @column.dateTime({ columnName: 'created_at', autoCreate: true })
   declare createdAt: DateTime
 

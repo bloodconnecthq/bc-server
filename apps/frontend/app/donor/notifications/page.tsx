@@ -3,10 +3,13 @@
 import { NotificationsList } from "@/components/donor/notifications-list";
 import { useAuth } from "../../providers/auth-provider";
 import { useNotifications } from "@/lib/hooks/useNotifications";
+import { markAllNotificationsAsRead } from "@/lib/api/notificationApi";
+import { useState } from "react";
 
 export default function NotificationsPage() {
   const { token, isLoading: authLoading } = useAuth();
-  const { notifications, isLoading, error } = useNotifications(token);
+  const { notifications, isLoading, error, refetch } = useNotifications(token);
+  const [markingAll, setMarkingAll] = useState(false);
 
   if (authLoading || isLoading) {
     return (
@@ -26,6 +29,19 @@ export default function NotificationsPage() {
 
   const unread = notifications.filter((n) => !n.read).length;
 
+  const handleMarkAllRead = async () => {
+    if (!token || markingAll) return;
+    setMarkingAll(true);
+    try {
+      await markAllNotificationsAsRead(token);
+      await refetch();
+    } catch {
+      // silent — UI still refreshes on next load
+    } finally {
+      setMarkingAll(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-">
       <div className="flex items-center justify-between">
@@ -38,13 +54,17 @@ export default function NotificationsPage() {
           </p>
         </div>
         {unread > 0 && (
-          <button className="text-xs text-red-600 font-medium hover:underline">
-            Tout marquer comme lu
+          <button
+            onClick={handleMarkAllRead}
+            disabled={markingAll}
+            className="text-xs text-red-600 font-medium hover:underline disabled:opacity-50"
+          >
+            {markingAll ? "Mise à jour..." : "Tout marquer comme lu"}
           </button>
         )}
       </div>
 
-      <NotificationsList notifications={notifications} />
+      <NotificationsList notifications={notifications} token={token} />
     </div>
   );
 }

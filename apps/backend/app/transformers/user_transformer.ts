@@ -15,6 +15,7 @@ export default class UserTransformer extends BaseTransformer<User> {
       departement: this.resource.departement,
       dateNaissance: this.resource.dateNaissance?.toISO() || null,
       estActif: this.resource.estActif,
+      photoProfil: this.resource.photoProfil ?? null,
       creeLe: this.resource.createdAt.toISO(),
       misAJourLe: this.resource.updatedAt?.toISO() || null,
       initials: this.resource.initials,

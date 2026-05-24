@@ -42,6 +42,12 @@ const routes = {
     tokens: [{"old":"/api/v1/compte/profil","type":0,"val":"api","end":""},{"old":"/api/v1/compte/profil","type":0,"val":"v1","end":""},{"old":"/api/v1/compte/profil","type":0,"val":"compte","end":""},{"old":"/api/v1/compte/profil","type":0,"val":"profil","end":""}],
     types: placeholder as Registry['compte.profile.update']['types'],
   },
+  'compte.profile.update_photo': {
+    methods: ["POST"],
+    pattern: '/api/v1/compte/photo',
+    tokens: [{"old":"/api/v1/compte/photo","type":0,"val":"api","end":""},{"old":"/api/v1/compte/photo","type":0,"val":"v1","end":""},{"old":"/api/v1/compte/photo","type":0,"val":"compte","end":""},{"old":"/api/v1/compte/photo","type":0,"val":"photo","end":""}],
+    types: placeholder as Registry['compte.profile.update_photo']['types'],
+  },
   'compte.profile.update_password': {
     methods: ["PUT"],
     pattern: '/api/v1/compte/mot-de-passe',
