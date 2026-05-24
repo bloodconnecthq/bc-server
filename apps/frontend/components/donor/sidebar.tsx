@@ -32,10 +32,20 @@ export function DonorSidebar() {
     const router = useRouter();
 
     useEffect(() => {
-            if (!isLoading && user && user.role !== 'donneur') {
-                router.push('/console');
+        if (isLoading) return;
+        if (!user) {
+            router.replace('/auth/signin');
+        } else if (user.role !== 'donneur') {
+            // Send non-donors to their own dashboard, not /console
+            if (user.role === 'infirmier' || user.role === 'medecin' || user.role === 'admin_hopital') {
+                router.replace('/hospital');
+            } else if (user.role === 'super_admin') {
+                router.replace('/console/donors');
+            } else {
+                router.replace('/auth/signin');
             }
-        }, [user, isLoading, router]);
+        }
+    }, [user, isLoading, router]);
 
     const handleLogout = async () => {
         await deconnexion();

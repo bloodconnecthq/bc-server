@@ -13,6 +13,14 @@ export interface UpdateProfileData {
   dateNaissance?: string
 }
 
+function extractUser(raw: any): User {
+  const inner = raw?.data ?? raw?.donnees ?? raw
+  if (inner?.$type === 'item' && Array.isArray(inner.transformerData)) {
+    return inner.transformerData[0] as User
+  }
+  return inner as User
+}
+
 /**
  * Récupère le profil courant
  */
@@ -29,8 +37,7 @@ export async function getProfile(token: string): Promise<User> {
     throw new Error('Erreur lors de la récupération du profil')
   }
 
-  const data = await response.json()
-  return data.data || data
+  return extractUser(await response.json())
 }
 
 /**
@@ -51,8 +58,7 @@ export async function updateProfile(profileData: UpdateProfileData, token: strin
     throw new Error(error.message || 'Erreur lors de la mise à jour du profil')
   }
 
-  const data = await response.json()
-  return data.data || data
+  return extractUser(await response.json())
 }
 
 /**

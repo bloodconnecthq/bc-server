@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { uploadProfilePhoto } from "@/lib/api/profileApi";
 
@@ -20,6 +20,10 @@ export function AvatarUpload({ currentPhoto, initials, token, onUploaded }: Prop
   const [preview, setPreview] = useState<string | null>(currentPhoto);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentPhoto) setPreview(currentPhoto);
+  }, [currentPhoto]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

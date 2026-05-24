@@ -57,7 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) return null
 
       const responseData = (await response.json()) as any
-      return responseData.data?.user ?? responseData.data ?? null
+      const inner = responseData?.data
+      // Unwrap BaseTransformer format: { $type: 'item', transformerData: [user, ...] }
+      if (inner?.$type === 'item' && Array.isArray(inner.transformerData)) {
+        return inner.transformerData[0] ?? null
+      }
+      return inner?.user ?? inner ?? null
     } catch (error) {
       console.error('Erreur chargement profil:', error)
       return null

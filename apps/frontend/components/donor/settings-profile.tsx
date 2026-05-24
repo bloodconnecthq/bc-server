@@ -12,28 +12,27 @@ const communes = [
   "Abomey-Calavi", "Bohicon", "Natitingou", "Abomey",
 ];
 
+function buildFormData(source: { prenom?: string | null; nom?: string | null; telephone?: string | null; email?: string; commune?: string | null } | null) {
+  return {
+    prenom: source?.prenom || "",
+    nom: source?.nom || "",
+    telephone: source?.telephone || "",
+    email: source?.email || "",
+    commune: source?.commune || "",
+  };
+}
+
 export function SettingsProfile() {
-  const { token } = useAuth();
+  const { token, user: cachedUser } = useAuth();
   const { profile, isLoading, isSaving, error, saveError, updateProfile } = useProfile(token);
 
   const [saved, setSaved] = useState(false);
-  const [formData, setFormData] = useState({
-    prenom: "",
-    nom: "",
-    telephone: "",
-    email: "",
-    commune: "",
-  });
+  const [formData, setFormData] = useState(() => buildFormData(cachedUser));
 
+  // Update form when fresh profile arrives from API
   useEffect(() => {
     if (profile) {
-      setFormData({
-        prenom: profile.prenom || "",
-        nom: profile.nom || "",
-        telephone: profile.telephone || "",
-        email: profile.email || "",
-        commune: profile.commune || "",
-      });
+      setFormData(buildFormData(profile));
     }
   }, [profile]);
 
@@ -47,7 +46,6 @@ export function SettingsProfile() {
         prenom: formData.prenom,
         nom: formData.nom,
         telephone: formData.telephone,
-        email: formData.email,
         commune: formData.commune,
       });
       setSaved(true);
@@ -55,7 +53,7 @@ export function SettingsProfile() {
     } catch {}
   };
 
-  if (isLoading) {
+  if (isLoading && !cachedUser) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <p className="text-gray-600">Chargement du profil...</p>
@@ -63,7 +61,7 @@ export function SettingsProfile() {
     );
   }
 
-  if (error) {
+  if (error && !cachedUser) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <p className="text-red-600">Erreur: {error}</p>
@@ -81,8 +79,8 @@ export function SettingsProfile() {
       <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
         {/* Photo de profil */}
         <AvatarUpload
-          currentPhoto={profile?.photoProfil ?? null}
-          initials={profile?.initials ?? "?"}
+          currentPhoto={profile?.photoProfil ?? cachedUser?.photoProfil ?? null}
+          initials={profile?.initials ?? cachedUser?.initials ?? "?"}
           token={token}
           onUploaded={() => {}}
         />
@@ -139,7 +137,7 @@ export function SettingsProfile() {
               type="email"
               value={formData.email}
               readOnly
-              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-white opacity-60 cursor-not-allowed"
+              className="w-full pl-9 shadow-none! rounded-xl border border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed"
             />
           </div>
         </TextField>
