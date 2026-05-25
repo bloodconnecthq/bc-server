@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input, TextField, Label, Button } from "@heroui/react";
 import { Eye, EyeSlash, Drop, Lock, Sms } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
@@ -14,21 +14,36 @@ function getDashboardByRole(role: string | undefined | null): string {
   return "/auth/signin";
 }
 
+// Only allow internal paths to prevent open-redirect attacks
+function safeRedirect(url: string | null, fallback: string): string {
+  if (!url) return fallback;
+  try {
+    // Must be a relative path (no scheme/host)
+    const decoded = decodeURIComponent(url);
+    if (decoded.startsWith("/") && !decoded.startsWith("//")) return decoded;
+  } catch {}
+  return fallback;
+}
+
 export default function SignInPage() {
   const { connexion, isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const router = useRouter();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
 
-  // Redirect already-authenticated users to their dashboard
+  const redirectParam = searchParams.get("redirect");
+
+  // Redirect already-authenticated users — honour ?redirect= if present
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
-      router.replace(getDashboardByRole(user.role));
+      const dest = safeRedirect(redirectParam, getDashboardByRole(user.role));
+      router.replace(dest);
     }
-  }, [isAuthenticated, authLoading, user, router]);
+  }, [isAuthenticated, authLoading, user, router, redirectParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +52,13 @@ export default function SignInPage() {
 
     try {
       const authData = await connexion({ email, motDePasse });
-      // Extract role from the response to redirect directly — no intermediate /console hop
       const role =
         (authData as any)?.data?.user?.role ??
         (authData as any)?.user?.role ??
         null;
-      router.push(getDashboardByRole(role));
+      // After login, go to ?redirect= destination or role-based home
+      const dest = safeRedirect(redirectParam, getDashboardByRole(role));
+      router.push(dest);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
     } finally {

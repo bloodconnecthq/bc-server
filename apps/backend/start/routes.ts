@@ -189,7 +189,7 @@ router
 
         router
           .post('', [DonsController, 'store'])
-          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'super_admin']))
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'super_admin']))
 
         // ✅ Routes avec paramètre EN DERNIER
         router.get(':id', [DonsController, 'show']).use(middleware.auth())

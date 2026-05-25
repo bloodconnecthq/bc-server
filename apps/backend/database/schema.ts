@@ -148,7 +148,7 @@ export class DonneurSchema extends BaseModel {
 }
 
 export class DonSchema extends BaseModel {
-  static $columns = ['agentId', 'createdAt', 'dateDon', 'donneurId', 'hopitalId', 'id', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
+  static $columns = ['agentId', 'createdAt', 'dateDon', 'donneurId', 'hopitalId', 'id', 'questionnaireReponses', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
   $columns = DonSchema.$columns
   @column()
   declare agentId: string
@@ -162,6 +162,8 @@ export class DonSchema extends BaseModel {
   declare hopitalId: string
   @column({ isPrimary: true })
   declare id: string
+  @column()
+  declare questionnaireReponses: any | null
   @column()
   declare statut: string
   @column()

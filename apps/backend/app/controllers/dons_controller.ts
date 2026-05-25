@@ -58,11 +58,11 @@ export default class DonsController {
   async store({ request, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
 
-    if (user.role !== 'infirmier') {
-      return response.forbidden({ erreur: 'Seul un infirmier peut enregistrer un don' })
+    if (!['infirmier', 'medecin'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    const data = request.only(['donneurId', 'hopitalId', 'dateDon', 'typePoche', 'volume'])
+    const data = request.only(['donneurId', 'hopitalId', 'dateDon', 'typePoche', 'volume', 'questionnaireReponses'])
     const donneur = await Donor.findOrFail(data.donneurId)
 
     if (

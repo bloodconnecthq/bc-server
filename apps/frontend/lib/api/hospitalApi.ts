@@ -234,6 +234,130 @@ export async function getMyHospitalAppointments(token?: string): Promise<Appoint
   return Array.isArray(data) ? data : data.data || []
 }
 
+// ── Profil membre hôpital ─────────────────────────────────────────────────────
+
+export interface HospitalMemberProfile {
+  id: string
+  nomComplet: string | null
+  prenom: string | null
+  nom: string | null
+  email: string
+  role: string
+  hopitalId: string | null
+  hopital: HospitalData | null
+}
+
+export async function getMyMemberProfile(token: string): Promise<HospitalMemberProfile> {
+  const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.compte.profil}`, { headers: createHeaders(token) })
+  const data = await res.json()
+  return data?.data ?? data
+}
+
+// ── Bons de demande ───────────────────────────────────────────────────────────
+
+export interface BonDemandeData {
+  id: string
+  medecinId: string
+  hopitalId: string
+  nomPatient: string
+  groupeSanguinPatient: string
+  quantiteNecessaire: number
+  statut: 'en_attente' | 'satisfait' | 'non_satisfait'
+  medecin: { id: string; nomComplet: string | null } | null
+  hopital: { id: string; nom: string } | null
+  creeLe: string
+}
+
+export interface CreateBonDemandePayload {
+  hopitalId: string
+  nomPatient: string
+  groupeSanguinPatient: string
+  quantiteNecessaire: number
+}
+
+export async function getBonsDemande(token: string): Promise<BonDemandeData[]> {
+  const res = await fetch(`${API_BASE_URL}/bons-demande`, { headers: createHeaders(token) })
+  const data = await res.json()
+  return Array.isArray(data) ? data : data?.data ?? data?.donnees ?? []
+}
+
+export async function createBonDemande(payload: CreateBonDemandePayload, token: string): Promise<BonDemandeData> {
+  const res = await fetch(`${API_BASE_URL}/bons-demande`, {
+    method: 'POST',
+    headers: createHeaders(token),
+    body: JSON.stringify(payload),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.erreur ?? 'Erreur lors de la création du bon')
+  return data?.data ?? data
+}
+
+export async function satisfaireBonDemande(id: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/bons-demande/${id}/satisfaire`, {
+    method: 'PATCH',
+    headers: createHeaders(token),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur')
+  }
+}
+
+export async function nonSatisfaireBonDemande(id: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/bons-demande/${id}/non-satisfaire`, {
+    method: 'PATCH',
+    headers: createHeaders(token),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur')
+  }
+}
+
+// ── Actions sur les dons ──────────────────────────────────────────────────────
+
+export interface CreateDonPayload {
+  donneurId: string
+  hopitalId: string
+  dateDon: string
+  typePoche: 'DCL' | 'PCL'
+  volume: number
+  questionnaireReponses: Record<string, unknown>
+}
+
+export async function createDon(payload: CreateDonPayload, token: string): Promise<DonationData> {
+  const res = await fetch(`${API_BASE_URL}/dons`, {
+    method: 'POST',
+    headers: createHeaders(token),
+    body: JSON.stringify(payload),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.erreur ?? 'Erreur lors de l\'enregistrement du don')
+  return data?.data ?? data
+}
+
+export async function validerDon(id: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/dons/${id}/valider`, {
+    method: 'PATCH',
+    headers: createHeaders(token),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur lors de la validation')
+  }
+}
+
+export async function rejeterDon(id: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/dons/${id}/rejeter`, {
+    method: 'PATCH',
+    headers: createHeaders(token),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur lors du rejet')
+  }
+}
+
 /**
  * Récupère tous les centres de collecte actifs
  */
