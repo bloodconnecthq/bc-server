@@ -3,18 +3,9 @@
 import { useEffect, useState } from "react";
 import { CloseCircle } from "iconsax-reactjs";
 import clsx from "clsx";
+import type { UpdateDonneurPayload } from "@/lib/api/consoleApi";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
-interface EditDonorData {
-  prenom: string;
-  nom: string;
-  groupeSanguin: string;
-  telephone: string;
-  commune: string;
-  departement: string;
-  dateNaissance: string;
-}
 
 interface EditDonorModalProps {
   donor: {
@@ -29,7 +20,7 @@ interface EditDonorModalProps {
     registeredAt?: string;
   } | null;
   onClose: () => void;
-  onSave: (id: string, data: EditDonorData) => Promise<void>;
+  onSave: (id: string, data: UpdateDonneurPayload) => Promise<void>;
 }
 
 function Field({
@@ -53,7 +44,7 @@ const inputClass =
   "w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all placeholder:text-gray-300";
 
 export function EditDonorModal({ donor, onClose, onSave }: EditDonorModalProps) {
-  const [form, setForm] = useState<EditDonorData>({
+  const [form, setForm] = useState<Required<UpdateDonneurPayload>>({
     prenom: "",
     nom: "",
     groupeSanguin: "",
@@ -68,13 +59,13 @@ export function EditDonorModal({ donor, onClose, onSave }: EditDonorModalProps) 
   useEffect(() => {
     if (donor) {
       setForm({
-        prenom: donor.firstName,
-        nom: donor.lastName,
-        groupeSanguin: donor.bloodGroup === "?" ? "" : donor.bloodGroup,
-        telephone: donor.phone,
-        commune: donor.commune,
-        departement: donor.department,
-        dateNaissance: "",
+        prenom:         donor.firstName,
+        nom:            donor.lastName,
+        groupeSanguin:  donor.bloodGroup === "?" ? "" : donor.bloodGroup,
+        telephone:      donor.phone,
+        commune:        donor.commune,
+        departement:    donor.department,
+        dateNaissance:  "",
       });
       setError(null);
     }
@@ -84,7 +75,7 @@ export function EditDonorModal({ donor, onClose, onSave }: EditDonorModalProps) 
 
   const realId = donor._id ?? donor.id;
 
-  const set = (field: keyof EditDonorData) => (
+  const set = (field: keyof UpdateDonneurPayload) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => setForm((f) => ({ ...f, [field]: e.target.value }));
 

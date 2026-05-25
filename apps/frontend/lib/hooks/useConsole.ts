@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
-  getDonneurs, getRapportDonneurs, getHopitaux,
+  getDonneurs, getRapportDonneurs, getHopitaux, getRapportHopitaux,
   getStocksResumeNational, getRapportStocks, getDemandesAcces, getRapportDons,
   type DonneurAPI, type HopitalAPI, type ResumeNationalAPI,
-  type RapportStocksAPI, type DemandeAccesAPI,
+  type RapportStocksAPI, type RapportHopitauxAPI, type DemandeAccesAPI,
 } from '@/lib/api/consoleApi'
 
 function useAsync<T>(
@@ -48,6 +48,16 @@ export function useRapportDonneurs(token: string | null) {
 export function useHopitaux(token: string | null) {
   return useAsync<HopitalAPI[]>(
     () => (token ? getHopitaux(token) : Promise.resolve([])),
+    [token]
+  )
+}
+
+export function useRapportHopitaux(token: string | null) {
+  return useAsync<RapportHopitauxAPI>(
+    () =>
+      token
+        ? getRapportHopitaux(token)
+        : Promise.resolve({ total: 0, actifs: 0, inactifs: 0, parType: {}, parDepartement: {}, parActivite: [] }),
     [token]
   )
 }

@@ -46,8 +46,8 @@ export function ConsoleSidebar() {
             <Drop size={18} color="white" variant="Bold" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">Blood-Connect</p>
-            <p className="text-xs text-gray-400">Console CNTS</p>
+            <p className="text-sm font-bold text-white">eBloodSys</p>
+            <p className="text-xs text-gray-400">Console Super Admin</p>
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export function ConsoleSidebar() {
             <p className="text-xs font-semibold text-white truncate">
               {user?.nomComplet || user?.email || "Super Admin"}
             </p>
-            <p className="text-xs text-gray-500">CNTS Bénin</p>
+            <p className="text-xs text-gray-500">eBloodSys</p>
           </div>
         </div>
         <button

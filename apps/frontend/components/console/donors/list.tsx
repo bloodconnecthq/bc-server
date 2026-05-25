@@ -5,6 +5,7 @@ import { Chip } from "@heroui/react";
 import { SearchNormal1, Edit2, Trash, Warning2 } from "iconsax-reactjs";
 import clsx from "clsx";
 import { EditDonorModal } from "./edit-modal";
+import type { UpdateDonneurPayload } from "@/lib/api/consoleApi";
 
 type DonorStatus = "active" | "suspended" | "inactive";
 type BadgeLevel = "none" | "bronze" | "silver" | "gold" | "platinum";
@@ -32,7 +33,7 @@ interface DonorsListProps {
   isLoading?: boolean;
   token?: string | null;
   onStatusChange?: (id: string, estActif: boolean) => Promise<void>;
-  onEdit?: (id: string, data: Record<string, string>) => Promise<void>;
+  onEdit?: (id: string, data: UpdateDonneurPayload) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
 }
 
@@ -112,7 +113,7 @@ export function DonorsList({ donors, isLoading, onStatusChange, onEdit, onDelete
     }
   };
 
-  const handleEdit = async (id: string, data: Record<string, string>) => {
+  const handleEdit = async (id: string, data: UpdateDonneurPayload) => {
     await onEdit?.(id, data);
     showToast("Donneur modifié avec succès.");
     if (selected && realId(selected) === id) setSelected(null);

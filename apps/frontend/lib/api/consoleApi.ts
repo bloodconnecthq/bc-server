@@ -143,6 +143,39 @@ export async function getHopitaux(token: string): Promise<HopitalAPI[]> {
   return extractList<HopitalAPI>(raw)
 }
 
+export interface HospitalPayload {
+  nom: string
+  type: string
+  adresse?: string
+  commune?: string
+  departement?: string
+  telephone?: string
+  email?: string
+  latitude?: number | null
+  longitude?: number | null
+}
+
+export async function createHopital(data: HospitalPayload, token: string) {
+  return authFetch('/hopitaux', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateHopital(id: string, data: HospitalPayload, token: string) {
+  return authFetch(`/hopitaux/${id}`, token, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateHopitalStatut(id: string, estActif: boolean, token: string) {
+  return authFetch(`/hopitaux/${id}/statut`, token, {
+    method: 'PATCH',
+    body: JSON.stringify({ estActif }),
+  })
+}
+
 // ── Stocks ───────────────────────────────────────────────────────────────────
 
 export interface ResumeNationalAPI {
@@ -171,6 +204,26 @@ export interface RapportStocksAPI {
     stocksFaibles: number
     stocks: { groupeSanguin: string; quantite: number; seuilCritique: number; seuilFaible: number }[]
   }[]
+}
+
+export interface RapportHopitauxAPI {
+  total: number
+  actifs: number
+  inactifs: number
+  parType: Record<string, number>
+  parDepartement: Record<string, number>
+  parActivite: {
+    hopitalId: string
+    nom: string
+    commune: string | null
+    totalMembres: number
+    totalDons: number
+  }[]
+}
+
+export async function getRapportHopitaux(token: string): Promise<RapportHopitauxAPI> {
+  const raw = await authFetch('/rapports/hopitaux', token)
+  return extractData<RapportHopitauxAPI>(raw)
 }
 
 export async function getRapportStocks(token: string): Promise<RapportStocksAPI> {

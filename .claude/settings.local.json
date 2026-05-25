@@ -6,7 +6,10 @@
       "Bash(node -e \"const pkg = require\\('d:/bc-web/apps/backend/package.json'\\); console.log\\(JSON.stringify\\({...pkg.dependencies, ...pkg.devDependencies}, null, 2\\)\\)\")",
       "Bash(grep -n \"demandesAccesIndex\\\\|demandesAccesStore\\\\|demandesAccesApprouver\" d:/bc-web/apps/backend/app/controllers/hopitaux_controller.ts | head -10; echo \"---\"; sed -n '/demandesAccesIndex/,/^  async /p' d:/bc-web/apps/backend/app/controllers/hopitaux_controller.ts | head -30)",
       "Bash(npx tsc *)",
-      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => ['Edit2','Warning2','CloseCircle'].includes\\(k\\)\\)\\)\")"
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => ['Edit2','Warning2','CloseCircle'].includes\\(k\\)\\)\\)\")",
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => ['Edit2','Warning2','Hospital','Building','Car','Personalcard'].includes\\(k\\)\\)\\)\")",
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => k.toLowerCase\\(\\).includes\\('hospital'\\) || k.toLowerCase\\(\\).includes\\('build'\\) || k.toLowerCase\\(\\).includes\\('medical'\\) || k.toLowerCase\\(\\).includes\\('clinic'\\)\\)\\)\")",
+      "Bash(./node_modules/.bin/tsc --noEmit)"
     ],
     "additionalDirectories": [
       "d:\\bc-web\\apps\\backend\\app\\controllers"

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/app/providers/auth-provider";
 import { useDonneurs, useRapportDonneurs } from "@/lib/hooks/useConsole";
-import { updateDoneurStatut, updateDoneurAdmin, deleteDonneur } from "@/lib/api/consoleApi";
+import { updateDoneurStatut, updateDoneurAdmin, deleteDonneur, type UpdateDonneurPayload } from "@/lib/api/consoleApi";
 import { DonorsStats } from "@/components/console/donors/stats";
 import { DonorsList } from "@/components/console/donors/list";
 import type { DonneurAPI } from "@/lib/api/consoleApi";
@@ -48,7 +48,7 @@ export default function DonorsPage() {
     refetch();
   };
 
-  const handleEdit = async (id: string, data: Record<string, string>) => {
+  const handleEdit = async (id: string, data: UpdateDonneurPayload) => {
     if (!token) return;
     await updateDoneurAdmin(id, data, token);
     refetch();
