@@ -114,20 +114,28 @@ function isBloquant(q: Question, val: Reponse): boolean {
 
 interface Step1Props {
   token: string;
+  prefillDonneurId?: string;
   onSelect: (d: DonneurAPI) => void;
 }
 
-function Step1SelectDonor({ token, onSelect }: Step1Props) {
+function Step1SelectDonor({ token, prefillDonneurId, onSelect }: Step1Props) {
   const [donors, setDonors]   = useState<DonneurAPI[]>([]);
   const [query, setQuery]     = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getDonneurs(token)
-      .then(setDonors)
+      .then((list) => {
+        setDonors(list);
+        if (prefillDonneurId) {
+          const match = list.find((d) => d.id === prefillDonneurId);
+          if (match?.estEligible) onSelect(match);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, prefillDonneurId]);
 
   const filtered = donors.filter((d) => {
     const q = query.toLowerCase();
@@ -174,7 +182,7 @@ function Step1SelectDonor({ token, onSelect }: Step1Props) {
           const eligible = d.estEligible;
           return (
             <button
-              key={d._id ?? d.id}
+              key={d.id}
               disabled={!eligible}
               onClick={() => onSelect(d)}
               className={clsx(
@@ -538,13 +546,15 @@ interface DonationFlowProps {
   open: boolean;
   token: string;
   hopitalId: string | null;
+  /** UUID du donneur pré-sélectionné (depuis un RDV) — saute l'étape 1 */
+  prefillDonneurId?: string;
   onClose: () => void;
   onDone: () => void;
 }
 
 type FlowStep = "select" | "questionnaire" | "info" | "success";
 
-export function DonationFlow({ open, token, hopitalId, onClose, onDone }: DonationFlowProps) {
+export function DonationFlow({ open, token, hopitalId, prefillDonneurId, onClose, onDone }: DonationFlowProps) {
   const [flowStep, setFlowStep]   = useState<FlowStep>("select");
   const [donor, setDonor]         = useState<DonneurAPI | null>(null);
   const [reponses, setReponses]   = useState<Record<string, Reponse>>({});
@@ -647,6 +657,7 @@ export function DonationFlow({ open, token, hopitalId, onClose, onDone }: Donati
           {flowStep === "select" && (
             <Step1SelectDonor
               token={token}
+              prefillDonneurId={prefillDonneurId}
               onSelect={(d) => { setDonor(d); setFlowStep("questionnaire"); }}
             />
           )}

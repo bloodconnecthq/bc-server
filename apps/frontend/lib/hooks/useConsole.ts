@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   getDonneurs, getRapportDonneurs, getHopitaux, getRapportHopitaux,
   getStocksResumeNational, getRapportStocks, getDemandesAcces, getRapportDons,
+  getUsers, getUserStats,
   type DonneurAPI, type HopitalAPI, type ResumeNationalAPI,
   type RapportStocksAPI, type RapportHopitauxAPI, type DemandeAccesAPI,
+  type UserAPI, type UserStatsAPI,
 } from '@/lib/api/consoleApi'
 
 function useAsync<T>(
@@ -86,6 +88,20 @@ export function useDemandesAcces(token: string | null) {
 export function useRapportDons(token: string | null) {
   return useAsync(
     () => (token ? getRapportDons(token) : Promise.resolve(null)),
+    [token]
+  )
+}
+
+export function useUsers(token: string | null, params?: { search?: string; role?: string; statut?: string }) {
+  return useAsync<UserAPI[]>(
+    () => (token ? getUsers(token, params) : Promise.resolve([])),
+    [token, params?.search, params?.role, params?.statut]
+  )
+}
+
+export function useUserStats(token: string | null) {
+  return useAsync<UserStatsAPI>(
+    () => (token ? getUserStats(token) : Promise.resolve({ total: 0, actifs: 0, inactifs: 0, parRole: {} })),
     [token]
   )
 }

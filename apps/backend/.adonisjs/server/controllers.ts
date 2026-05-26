@@ -15,4 +15,5 @@ export const controllers = {
   RendezVous: () => import('#controllers/rendez_vous_controller'),
   Resultats: () => import('#controllers/resultats_controller'),
   Stocks: () => import('#controllers/stocks_controller'),
+  Users: () => import('#controllers/users_controller'),
 }

@@ -1,202 +1,234 @@
 "use client";
 
-import { useState } from "react";
-import { User, AddCircle, Trash } from "iconsax-reactjs";
+import { useEffect, useState, useCallback } from "react";
 import clsx from "clsx";
-import { Button, ListBox, Select } from "@heroui/react";
+import { User, Trash, TickCircle, CloseCircle, AddCircle, Clock } from "iconsax-reactjs";
+import {
+  getMyMembers, supprimerMembre, getDemandesAcces,
+  approuverDemandeAcces, rejeterDemandeAcces, soumettreDemandeAcces,
+  type MemberData, type DemandeAccesData,
+} from "@/lib/api/hospitalApi";
 
-interface Member {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  status: "active" | "pending";
+const ROLE_LABEL: Record<string, string> = {
+  medecin:      "Médecin",
+  infirmier:    "Infirmier",
+  admin_hopital: "Administrateur",
+};
+
+interface Props {
+  hopitalId: string | null;
+  isAdmin: boolean;
+  token: string;
 }
 
-const initialMembers: Member[] = [
-  {
-    id: "1",
-    name: "Dr. Hounkpè",
-    role: "Médecin",
-    email: "hounkpe@chu-cotonou.bj",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Dr. Ahounou",
-    role: "Médecin",
-    email: "ahounou@chu-cotonou.bj",
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Inf. Tossou",
-    role: "Infirmier",
-    email: "tossou@chu-cotonou.bj",
-    status: "active",
-  },
-  {
-    id: "4",
-    name: "M. Gbènou",
-    role: "Technicien",
-    email: "gbenou@chu-cotonou.bj",
-    status: "pending",
-  },
-];
+export function HospitalSettingsMembers({ hopitalId, isAdmin, token }: Props) {
+  const [membres,   setMembres]   = useState<MemberData[]>([]);
+  const [demandes,  setDemandes]  = useState<DemandeAccesData[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [actionId,  setActionId]  = useState<string | null>(null);
+  const [showForm,  setShowForm]  = useState(false);
+  const [form, setForm] = useState({ nomDemandeur: "", emailDemandeur: "", roleDemande: "medecin" as "medecin" | "infirmier", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export function HospitalSettingsMembers() {
-  const [members, setMembers] = useState(initialMembers);
-  const [showRequest, setShowRequest] = useState(false);
-  const [requestName, setRequestName] = useState("");
-  const [requestEmail, setRequestEmail] = useState("");
-  const [requestRole, setRequestRole] = useState("");
-  const [sent, setSent] = useState(false);
-  const roles = ["Infirmier", "Médécin"]
-  const handleRemove = (id: string) => {
-    setMembers((prev) => prev.filter((m) => m.id !== id));
+  const load = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const [m, d] = await Promise.all([
+        getMyMembers(token),
+        isAdmin ? getDemandesAcces(token) : Promise.resolve([]),
+      ]);
+      setMembres(m);
+      setDemandes(d);
+    } finally { setLoading(false); }
+  }, [token, isAdmin]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleSupprimer = async (membreId: string) => {
+    if (!window.confirm("Supprimer ce membre de l'hôpital ?")) return;
+    setActionId(membreId);
+    try { await supprimerMembre(membreId, token); await load(); }
+    catch (e: any) { setError(e?.message ?? "Erreur"); }
+    finally { setActionId(null); }
   };
 
-  const handleRequest = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-    setTimeout(() => {
-      setSent(false);
-      setShowRequest(false);
-      setRequestName("");
-      setRequestEmail("");
-      setRequestRole("");
-    }, 2000);
+  const handleApprouver = async (id: string) => {
+    setActionId(id);
+    try { await approuverDemandeAcces(id, token); await load(); }
+    catch (e: any) { setError(e?.message ?? "Erreur"); }
+    finally { setActionId(null); }
   };
+
+  const handleRejeter = async (id: string) => {
+    setActionId(id);
+    try { await rejeterDemandeAcces(id, token); await load(); }
+    catch (e: any) { setError(e?.message ?? "Erreur"); }
+    finally { setActionId(null); }
+  };
+
+  const handleSoumettre = async () => {
+    if (!hopitalId || !form.nomDemandeur.trim() || !form.emailDemandeur.trim()) {
+      setError("Nom et email sont requis"); return;
+    }
+    setSubmitting(true); setError(null);
+    try {
+      await soumettreDemandeAcces({ ...form, hopitalId }, token);
+      setShowForm(false);
+      setForm({ nomDemandeur: "", emailDemandeur: "", roleDemande: "medecin", message: "" });
+      await load();
+    } catch (e: any) { setError(e?.message ?? "Erreur"); }
+    finally { setSubmitting(false); }
+  };
+
+  const pendingDemandes = demandes.filter((d) => d.statut === "en_attente");
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">
-            Membres de l'établissement
-          </h2>
+          <h2 className="text-base font-semibold text-gray-900">Membres de l'établissement</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            {members.length} membre{members.length > 1 ? "s" : ""} ·
-            Les ajouts sont soumis à validation par le CNTS
+            {loading ? "…" : `${membres.length} membre${membres.length > 1 ? "s" : ""}`}
+            {isAdmin && pendingDemandes.length > 0 && (
+              <span className="ml-2 text-amber-600 font-semibold">· {pendingDemandes.length} demande{pendingDemandes.length > 1 ? "s" : ""} en attente</span>
+            )}
           </p>
         </div>
-        <button
-          onClick={() => setShowRequest(!showRequest)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:underline"
-        >
-          <AddCircle size={15} />
-          Demander un accès
-        </button>
+        {isAdmin && (
+          <button onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:underline">
+            <AddCircle size={15} />
+            Inviter un membre
+          </button>
+        )}
       </div>
-      {showRequest && (
-        <div className="px-6 py-4 bg-red-50 border-b border-red-100">
-          <p className="text-xs font-semibold text-red-700 mb-3">
-            Nouvelle demande d'accès — sera transmise au CNTS
-          </p>
-          <form onSubmit={handleRequest} className="space-y-3">
-            <div className="grid grid-cols-3 gap-3">
-              <input
-                type="text"
-                placeholder="Nom complet"
-                value={requestName}
-                onChange={(e) => setRequestName(e.target.value)}
-                required
-                className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={requestEmail}
-                onChange={(e) => setRequestEmail(e.target.value)}
-                required
-                className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400"
-              />
-              <div>
-                <Select placeholder="Sélectionner le role" isRequired>
-                  <Select.Trigger className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox>
-                      {roles.map((r) => (
-                        <ListBox.Item key={r} id={r} textValue={r}>
-                          {r}
-                          <ListBox.ItemIndicator />
-                        </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-                </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {sent ? (
-                <p className="text-sm text-green-600 font-medium">
-                  ✓ Demande envoyée au CNTS
-                </p>
-              ) : (
-                <>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-red-600 text-white text-xs font-semibold rounded-xl hover:bg-red-700 transition-colors"
-                  >
-                    Envoyer la demande
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowRequest(false)}
-                    className="px-4 py-2 border border-gray-200 text-gray-600 text-xs font-semibold rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    Annuler
-                  </button>
-                </>
-              )}
-            </div>
-          </form>
+
+      {error && (
+        <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          {error}
         </div>
       )}
-      <div className="divide-y divide-gray-50">
-        {members.map((member) => (
-          <div
-            key={member.id}
-            className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center">
-                <User size={16} color="#dc2626" variant="Bold" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {member.name}
-                  </p>
-                  <span
-                    className={clsx(
-                      "text-xs font-medium px-2 py-0.5 rounded-full",
-                      member.status === "active"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-amber-50 text-amber-700"
-                    )}
-                  >
-                    {member.status === "active" ? "Actif" : "En attente"}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-400">
-                  {member.role} · {member.email}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => handleRemove(member.id)}
-              className="p-0 bg-transparent text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-            >
-              <Trash size={15} />
-            </Button>
+
+      {/* Invite form */}
+      {isAdmin && showForm && (
+        <div className="px-6 py-4 bg-red-50 border-b border-red-100">
+          <p className="text-xs font-bold text-red-700 mb-3">Demande d'accès pour un nouveau membre</p>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <input type="text" placeholder="Nom complet" value={form.nomDemandeur}
+              onChange={(e) => setForm((f) => ({ ...f, nomDemandeur: e.target.value }))}
+              className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400" />
+            <input type="email" placeholder="Email" value={form.emailDemandeur}
+              onChange={(e) => setForm((f) => ({ ...f, emailDemandeur: e.target.value }))}
+              className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400" />
+            <select value={form.roleDemande}
+              onChange={(e) => setForm((f) => ({ ...f, roleDemande: e.target.value as "medecin" | "infirmier" }))}
+              className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400">
+              <option value="medecin">Médecin</option>
+              <option value="infirmier">Infirmier</option>
+            </select>
+            <input type="text" placeholder="Message (optionnel)" value={form.message}
+              onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+              className="px-3 py-2 text-sm rounded-xl border border-red-200 bg-white focus:outline-none focus:border-red-400" />
           </div>
-        ))}
-      </div>
+          <div className="flex gap-2">
+            <button onClick={handleSoumettre} disabled={submitting}
+              className="px-4 py-2 bg-red-600 text-white text-xs font-semibold rounded-xl hover:bg-red-700 disabled:opacity-60">
+              {submitting ? "Envoi…" : "Envoyer la demande"}
+            </button>
+            <button onClick={() => setShowForm(false)}
+              className="px-4 py-2 border border-gray-200 text-gray-600 text-xs font-semibold rounded-xl hover:bg-gray-50">
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Members list */}
+      {loading ? (
+        <div className="p-6 space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : membres.length === 0 ? (
+        <div className="py-12 text-center text-sm text-gray-400">Aucun membre trouvé</div>
+      ) : (
+        <div className="divide-y divide-gray-50">
+          {membres.map((m) => {
+            const u = m.utilisateur;
+            return (
+              <div key={m.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center shrink-0">
+                    <User size={15} color="#dc2626" variant="Bold" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{u?.nomComplet ?? u?.email ?? "—"}</p>
+                    <p className="text-xs text-gray-400">
+                      {ROLE_LABEL[u?.role ?? ""] ?? u?.role ?? "—"}
+                      {u?.email ? ` · ${u.email}` : ""}
+                    </p>
+                  </div>
+                </div>
+                {isAdmin && (
+                  <button onClick={() => handleSupprimer(m.id)} disabled={actionId === m.id}
+                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-40">
+                    {actionId === m.id
+                      ? <span className="w-3.5 h-3.5 border border-red-400/40 border-t-red-400 rounded-full animate-spin block" />
+                      : <Trash size={14} />}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pending access requests — admin only */}
+      {isAdmin && pendingDemandes.length > 0 && (
+        <div className="border-t border-gray-100">
+          <div className="px-6 py-3 bg-amber-50/60">
+            <p className="text-xs font-bold text-amber-700">Demandes d'accès en attente</p>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {pendingDemandes.map((d) => (
+              <div key={d.id} className="px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+                    <Clock size={15} color="#b45309" variant="Bold" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900">{d.nomDemandeur}</p>
+                      <span className={clsx(
+                        "text-xs px-2 py-0.5 rounded-full font-medium",
+                        "bg-amber-50 text-amber-700 border border-amber-200"
+                      )}>En attente</span>
+                    </div>
+                    <p className="text-xs text-gray-400">{ROLE_LABEL[d.roleDemande]} · {d.emailDemandeur}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleApprouver(d.id)} disabled={!!actionId}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-xl disabled:opacity-60 transition-colors">
+                    {actionId === d.id
+                      ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      : <TickCircle size={12} variant="Bold" />}
+                    Approuver
+                  </button>
+                  <button onClick={() => handleRejeter(d.id)} disabled={!!actionId}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-xl border border-red-200 disabled:opacity-60 transition-colors">
+                    <CloseCircle size={12} variant="Bold" />
+                    Rejeter
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

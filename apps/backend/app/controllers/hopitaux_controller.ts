@@ -60,6 +60,37 @@ export default class HopitauxController {
     return serialize(HopitalTransformer.transform(hopital))
   }
 
+  async hopitauxAvecStock({ request, auth, response }: HttpContext) {
+    auth.getUserOrFail()
+
+    const groupeSanguin = request.input('groupeSanguin')
+    const quantite = Number(request.input('quantite', 1))
+
+    if (!groupeSanguin) {
+      return response.badRequest({ erreur: 'groupeSanguin requis' })
+    }
+
+    const stocks = await StockSanguin.query()
+      .where('groupe_sanguin', groupeSanguin)
+      .where('quantite', '>=', quantite)
+      .preload('hopital')
+
+    return stocks
+      .filter((s) => s.hopital)
+      .map((s) => ({
+        id: s.hopital.id,
+        nom: s.hopital.nom,
+        commune: s.hopital.commune,
+        adresse: s.hopital.adresse,
+        telephone: s.hopital.telephone,
+        stock: {
+          quantite: s.quantite,
+          seuilFaible: s.seuilFaible,
+          seuilCritique: s.seuilCritique,
+        },
+      }))
+  }
+
   async membres({ params, auth, serialize, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (!['admin_hopital', 'super_admin'].includes(user.role)) {
@@ -259,27 +290,35 @@ export default class HopitauxController {
     return serialize(demande)
   }
 
-  async demandesAccesApprouver({ params, serialize }: HttpContext) {
+  async demandesAccesApprouver({ params, auth, response, serialize }: HttpContext) {
+    const user = auth.getUserOrFail()
     const demande = await DemandesAcces.findOrFail(params.id)
+
+    if (user.role === 'admin_hopital') {
+      const monMembre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+      if (!monMembre || monMembre.hopitalId !== demande.hopitalId) {
+        return response.forbidden({ erreur: 'Cette demande ne concerne pas votre hôpital' })
+      }
+    }
 
     demande.statut = 'approuvee'
     await demande.save()
 
-    const user = await User.findBy('email', demande.emailDemandeur)
+    const candidat = await User.findBy('email', demande.emailDemandeur)
 
-    if (user) {
-      user.role = demande.roleDemande
-      await user.save()
+    if (candidat) {
+      candidat.role = demande.roleDemande
+      await candidat.save()
 
       const membreExistant = await MembresHopital.query()
-        .where('utilisateur_id', user.id)
+        .where('utilisateur_id', candidat.id)
         .where('hopital_id', demande.hopitalId)
         .first()
 
       if (!membreExistant) {
         await MembresHopital.create({
           id: randomUUID(),
-          utilisateurId: user.id,
+          utilisateurId: candidat.id,
           hopitalId: demande.hopitalId,
         })
       }
@@ -287,19 +326,91 @@ export default class HopitauxController {
 
     return serialize({
       succes: true,
-      message: user
-        ? `Demande approuvée. ${user.nomComplet || user.email} a été ajouté comme membre.`
+      message: candidat
+        ? `Demande approuvée. ${candidat.nomComplet || candidat.email} a été ajouté comme membre.`
         : 'Demande approuvée. Le membre pourra rejoindre après son inscription.',
-      membreAjoute: !!user,
+      membreAjoute: !!candidat,
     })
   }
 
-  async demandesAccesRejeter({ params, serialize }: HttpContext) {
+  async demandesAccesRejeter({ params, auth, response, serialize }: HttpContext) {
+    const user = auth.getUserOrFail()
     const demande = await DemandesAcces.findOrFail(params.id)
+
+    if (user.role === 'admin_hopital') {
+      const monMembre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+      if (!monMembre || monMembre.hopitalId !== demande.hopitalId) {
+        return response.forbidden({ erreur: 'Cette demande ne concerne pas votre hôpital' })
+      }
+    }
+
     demande.statut = 'rejetee'
     await demande.save()
 
     return serialize({ succes: true, message: 'Demande rejetée' })
+  }
+
+  async monHopital({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const membre = await MembresHopital.query()
+      .where('utilisateur_id', user.id)
+      .preload('hopital')
+      .first()
+
+    if (!membre?.hopital) {
+      return response.notFound({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    return response.ok({ data: HopitalTransformer.transform(membre.hopital) })
+  }
+
+  async updateMonHopital({ auth, request, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    if (user.role !== 'admin_hopital') {
+      return response.forbidden({ erreur: "Seul l'administrateur de l'hôpital peut modifier ces informations" })
+    }
+
+    const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+    if (!membre?.hopitalId) {
+      return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    const hopital = await Hopital.findOrFail(membre.hopitalId)
+    const data = request.only(['nom', 'adresse', 'commune', 'departement', 'telephone', 'email'])
+    hopital.merge(data)
+    await hopital.save()
+
+    return response.ok({ data: HopitalTransformer.transform(hopital), succes: true })
+  }
+
+  async mesMembres({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+
+    if (!membre?.hopitalId) {
+      return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    const membres = await MembresHopital.query()
+      .where('hopital_id', membre.hopitalId)
+      .preload('utilisateur')
+
+    return response.ok({
+      data: membres.map((m) => ({
+        id: m.id,
+        utilisateurId: m.utilisateurId,
+        hopitalId: m.hopitalId,
+        utilisateur: m.utilisateur
+          ? {
+              id: m.utilisateur.id,
+              nomComplet: m.utilisateur.nomComplet,
+              email: m.utilisateur.email,
+              role: m.utilisateur.role,
+              telephone: m.utilisateur.telephone,
+            }
+          : null,
+      })),
+    })
   }
 
   async supprimerMembre({ params, auth, response }: HttpContext) {

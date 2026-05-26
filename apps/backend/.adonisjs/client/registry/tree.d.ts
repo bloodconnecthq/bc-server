@@ -36,13 +36,17 @@ export interface ApiDefinition {
     hopitaux: {
       index: typeof routes['hopitaux.hopitaux.index']
       store: typeof routes['hopitaux.hopitaux.store']
+      hopitauxAvecStock: typeof routes['hopitaux.hopitaux.hopitaux_avec_stock']
+      monHopital: typeof routes['hopitaux.hopitaux.mon_hopital']
+      updateMonHopital: typeof routes['hopitaux.hopitaux.update_mon_hopital']
+      mesMembres: typeof routes['hopitaux.hopitaux.mes_membres']
+      mesStocks: typeof routes['hopitaux.hopitaux.mes_stocks']
+      mesDons: typeof routes['hopitaux.hopitaux.mes_dons']
+      mesRendezVous: typeof routes['hopitaux.hopitaux.mes_rendez_vous']
       show: typeof routes['hopitaux.hopitaux.show']
       update: typeof routes['hopitaux.hopitaux.update']
       updateStatut: typeof routes['hopitaux.hopitaux.update_statut']
       membres: typeof routes['hopitaux.hopitaux.membres']
-      mesStocks: typeof routes['hopitaux.hopitaux.mes_stocks']
-      mesDons: typeof routes['hopitaux.hopitaux.mes_dons']
-      mesRendezVous: typeof routes['hopitaux.hopitaux.mes_rendez_vous']
       stocks: typeof routes['hopitaux.hopitaux.stocks']
       dons: typeof routes['hopitaux.hopitaux.dons']
       rendezVous: typeof routes['hopitaux.hopitaux.rendez_vous']
@@ -77,9 +81,14 @@ export interface ApiDefinition {
     dons: {
       bonsDemandeIndex: typeof routes['bonsDemande.dons.bons_demande_index']
       bonDemandeStore: typeof routes['bonsDemande.dons.bon_demande_store']
+      bonsDemandeRecus: typeof routes['bonsDemande.dons.bons_demande_recus']
       bonDemandeShow: typeof routes['bonsDemande.dons.bon_demande_show']
       bonDemandeSatisfaire: typeof routes['bonsDemande.dons.bon_demande_satisfaire']
       bonDemandeNonSatisfaire: typeof routes['bonsDemande.dons.bon_demande_non_satisfaire']
+      bonDemandeUpdate: typeof routes['bonsDemande.dons.bon_demande_update']
+      bonDemandeDestroy: typeof routes['bonsDemande.dons.bon_demande_destroy']
+      bonDemandeTransferer: typeof routes['bonsDemande.dons.bon_demande_transferer']
+      bonDemandeDecliner: typeof routes['bonsDemande.dons.bon_demande_decliner']
       enregistrerPsl: typeof routes['bonsDemande.dons.enregistrer_psl']
     }
   }
@@ -135,6 +144,17 @@ export interface ApiDefinition {
       store: typeof routes['resultats.resultats.store']
       show: typeof routes['resultats.resultats.show']
       update: typeof routes['resultats.resultats.update']
+    }
+  }
+  users: {
+    users: {
+      stats: typeof routes['users.users.stats']
+      index: typeof routes['users.users.index']
+      show: typeof routes['users.users.show']
+      update: typeof routes['users.users.update']
+      updateStatut: typeof routes['users.users.update_statut']
+      resetPassword: typeof routes['users.users.reset_password']
+      destroy: typeof routes['users.users.destroy']
     }
   }
   rapports: {

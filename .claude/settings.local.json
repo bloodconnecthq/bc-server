@@ -12,7 +12,12 @@
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(tsc --noEmit -p d:/bc-web/apps/frontend/tsconfig.json)",
       "Bash(node -e \"console.log\\(Date.now\\(\\)\\)\")",
-      "Bash(node ace *)"
+      "Bash(node ace *)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(node -e \"const h = require\\('@heroui/react'\\); console.log\\(Object.keys\\(h\\).filter\\(k => /Tab|Table|Drawer|Slide/i.test\\(k\\)\\).join\\('\\\\n'\\)\\)\")",
+      "WebFetch(domain:www.heroui.com)",
+      "Bash(xargs ls)",
+      "Bash(xargs ls -la)"
     ],
     "additionalDirectories": [
       "d:\\bc-web\\apps\\backend\\app\\controllers"

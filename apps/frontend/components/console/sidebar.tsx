@@ -13,18 +13,19 @@ import {
   LogoutCurve,
   ShieldTick,
   ClipboardText,
+  Profile2User,
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 
 const navItems = [
-  { label: "Vue d'ensemble", href: "/console", icon: Chart2 },
-  { label: "Hôpitaux & Centres", href: "/console/hospitals", icon: Hospital },
-  { label: "Demandes d'accès", href: "/console/members", icon: ShieldTick, badge: 3 },
-  { label: "Stocks nationaux", href: "/console/stocks", icon: Drop },
-  // { label: "Campagnes", href: "/console/campaigns", icon: Brodcast },
-  { label: "Donneurs", href: "/console/donors", icon: People },
-  { label: "Poches de sang", href: "/console/donations", icon: ClipboardText },
-  { label: "Rapports", href: "/console/reports", icon: DocumentText },
+  { label: "Vue d'ensemble",   href: "/console",            icon: Chart2        },
+  { label: "Hôpitaux & Centres", href: "/console/hospitals", icon: Hospital      },
+  { label: "Utilisateurs",     href: "/console/users",      icon: Profile2User  },
+  { label: "Demandes d'accès", href: "/console/members",    icon: ShieldTick    },
+  { label: "Stocks nationaux", href: "/console/stocks",     icon: Drop          },
+  { label: "Donneurs",         href: "/console/donors",     icon: People        },
+  { label: "Poches de sang",   href: "/console/donations",  icon: ClipboardText },
+  { label: "Rapports",         href: "/console/reports",    icon: DocumentText  },
 ];
 
 export function ConsoleSidebar() {

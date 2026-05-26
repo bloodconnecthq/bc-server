@@ -28,7 +28,10 @@ export default class BonDemande extends BaseModel {
   declare quantiteNecessaire: number
 
   @column()
-  declare statut: 'en_attente' | 'satisfait' | 'non_satisfait'
+  declare statut: 'en_attente' | 'satisfait' | 'non_satisfait' | 'transfere'
+
+  @column()
+  declare transfereVersHopitalId: string | null
 
   @column.dateTime({ columnName: 'created_at', autoCreate: true })
   declare creeLe: DateTime
@@ -39,8 +42,11 @@ export default class BonDemande extends BaseModel {
   @belongsTo(() => User, { foreignKey: 'medecinId' })
   declare medecin: BelongsTo<typeof User>
 
-  @belongsTo(() => Hopital)
-  declare hopital: BelongsTo<typeof Hopital>    
+  @belongsTo(() => Hopital, { foreignKey: 'hopitalId' })
+  declare hopital: BelongsTo<typeof Hopital>
+
+  @belongsTo(() => Hopital, { foreignKey: 'transfereVersHopitalId' })
+  declare transfereVers: BelongsTo<typeof Hopital>
 
   @hasOne(() => RegistrePsl)
   declare registrePsl: HasOne<typeof RegistrePsl>

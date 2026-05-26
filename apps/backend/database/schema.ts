@@ -75,7 +75,7 @@ export class BadgeSchema extends BaseModel {
 }
 
 export class BonsDemandeSchema extends BaseModel {
-  static $columns = ['createdAt', 'groupeSanguinPatient', 'hopitalId', 'id', 'medecinId', 'nomPatient', 'quantiteNecessaire', 'statut', 'updatedAt'] as const
+  static $columns = ['createdAt', 'groupeSanguinPatient', 'hopitalId', 'id', 'medecinId', 'nomPatient', 'quantiteNecessaire', 'statut', 'transfereVersHopitalId', 'updatedAt'] as const
   $columns = BonsDemandeSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -93,6 +93,8 @@ export class BonsDemandeSchema extends BaseModel {
   declare quantiteNecessaire: number | null
   @column()
   declare statut: string | null
+  @column()
+  declare transfereVersHopitalId: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

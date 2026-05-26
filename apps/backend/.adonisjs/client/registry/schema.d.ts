@@ -247,6 +247,90 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'hopitaux.hopitaux.hopitaux_avec_stock': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/avec-stock'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.mon_hopital': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.update_mon_hopital': {
+    methods: ["PUT"]
+    pattern: '/api/v1/hopitaux/moi'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.mes_membres': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi/membres'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.mes_stocks': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi/stocks'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.mes_dons': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi/dons'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.mes_rendez_vous': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi/rendez-vous'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'hopitaux.hopitaux.show': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/hopitaux/:id'
@@ -290,42 +374,6 @@ export interface Registry {
       body: {}
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
-      query: {}
-      response: unknown
-      errorResponse: unknown
-    }
-  }
-  'hopitaux.hopitaux.mes_stocks': {
-    methods: ["GET","HEAD"]
-    pattern: '/api/v1/hopitaux/moi/stocks'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
-      query: {}
-      response: unknown
-      errorResponse: unknown
-    }
-  }
-  'hopitaux.hopitaux.mes_dons': {
-    methods: ["GET","HEAD"]
-    pattern: '/api/v1/hopitaux/moi/dons'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
-      query: {}
-      response: unknown
-      errorResponse: unknown
-    }
-  }
-  'hopitaux.hopitaux.mes_rendez_vous': {
-    methods: ["GET","HEAD"]
-    pattern: '/api/v1/hopitaux/moi/rendez-vous'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
       query: {}
       response: unknown
       errorResponse: unknown
@@ -547,6 +595,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'bonsDemande.dons.bons_demande_recus': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/bons-demande/recus'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'bonsDemande.dons.bon_demande_show': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/bons-demande/:id'
@@ -574,6 +634,54 @@ export interface Registry {
   'bonsDemande.dons.bon_demande_non_satisfaire': {
     methods: ["PATCH"]
     pattern: '/api/v1/bons-demande/:id/non-satisfaire'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'bonsDemande.dons.bon_demande_update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/bons-demande/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'bonsDemande.dons.bon_demande_destroy': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/bons-demande/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'bonsDemande.dons.bon_demande_transferer': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/bons-demande/:id/transferer'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'bonsDemande.dons.bon_demande_decliner': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/bons-demande/:id/decliner'
     types: {
       body: {}
       paramsTuple: [ParamValue]
@@ -950,6 +1058,90 @@ export interface Registry {
       body: {}
       paramsTuple: [ParamValue]
       params: { donId: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.stats': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/users/stats'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.update_statut': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/users/:id/statut'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.reset_password': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/users/:id/reset-password'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.destroy': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
       query: {}
       response: unknown
       errorResponse: unknown

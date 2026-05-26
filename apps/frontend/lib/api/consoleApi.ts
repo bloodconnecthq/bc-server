@@ -256,6 +256,87 @@ export async function rejeterDemande(id: string, token: string) {
   return authFetch(`/membres/demandes/${id}/rejeter`, token, { method: 'PATCH' })
 }
 
+// ── Utilisateurs ─────────────────────────────────────────────────────────────
+
+export interface UserAPI {
+  id: string
+  nomComplet: string | null
+  prenom: string | null
+  nom: string | null
+  email: string
+  role: 'donneur' | 'infirmier' | 'medecin' | 'admin_hopital' | 'super_admin'
+  telephone: string | null
+  commune: string | null
+  departement: string | null
+  dateNaissance: string | null
+  estActif: boolean
+  photoProfil: string | null
+  hopital: { id: string; nom: string } | null
+  membreId: string | null
+  creeLe: string
+  misAJourLe: string | null
+}
+
+export interface UserStatsAPI {
+  total: number
+  actifs: number
+  inactifs: number
+  parRole: Record<string, number>
+}
+
+export interface UpdateUserPayload {
+  nomComplet?: string
+  prenom?: string
+  nom?: string
+  email?: string
+  telephone?: string
+  commune?: string
+  departement?: string
+  role?: string
+  estActif?: boolean
+}
+
+export async function getUsers(token: string, params?: { search?: string; role?: string; statut?: string }): Promise<UserAPI[]> {
+  const qs = new URLSearchParams()
+  if (params?.search) qs.set('search', params.search)
+  if (params?.role)   qs.set('role', params.role)
+  if (params?.statut) qs.set('statut', params.statut)
+  const raw = await authFetch(`/users?${qs}`, token)
+  return Array.isArray(raw?.data) ? raw.data : []
+}
+
+export async function getUserStats(token: string): Promise<UserStatsAPI> {
+  const raw = await authFetch('/users/stats', token)
+  return raw?.data ?? raw
+}
+
+export async function updateUser(id: string, data: UpdateUserPayload, token: string): Promise<UserAPI> {
+  const raw = await authFetch(`/users/${id}`, token, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+  return raw?.data ?? raw
+}
+
+export async function updateUserStatut(id: string, estActif: boolean, token: string): Promise<UserAPI> {
+  const raw = await authFetch(`/users/${id}/statut`, token, {
+    method: 'PATCH',
+    body: JSON.stringify({ estActif }),
+  })
+  return raw?.data ?? raw
+}
+
+export async function resetUserPassword(id: string, nouveauMotDePasse: string, token: string): Promise<void> {
+  await authFetch(`/users/${id}/reset-password`, token, {
+    method: 'PATCH',
+    body: JSON.stringify({ nouveauMotDePasse }),
+  })
+}
+
+export async function deleteUser(id: string, token: string): Promise<void> {
+  await authFetch(`/users/${id}`, token, { method: 'DELETE' })
+}
+
 // ── Rapport dons ─────────────────────────────────────────────────────────────
 
 export async function getRapportDons(token: string) {

@@ -18,6 +18,7 @@ import StocksController from '#controllers/stocks_controller'
 import NotificationsController from '#controllers/notifications_controller'
 import RendezVousController from '#controllers/rendez_vous_controller'
 import ResultatsController from '#controllers/resultats_controller'
+import UsersController from '#controllers/users_controller'
 
 router.get('/', () => {
   return { message: "Bienvenue sur l'API eBloodSys" }
@@ -106,20 +107,21 @@ router
           .post('', [HopitauxController, 'store'])
           .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
 
-        // ✅ Routes avec paramètre EN DERNIER
-        router.get(':id', [HopitauxController, 'show']).use(middleware.auth())
+        router
+          .get('avec-stock', [HopitauxController, 'hopitauxAvecStock'])
+          .use(middleware.auth())
 
         router
-          .put(':id', [HopitauxController, 'update'])
-          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
+          .get('moi', [HopitauxController, 'monHopital'])
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin']))
 
         router
-          .patch(':id/statut', [HopitauxController, 'updateStatut'])
-          .use(middleware.auth(), middleware.verifierRole(['super_admin']))
+          .put('moi', [HopitauxController, 'updateMonHopital'])
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital']))
 
         router
-          .get(':id/membres', [HopitauxController, 'membres'])
-          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
+          .get('moi/membres', [HopitauxController, 'mesMembres'])
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin']))
 
         router
           .get('moi/stocks', [HopitauxController, 'mesStocks'])
@@ -141,6 +143,21 @@ router
             middleware.auth(),
             middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin'])
           )
+
+        // ✅ Routes avec paramètre EN DERNIER
+        router.get(':id', [HopitauxController, 'show']).use(middleware.auth())
+
+        router
+          .put(':id', [HopitauxController, 'update'])
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
+
+        router
+          .patch(':id/statut', [HopitauxController, 'updateStatut'])
+          .use(middleware.auth(), middleware.verifierRole(['super_admin']))
+
+        router
+          .get(':id/membres', [HopitauxController, 'membres'])
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
 
         router.get(':id/stocks', [HopitauxController, 'stocks']).use(middleware.auth())
 
@@ -231,17 +248,24 @@ router
     // ============== BONS DE DEMANDE ==============
     router
       .group(() => {
-        // ✅ Routes générales
+        // ✅ Routes statiques EN PREMIER
         router
           .get('', [DonsController, 'bonsDemandeIndex'])
           .use(
             middleware.auth(),
-            middleware.verifierRole(['medecin', 'admin_hopital', 'super_admin'])
+            middleware.verifierRole(['medecin', 'infirmier', 'admin_hopital', 'super_admin'])
           )
 
         router
           .post('', [DonsController, 'bonDemandeStore'])
           .use(middleware.auth(), middleware.verifierRole(['medecin']))
+
+        router
+          .get('recus', [DonsController, 'bonsDemandeRecus'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'infirmier', 'admin_hopital', 'super_admin'])
+          )
 
         // ✅ Routes avec paramètre EN DERNIER
         router
@@ -253,11 +277,42 @@ router
 
         router
           .patch(':id/satisfaire', [DonsController, 'bonDemandeSatisfaire'])
-          .use(middleware.auth(), middleware.verifierRole(['medecin', 'admin_hopital']))
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'infirmier', 'admin_hopital'])
+          )
 
         router
           .patch(':id/non-satisfaire', [DonsController, 'bonDemandeNonSatisfaire'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'infirmier', 'admin_hopital'])
+          )
+
+        router
+          .put(':id', [DonsController, 'bonDemandeUpdate'])
           .use(middleware.auth(), middleware.verifierRole(['medecin']))
+
+        router
+          .delete(':id', [DonsController, 'bonDemandeDestroy'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'admin_hopital', 'super_admin'])
+          )
+
+        router
+          .patch(':id/transferer', [DonsController, 'bonDemandeTransferer'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'admin_hopital', 'super_admin'])
+          )
+
+        router
+          .patch(':id/decliner', [DonsController, 'bonDemandeDecliner'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['medecin', 'infirmier', 'admin_hopital'])
+          )
 
         router
           .post(':id/psl', [DonsController, 'enregistrerPsl'])
@@ -325,11 +380,11 @@ router
         // ✅ Routes avec paramètre EN DERNIER
         router
           .patch(':id/approuver', [HopitauxController, 'demandesAccesApprouver'])
-          .use(middleware.auth(), middleware.verifierRole(['super_admin']))
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
 
         router
           .patch(':id/rejeter', [HopitauxController, 'demandesAccesRejeter'])
-          .use(middleware.auth(), middleware.verifierRole(['super_admin']))
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
 
         router
           .delete(':id', [HopitauxController, 'supprimerMembre'])
@@ -429,6 +484,21 @@ router
       })
       .prefix('dons/:donId/resultats')
       .as('resultats')
+
+    // ============== UTILISATEURS ==============
+    router
+      .group(() => {
+        router.get('stats', [UsersController, 'stats'])
+        router.get('', [UsersController, 'index'])
+        router.get(':id', [UsersController, 'show'])
+        router.put(':id', [UsersController, 'update'])
+        router.patch(':id/statut', [UsersController, 'updateStatut'])
+        router.patch(':id/reset-password', [UsersController, 'resetPassword'])
+        router.delete(':id', [UsersController, 'destroy'])
+      })
+      .prefix('users')
+      .as('users')
+      .use(middleware.auth(), middleware.verifierRole(['super_admin']))
 
     // ============== RAPPORTS ==============
     router

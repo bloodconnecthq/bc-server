@@ -13,17 +13,19 @@ import {
   Hospital,
   ClipboardText,
   DocumentText,
+  Calendar,
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { getMyMemberProfile, type HospitalMemberProfile } from "@/lib/api/hospitalApi";
 
 const navItems = [
-  { label: "Tableau de bord",    href: "/hospital",          icon: Chart2         },
-  { label: "Stocks sanguins",    href: "/hospital/stocks",   icon: Drop           },
-  { label: "Dons enregistrés",   href: "/hospital/donations",icon: ClipboardText  },
-  { label: "Bons de demande",    href: "/hospital/requests", icon: DocumentText   },
-  { label: "Alertes",            href: "/hospital/alerts",   icon: Notification   },
-  { label: "Paramètres",         href: "/hospital/settings", icon: Setting2       },
+  { label: "Tableau de bord",    href: "/hospital",              icon: Chart2        },
+  { label: "Stocks sanguins",    href: "/hospital/stocks",       icon: Drop          },
+  { label: "Dons enregistrés",   href: "/hospital/donations",    icon: ClipboardText },
+  { label: "Rendez-vous",        href: "/hospital/appointments", icon: Calendar      },
+  { label: "Bons de demande",    href: "/hospital/requests",     icon: DocumentText  },
+  { label: "Alertes",            href: "/hospital/alerts",       icon: Notification  },
+  { label: "Paramètres",         href: "/hospital/settings",     icon: Setting2      },
 ];
 
 const ROLE_LABELS: Record<string, string> = {

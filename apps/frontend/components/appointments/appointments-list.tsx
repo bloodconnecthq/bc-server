@@ -30,13 +30,13 @@ interface Member {
 const statusConfig: {
   [key in AppointmentStatus]: {
     label: string;
-    color: "warning" | "success" | "default" | "primary";
+    color: "warning" | "success" | "default";
   };
 } = {
   planifie:  { label: "Planifié",  color: "warning" },
   confirme:  { label: "Confirmé",  color: "success" },
   annule:    { label: "Annulé",    color: "default" },
-  effectue:  { label: "Effectué",  color: "primary" },
+  effectue:  { label: "Effectué",  color: "default" },
 };
 
 const filters = ["Tous", "Planifiés", "Confirmés", "Non assignés", "Annulés"];
