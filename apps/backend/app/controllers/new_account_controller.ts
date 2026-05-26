@@ -17,6 +17,8 @@ export default class NewAccountController {
         prenom,
         nom,
         groupeSanguin,
+        commune,
+        departement,
         dateNaissance,
       } = await request.validateUsing(signupValidator)
 
@@ -38,6 +40,8 @@ export default class NewAccountController {
         motDePasse,
         role: 'donneur',
         telephone: telephone ?? null,
+        commune: commune ?? null,
+        departement: departement ?? null,
         dateNaissance: dateNaissance ? DateTime.fromJSDate(new Date(dateNaissance)) : null,
         estActif: true,
       })
@@ -46,9 +50,10 @@ export default class NewAccountController {
       const annee = new Date().getFullYear()
       const random = Math.floor(10000 + Math.random() * 90000)
       const codeDonneur = `BC-${annee}-${random}`
+      const donneurId = randomUUID()
 
       await Donneur.create({
-        id: randomUUID(),
+        id: donneurId,
         utilisateurId: user.id,
         codeDonneur,
         groupeSanguin: groupeSanguin ?? null,
@@ -57,7 +62,7 @@ export default class NewAccountController {
         dateDernierDon: null,
         dateEligibiliteSuivante: null,
         donneesQrCode: JSON.stringify({
-          id: user.id,
+          id: donneurId,
           code: codeDonneur,
           email: user.email,
         }),

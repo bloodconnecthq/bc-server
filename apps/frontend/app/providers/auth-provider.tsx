@@ -96,8 +96,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [clearAuthData]);
 
   const extractAuthResponse = useCallback((authData: any) => {
-    const token = authData?.data?.token ?? authData?.token
-    const userData = authData?.data?.user ?? authData?.user
+    // Registration format: { donnees: { utilisateur, token } }
+    // Login format: { user, token } or { data: { user, token } }
+    const token =
+      authData?.donnees?.token ??
+      authData?.data?.token ??
+      authData?.token
+
+    const userData =
+      authData?.donnees?.utilisateur ??
+      authData?.data?.user ??
+      authData?.user
 
     if (!token || !userData) {
       throw new Error('Réponse d\'authentification invalide')

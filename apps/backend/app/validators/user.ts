@@ -15,6 +15,8 @@ export const signupValidator = vine.create({
   groupeSanguin: vine
     .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
     .optional(),
+  commune: vine.string().maxLength(100).optional(),
+  departement: vine.string().maxLength(100).optional(),
   dateNaissance: vine.date().optional(),
 })
 

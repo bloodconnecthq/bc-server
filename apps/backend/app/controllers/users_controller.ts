@@ -40,7 +40,7 @@ export default class UsersController {
 
     return response.ok({
       data: users.map((u) => ({
-        ...new UserTransformer(u).toObject(),
+        ...UserTransformer.transform(u),
         hopital: membreMap[u.id]?.hopital
           ? { id: membreMap[u.id].hopital.id, nom: membreMap[u.id].hopital.nom }
           : null,
@@ -63,7 +63,7 @@ export default class UsersController {
 
     return response.ok({
       data: {
-        ...new UserTransformer(target).toObject(),
+        ...UserTransformer.transform(target),
         hopital: membre?.hopital ? { id: membre.hopital.id, nom: membre.hopital.nom } : null,
         membreId: membre?.id ?? null,
       },
@@ -88,7 +88,7 @@ export default class UsersController {
     target.merge(data)
     await target.save()
 
-    return response.ok({ data: new UserTransformer(target).toObject(), succes: true })
+    return response.ok({ data: UserTransformer.transform(target), succes: true })
   }
 
   async updateStatut({ params, request, auth, response }: HttpContext) {
@@ -104,7 +104,7 @@ export default class UsersController {
     target.estActif = request.input('estActif', !target.estActif)
     await target.save()
 
-    return response.ok({ data: new UserTransformer(target).toObject(), succes: true })
+    return response.ok({ data: UserTransformer.transform(target), succes: true })
   }
 
   async resetPassword({ params, request, auth, response }: HttpContext) {

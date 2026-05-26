@@ -36,7 +36,7 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      router.push("/console");
+      router.push("/donor");
     }
   }, [isAuthenticated, authLoading, router]);
 
@@ -90,14 +90,19 @@ export default function SignUpPage() {
 
     try {
       await inscription({
-        nomComplet: `${prenom} ${nom}`,
+        nomComplet: `${prenom} ${nom}`.trim(),
+        prenom,
+        nom,
         email,
         motDePasse,
         motDePasseConfirmation,
         role: "donneur",
         telephone,
+        groupeSanguin: groupeSanguin || undefined,
+        commune: commune || undefined,
+        dateNaissance: dateNaissance || undefined,
       });
-      router.push("/console");
+      router.push("/donor");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'inscription");
     } finally {
@@ -113,7 +118,7 @@ export default function SignUpPage() {
           <div className="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center">
             <Drop size={16} color="white" variant="Bold" />
           </div>
-          <span className="font-bold text-gray-900">Blood-Connect</span>
+          <span className="font-bold text-gray-900">eBloodSys</span>
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Créer un compte</h1>
         <p className="text-sm text-gray-500 mt-1">

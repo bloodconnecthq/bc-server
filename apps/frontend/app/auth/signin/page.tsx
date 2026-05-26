@@ -73,11 +73,11 @@ export default function SignInPage() {
           <div className="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center">
             <Drop size={16} color="white" variant="Bold" />
           </div>
-          <span className="font-bold text-gray-900">Blood-Connect</span>
+          <span className="font-bold text-gray-900">eBloodSys</span>
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Bienvenue</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Connectez-vous à votre espace Blood-Connect
+          Connectez-vous à votre espace eBloodSys
         </p>
       </div>
 
