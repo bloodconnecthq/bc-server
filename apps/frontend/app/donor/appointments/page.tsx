@@ -8,6 +8,7 @@ import { AppointmentStats } from "@/components/donor/appointment-stats";
 import { useAuth } from "../../providers/auth-provider";
 import { useAppointments } from "@/lib/hooks/useAppointments";
 import { useCenters } from "@/lib/hooks/useCenters";
+import { Drop } from "iconsax-reactjs";
 
 export default function DonorAppointmentsPage() {
   const { token, isLoading: authLoading } = useAuth();
@@ -24,8 +25,14 @@ export default function DonorAppointmentsPage() {
 
   if (authLoading || isLoading || centersLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-600">Chargement des rendez-vous...</p>
+      <div className="text-center space-y-4">
+        {/* <div className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-red-200">
+          <Drop size={24} color="white" variant="Bold" />
+        </div> */}
+        <div className="space-y-1">
+          <div className="w-6 h-6 border-2 border-red-600/20 border-t-red-600 rounded-full animate-spin mx-auto" />
+          <p className="text-xs text-gray-400 font-medium">Chargement des rendez-vous…</p>
+        </div>
       </div>
     );
   }

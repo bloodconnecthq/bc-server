@@ -24,7 +24,13 @@
       "Bash(node -e \"try { const i = require\\('./node_modules/iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer\\)/.test\\(k\\)\\).slice\\(0,15\\).join\\(', '\\)\\); } catch\\(e\\) { console.log\\('err:', e.message\\) }\")",
       "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer|Alarm|DocumentDownload|Document\\)/.test\\(k\\)\\).join\\(', '\\)\\)\")",
       "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer|DocumentDownload\\)/.test\\(k\\)\\).join\\(', '\\)\\)\")",
-      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Drop|TickCircle|CloseCircle|Clock|Warning2|DocumentDownload\\)$/.test\\(k\\)\\).join\\(', '\\)\\)\")"
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Drop|TickCircle|CloseCircle|Clock|Warning2|DocumentDownload\\)$/.test\\(k\\)\\).join\\(', '\\)\\)\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse | Select-Object -ExpandProperty FullName | Sort-Object\")",
+      "Bash(grep -E '\\\\.\\(tsx|ts|json\\)$')",
+      "Bash(cd /d/bc-web/apps/ebloodsys && ls -la | grep -E '^d')",
+      "Read(//d/d/bc-web/apps/**)",
+      "Bash(Get-ChildItem -Path \"d:\\\\bc-web\\\\apps\\\\ebloodsys\\\\app\\\\\" -Recurse -Force | Select-Object -Property FullName | Sort-Object FullName)",
+      "Bash(npm install *)"
     ],
     "additionalDirectories": [
       "d:\\bc-web\\apps\\backend\\app\\controllers"

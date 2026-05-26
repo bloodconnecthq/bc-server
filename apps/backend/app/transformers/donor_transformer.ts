@@ -33,6 +33,7 @@ export default class DonorTransformer {
             departement: user.departement,
             dateNaissance: user.dateNaissance?.toISO() ?? null,
             estActif: user.estActif,
+            photoProfil: user.photoProfil,
           }
         : null,
       creeLe: donneur.createdAt.toISO(),

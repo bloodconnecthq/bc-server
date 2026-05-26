@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/app/providers/auth-provider";
 import { useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { useDonor } from "@/lib/hooks/useDonor";
 
 const navItems = [
     { label: "Ma carte", href: "/donor", icon: Card },
@@ -27,8 +28,11 @@ const navItems = [
 
 export function DonorSidebar() {
     const pathname = usePathname();
-    const { user, isLoading, deconnexion } = useAuth();
+    const { user, isLoading, token, deconnexion } = useAuth()
+    const { donor, isLoading: donorLoading, error } = useDonor(token);
     const router = useRouter();
+
+    console.log("donor in sidebar", { donor, donorLoading, error });
 
     useEffect(() => {
         if (isLoading) return;
@@ -50,6 +54,7 @@ export function DonorSidebar() {
         await deconnexion();
         router.push("/auth/signin")
     };
+
 
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-100 flex flex-col">
@@ -94,14 +99,14 @@ export function DonorSidebar() {
             <div className="px-3 py-4 border-t border-gray-100 space-y-1">
                 <div className="flex items-center gap-3 px-3 py-2.5">
                     <img
-                        src={user?.photoProfil || "https://placehold.net/avatar-5.svg"}
+                        src={donor?.utilisateur?.photoProfil || user?.photoProfil || "https://placehold.net/avatar-5.svg"}
                         alt={user?.nomComplet || "Avatar"}
                         className="w-8 h-8 rounded-full object-cover shrink-0"
                         onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
                     />
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-900 truncate">
-                            {user?.nomComplet || user?.email}
+                        <p className="text-xs font-semibold cest text-gray-900 truncate">
+                            {donor?.utilisateur?.nomComplet || user?.email}
                         </p>
                         <p className="text-xs text-gray-400">Donneur  {user?.estActif ? 'Actif' : 'Inactif'}</p>
                     </div>
