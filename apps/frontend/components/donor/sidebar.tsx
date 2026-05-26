@@ -11,7 +11,6 @@ import {
     Notification,
     Setting2,
     LogoutCurve,
-    User,
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useEffect } from "react";
@@ -94,9 +93,12 @@ export function DonorSidebar() {
 
             <div className="px-3 py-4 border-t border-gray-100 space-y-1">
                 <div className="flex items-center gap-3 px-3 py-2.5">
-                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <User size={14} color="#dc2626" variant="Bold" />
-                    </div>
+                    <img
+                        src={user?.photoProfil || "https://placehold.net/avatar-5.svg"}
+                        alt={user?.nomComplet || "Avatar"}
+                        className="w-8 h-8 rounded-full object-cover shrink-0"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
+                    />
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-gray-900 truncate">
                             {user?.nomComplet || user?.email}

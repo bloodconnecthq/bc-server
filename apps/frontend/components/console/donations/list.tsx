@@ -1,285 +1,194 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Chip, Alert } from "@heroui/react";
-import { SearchNormal1 } from "iconsax-reactjs";
 import clsx from "clsx";
+import {
+  SearchNormal1, Drop, TickCircle, CloseCircle, Clock,
+  Hospital, Profile2User, Calendar, Warning2,
+} from "iconsax-reactjs";
+import type { DonAPI } from "@/lib/api/consoleApi";
 
-type DonationStatus = "validated" | "pending" | "rejected";
+type Statut = "en_attente" | "valide" | "rejete";
 
-interface Tests {
-  hiv: boolean;
-  hepatiteB: boolean;
-  hepatiteC: boolean;
-  syphilis: boolean;
-}
-
-interface Donation {
-  id: string;
-  donorName: string;
-  donorId: string;
-  bloodGroup: string;
-  volume: number;
-  date: string;
-  center: string;
-  department: string;
-  agent: string;
-  status: DonationStatus;
-  tests: Tests;
-  expiresAt: string;
-}
-
-const statusConfig: {
-  [key in DonationStatus]: {
-    label: string;
-    color: "success" | "warning" | "danger";
-  };
-} = {
-  validated: { label: "Validée",    color: "success" },
-  pending:   { label: "En attente", color: "warning" },
-  rejected:  { label: "Rejetée",    color: "danger"  },
+const STATUT_CFG: Record<Statut, { label: string; bg: string; text: string; icon: typeof TickCircle }> = {
+  valide:     { label: "Validé",     bg: "bg-green-50",  text: "text-green-700",  icon: TickCircle  },
+  en_attente: { label: "En attente", bg: "bg-amber-50",  text: "text-amber-700",  icon: Clock       },
+  rejete:     { label: "Rejeté",     bg: "bg-red-50",    text: "text-red-700",    icon: CloseCircle },
 };
 
-const filters = ["Toutes", "Validées", "En attente", "Rejetées"];
+const FILTERS: { label: string; value: string }[] = [
+  { label: "Tous", value: "tous" },
+  { label: "Validés", value: "valide" },
+  { label: "En attente", value: "en_attente" },
+  { label: "Rejetés", value: "rejete" },
+];
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function fmt(d: string | null) {
+  if (!d) return "—";
+  return new Date(d).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-function formatExpiry(dateStr: string) {
-  if (!dateStr) return null;
-  const diff = new Date(dateStr).getTime() - new Date().getTime();
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+function fmtDate(d: string | null) {
+  if (!d) return null;
+  const diff = new Date(d).getTime() - Date.now();
+  const days = Math.ceil(diff / 86400000);
   if (days < 0) return { label: "Expirée", danger: true };
-  if (days <= 7) return { label: `Expire dans ${days}j`, danger: true };
-  return { label: `Expire le ${new Date(dateStr).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}`, danger: false };
+  if (days <= 7) return { label: `${days}j restants`, danger: true };
+  return { label: new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }), danger: false };
 }
 
-export function ConsoleDonationsList({
-  donations,
-}: {
-  donations: Donation[];
-}) {
+interface Props {
+  dons: DonAPI[];
+  loading: boolean;
+  onValidate: (id: string) => Promise<void>;
+  onReject: (id: string) => Promise<void>;
+  actionId: string | null;
+}
+
+export function ConsoleDonationsList({ dons, loading, onValidate, onReject, actionId }: Props) {
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState("Toutes");
-  const [deptFilter, setDeptFilter] = useState("Tous");
-  const [selected, setSelected] = useState<Donation | null>(null);
-  const [items, setItems] = useState(donations);
-  const [lastAction, setLastAction] = useState<string | null>(null);
+  const [statutFilter, setStatutFilter] = useState("tous");
+  const [selected, setSelected] = useState<DonAPI | null>(null);
 
-  const departments = ["Tous", ...Array.from(new Set(donations.map((d) => d.department)))];
-
-  const filtered = items.filter((d) => {
+  const filtered = dons.filter((d) => {
+    const q = search.toLowerCase();
     const matchSearch =
-      d.donorName.toLowerCase().includes(search.toLowerCase()) ||
-      d.id.toLowerCase().includes(search.toLowerCase()) ||
-      d.bloodGroup.toLowerCase().includes(search.toLowerCase()) ||
-      d.center.toLowerCase().includes(search.toLowerCase());
-
-    const matchFilter =
-      activeFilter === "Toutes" ||
-      (activeFilter === "Validées" && d.status === "validated") ||
-      (activeFilter === "En attente" && d.status === "pending") ||
-      (activeFilter === "Rejetées" && d.status === "rejected");
-
-    const matchDept =
-      deptFilter === "Tous" || d.department === deptFilter;
-
-    return matchSearch && matchFilter && matchDept;
+      (d.nomDonneur?.toLowerCase() ?? "").includes(q) ||
+      (d.donneur?.codeDonneur?.toLowerCase() ?? "").includes(q) ||
+      (d.donneur?.groupeSanguin?.toLowerCase() ?? "").includes(q) ||
+      (d.hopital?.nom?.toLowerCase() ?? "").includes(q) ||
+      d.id.toLowerCase().includes(q);
+    const matchStatut = statutFilter === "tous" || d.statut === statutFilter;
+    return matchSearch && matchStatut;
   });
-
-  const handleValidate = (id: string) => {
-    setItems((prev) =>
-      prev.map((d) => d.id === id ? { ...d, status: "validated" as DonationStatus } : d)
-    );
-    setLastAction("Poche validée avec succès.");
-    setSelected(null);
-    setTimeout(() => setLastAction(null), 3000);
-  };
-
-  const handleReject = (id: string) => {
-    setItems((prev) =>
-      prev.map((d) => d.id === id ? { ...d, status: "rejected" as DonationStatus } : d)
-    );
-    setLastAction("Poche rejetée.");
-    setSelected(null);
-    setTimeout(() => setLastAction(null), 3000);
-  };
 
   return (
     <div className="space-y-4">
-      {}
-      {lastAction && (
-        <Alert status="success">
-          <Alert.Indicator />
-          <Alert.Content>
-            <Alert.Title>{lastAction}</Alert.Title>
-          </Alert.Content>
-        </Alert>
-      )}
-
-      {}
-      <div className="space-y-3">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="relative flex-1 max-w-xs">
-            <SearchNormal1
-              size={15}
-              color="#9ca3af"
-              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="Rechercher une poche..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-red-400"
-            />
-          </div>
-
-          {}
-          <div className="flex gap-2">
-            {filters.map((f) => (
-              <Button
-                key={f}
-                size="sm"
-                variant={activeFilter === f ? "primary" : "outline"}
-                onPress={() => setActiveFilter(f)}
-                className={clsx(
-                  "rounded-full text-xs",
-                  activeFilter === f && "bg-red-600 border-red-600 text-white"
-                )}
-              >
-                {f}
-              </Button>
-            ))}
-          </div>
+      {/* Filtres */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-xs">
+          <SearchNormal1 size={14} color="#9ca3af" className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text" placeholder="Rechercher un don…"
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-red-400"
+          />
         </div>
-
-        {}
         <div className="flex gap-2 flex-wrap">
-          {departments.map((d) => (
-            <Button
-              key={d}
-              size="sm"
-              variant={deptFilter === d ? "secondary" : "ghost"}
-              onPress={() => setDeptFilter(d)}
-              className={clsx(
-                "rounded-full text-xs",
-                deptFilter === d
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-500"
-              )}
-            >
-              {d}
-            </Button>
+          {FILTERS.map((f) => (
+            <button key={f.value} onClick={() => setStatutFilter(f.value)}
+              className={clsx("px-3 py-2 rounded-xl text-xs font-medium transition-all",
+                statutFilter === f.value
+                  ? "bg-red-600 text-white"
+                  : "bg-white border border-gray-200 text-gray-600 hover:border-red-300"
+              )}>
+              {f.label}
+            </button>
           ))}
         </div>
       </div>
 
       <div className="flex gap-6">
-        {}
-        <div className="flex-1 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          {}
-          <div className="grid grid-cols-12 px-6 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        {/* Table */}
+        <div className="flex-1 bg-white rounded-2xl border border-gray-100 overflow-hidden min-w-0">
+          {/* Header */}
+          <div className="grid grid-cols-12 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
             <div className="col-span-1">Groupe</div>
-            <div className="col-span-2">ID Don</div>
             <div className="col-span-2">Donneur</div>
-            <div className="col-span-2">Centre</div>
-            <div className="col-span-1">Dept.</div>
+            <div className="col-span-3">Centre</div>
+            <div className="col-span-2">Agent</div>
             <div className="col-span-2">Date</div>
             <div className="col-span-1">Expiration</div>
-            <div className="col-span-1">Statut</div>
+            <div className="col-span-1 text-center">Statut</div>
           </div>
 
           <div className="divide-y divide-gray-50">
-            {filtered.length === 0 && (
-              <div className="text-center py-12 text-gray-400 text-sm">
-                Aucune poche trouvée
+            {loading && Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-12 px-5 py-4 items-center gap-2">
+                {[1, 2, 3, 2, 2, 1, 1].map((span, j) => (
+                  <div key={j} className={`col-span-${span} h-5 bg-gray-100 rounded-lg animate-pulse`} />
+                ))}
+              </div>
+            ))}
+
+            {!loading && filtered.length === 0 && (
+              <div className="text-center py-16 text-gray-400 text-sm">
+                <Drop size={32} color="#d1d5db" className="mx-auto mb-2" />
+                Aucun don trouvé
               </div>
             )}
 
-            {filtered.map((donation) => {
-              const sConfig = statusConfig[donation.status];
-              const expiry = formatExpiry(donation.expiresAt);
+            {!loading && filtered.map((don) => {
+              const cfg = STATUT_CFG[don.statut] ?? STATUT_CFG.en_attente;
+              const StatusIcon = cfg.icon;
+              const expiry = fmtDate(don.dateExpiration);
+              const isSelected = selected?.id === don.id;
 
               return (
-                <div
-                  key={donation.id}
-                  onClick={() => setSelected(donation)}
+                <div key={don.id}
+                  onClick={() => setSelected(isSelected ? null : don)}
                   className={clsx(
-                    "grid grid-cols-12 px-6 py-4 items-center cursor-pointer transition-colors hover:bg-gray-50",
-                    selected?.id === donation.id && "bg-red-50"
-                  )}
-                >
-                  {}
+                    "grid grid-cols-12 px-5 py-3.5 items-center cursor-pointer transition-colors hover:bg-gray-50",
+                    isSelected && "bg-red-50"
+                  )}>
+                  {/* Groupe sanguin */}
                   <div className="col-span-1">
                     <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center">
-                      <span className="text-xs font-bold text-red-600">
-                        {donation.bloodGroup}
-                      </span>
+                      <span className="text-xs font-black text-red-600">{don.donneur?.groupeSanguin ?? "—"}</span>
                     </div>
                   </div>
 
-                  {}
-                  <div className="col-span-2">
-                    <p className="text-xs font-mono font-semibold text-gray-700">
-                      {donation.id}
-                    </p>
+                  {/* Donneur */}
+                  <div className="col-span-2 min-w-0">
+                    <p className="text-xs font-semibold text-gray-900 truncate">{don.nomDonneur || "—"}</p>
+                    <p className="text-xs text-gray-400 font-mono truncate">{don.donneur?.codeDonneur ?? "—"}</p>
                   </div>
 
-                  {}
-                  <div className="col-span-2">
-                    <p className="text-xs font-medium text-gray-900">
-                      {donation.donorName}
-                    </p>
-                    <p className="text-xs text-gray-400 font-mono">
-                      {donation.donorId}
-                    </p>
-                  </div>
-
-                  {}
-                  <div className="col-span-2">
-                    <p className="text-xs text-gray-600 truncate">
-                      {donation.center}
-                    </p>
-                  </div>
-
-                  {}
-                  <div className="col-span-1">
-                    <p className="text-xs text-gray-400">{donation.department}</p>
-                  </div>
-
-                  {}
-                  <div className="col-span-2">
-                    <p className="text-xs text-gray-600">
-                      {formatDate(donation.date)}
-                    </p>
-                  </div>
-
-                  {}
-                  <div className="col-span-1">
-                    {expiry && (
-                      <span className={clsx(
-                        "text-xs font-medium",
-                        expiry.danger ? "text-red-500" : "text-gray-400"
-                      )}>
-                        {expiry.danger && "⚠️ "}
-                        {expiry.label}
-                      </span>
+                  {/* Centre */}
+                  <div className="col-span-3 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <Hospital size={12} color="#9ca3af" className="shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{don.hopital?.nom ?? "—"}</span>
+                    </div>
+                    {don.hopital?.commune && (
+                      <p className="text-xs text-gray-400 truncate pl-4">{don.hopital.commune}</p>
                     )}
                   </div>
 
-                  {}
+                  {/* Agent */}
+                  <div className="col-span-2 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <Profile2User size={12} color="#9ca3af" className="shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{don.agent?.nomComplet ?? "—"}</span>
+                    </div>
+                  </div>
+
+                  {/* Date */}
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar size={12} color="#9ca3af" className="shrink-0" />
+                      <span className="text-xs text-gray-500">{fmt(don.dateDon)}</span>
+                    </div>
+                  </div>
+
+                  {/* Expiration */}
                   <div className="col-span-1">
-                    <Chip size="sm" color={sConfig.color}>
-                      {sConfig.label}
-                    </Chip>
+                    {expiry ? (
+                      <div className={clsx("flex items-center gap-1", expiry.danger ? "text-red-500" : "text-gray-400")}>
+                        {expiry.danger && <Warning2 size={11} className="shrink-0" />}
+                        <span className="text-xs font-medium">{expiry.label}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </div>
+
+                  {/* Statut */}
+                  <div className="col-span-1 flex justify-center">
+                    <span className={clsx("inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium", cfg.bg, cfg.text)}>
+                      <StatusIcon size={11} variant="Bold" />
+                      <span className="hidden xl:inline">{cfg.label}</span>
+                    </span>
                   </div>
                 </div>
               );
@@ -287,121 +196,77 @@ export function ConsoleDonationsList({
           </div>
         </div>
 
-        {}
+        {/* Side detail panel */}
         {selected && (
-          <div className="w-72 shrink-0 bg-white rounded-2xl border border-gray-100 self-start">
+          <div className="w-72 shrink-0 bg-white rounded-2xl border border-gray-100 self-start sticky top-4">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900">
-                Détail poche
-              </h3>
-              <button
-                onClick={() => setSelected(null)}
-                className="text-gray-400 hover:text-gray-600 text-lg"
-              >×</button>
+              <h3 className="text-sm font-semibold text-gray-900">Détail du don</h3>
+              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-lg">×</button>
             </div>
 
             <div className="px-5 py-4 space-y-4">
-              {}
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-mono font-bold text-gray-900">
-                  {selected.id}
-                </p>
-                <Chip size="sm" color={statusConfig[selected.status].color}>
-                  {statusConfig[selected.status].label}
-                </Chip>
-              </div>
-
-              {}
-              <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
-                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">
-                    {selected.bloodGroup}
+              {/* Statut badge */}
+              {(() => {
+                const cfg = STATUT_CFG[selected.statut] ?? STATUT_CFG.en_attente;
+                const Icon = cfg.icon;
+                return (
+                  <span className={clsx("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold", cfg.bg, cfg.text)}>
+                    <Icon size={13} variant="Bold" /> {cfg.label}
                   </span>
+                );
+              })()}
+
+              {/* Groupe sanguin + volume */}
+              <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center shrink-0">
+                  <span className="text-sm font-black text-white">{selected.donneur?.groupeSanguin ?? "?"}</span>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selected.bloodGroup}
-                  </p>
-                  <p className="text-xs text-gray-500">{selected.volume} ml</p>
-                  {selected.expiresAt && (
+                  <p className="text-sm font-bold text-gray-900">{selected.donneur?.groupeSanguin ?? "—"}</p>
+                  <p className="text-xs text-gray-500">{selected.volume ?? "—"} ml · {selected.typePoche ?? "—"}</p>
+                  {selected.dateExpiration && (
                     <p className="text-xs text-gray-400">
-                      Exp. {new Date(selected.expiresAt).toLocaleDateString("fr-FR")}
+                      Exp. {new Date(selected.dateExpiration).toLocaleDateString("fr-FR")}
                     </p>
                   )}
                 </div>
               </div>
 
-              {}
+              {/* Infos */}
               {[
-                { label: "Donneur", value: selected.donorName },
-                { label: "ID Donneur", value: selected.donorId },
-                { label: "Centre", value: selected.center },
-                { label: "Département", value: selected.department },
-                { label: "Agent", value: selected.agent },
-                { label: "Date du don", value: formatDate(selected.date) },
+                { label: "Donneur", value: selected.nomDonneur || "—", Icon: Profile2User },
+                { label: "Code donneur", value: selected.donneur?.codeDonneur || "—", Icon: Profile2User },
+                { label: "Centre", value: selected.hopital?.nom || "—", Icon: Hospital },
+                { label: "Commune", value: selected.hopital?.commune || "—", Icon: Hospital },
+                { label: "Agent", value: selected.agent?.nomComplet || "—", Icon: Profile2User },
+                { label: "Date du don", value: fmt(selected.dateDon), Icon: Calendar },
               ].map((item) => (
                 <div key={item.label}>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">
-                    {item.label}
-                  </p>
-                  <p className="text-sm font-medium text-gray-900">{item.value}</p>
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <item.Icon size={11} color="#9ca3af" />
+                    <p className="text-xs text-gray-400 uppercase tracking-wider">{item.label}</p>
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 pl-4">{item.value}</p>
                 </div>
               ))}
 
-              {}
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-                  Résultats des tests
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {(
-                    [
-                      { key: "hiv" as const, label: "VIH" },
-                      { key: "hepatiteB" as const, label: "Hépatite B" },
-                      { key: "hepatiteC" as const, label: "Hépatite C" },
-                      { key: "syphilis" as const, label: "Syphilis" },
-                    ]
-                  ).map((test) => {
-                    const positive = selected.tests[test.key];
-                    return (
-                      <div
-                        key={test.key}
-                        className={clsx(
-                          "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium",
-                          positive
-                            ? "bg-red-50 text-red-700"
-                            : "bg-green-50 text-green-700"
-                        )}
-                      >
-                        <span>{positive ? "✕" : "✓"}</span>
-                        {test.label}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {}
-              {selected.status === "pending" && (
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    fullWidth
-                    onPress={() => handleValidate(selected.id)}
-                    className="rounded-xl text-xs bg-green-600 text-white hover:bg-green-700"
+              {/* Actions pour dons en attente */}
+              {selected.statut === "en_attente" && (
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => onValidate(selected.id)}
+                    disabled={actionId === selected.id}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-50 text-green-700 text-xs font-semibold rounded-xl hover:bg-green-100 transition-colors disabled:opacity-50"
                   >
-                    ✓ Valider
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    fullWidth
-                    onPress={() => handleReject(selected.id)}
-                    className="rounded-xl text-xs"
+                    <TickCircle size={13} variant="Bold" /> Valider
+                  </button>
+                  <button
+                    onClick={() => onReject(selected.id)}
+                    disabled={actionId === selected.id}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-red-50 text-red-700 text-xs font-semibold rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
                   >
-                    ✕ Rejeter
-                  </Button>
+                    <CloseCircle size={13} variant="Bold" /> Rejeter
+                  </button>
                 </div>
               )}
             </div>

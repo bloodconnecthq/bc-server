@@ -51,10 +51,20 @@ export default class DonsController {
     const dons = await Don.query()
       .preload('hopital')
       .preload('agent')
-      .preload('donneur')
-      .orderBy('date_don', 'desc')
+      .preload('donneur', (q) => q.preload('utilisateur'))
+      .preload('poche')
+      .orderBy('created_at', 'desc')
 
-    return dons.map((don) => new DonTransformer(don).toObject())
+    return dons.map((don) => ({
+      ...new DonTransformer(don).toObject(),
+      nomDonneur:
+        don.donneur?.utilisateur?.nomComplet ||
+        `${don.donneur?.utilisateur?.prenom ?? ''} ${don.donneur?.utilisateur?.nom ?? ''}`.trim() ||
+        null,
+      dateExpiration: don.poche?.dateExpiration
+        ? don.poche.dateExpiration.toISOString()
+        : null,
+    }))
   }
 
   async store({ request, auth, response }: HttpContext) {

@@ -337,6 +337,51 @@ export async function deleteUser(id: string, token: string): Promise<void> {
   await authFetch(`/users/${id}`, token, { method: 'DELETE' })
 }
 
+// ── Dons (poches de sang) ────────────────────────────────────────────────────
+
+export interface DonAPI {
+  id: string
+  donneurId: string
+  hopitalId: string | null
+  agentId: string | null
+  dateDon: string | null
+  typePoche: string | null
+  volume: number | null
+  statut: 'en_attente' | 'valide' | 'rejete'
+  hopital: { id: string; nom: string; commune: string } | null
+  agent: { id: string; nomComplet: string } | null
+  donneur: { id: string; codeDonneur: string; groupeSanguin: string } | null
+  nomDonneur: string | null
+  dateExpiration: string | null
+  creeLe: string | null
+}
+
+export interface DonStatsAPI {
+  total: number
+  valides: number
+  enAttente: number
+  rejetes: number
+  tauxValidation: number
+}
+
+export async function getDons(token: string): Promise<DonAPI[]> {
+  const raw = await authFetch('/dons', token)
+  return extractList<DonAPI>(raw)
+}
+
+export async function getDonStats(token: string): Promise<DonStatsAPI> {
+  const raw = await authFetch('/dons/statistiques', token)
+  return extractData<DonStatsAPI>(raw)
+}
+
+export async function validerDon(id: string, token: string): Promise<void> {
+  await authFetch(`/dons/${id}/valider`, token, { method: 'PATCH' })
+}
+
+export async function rejeterDon(id: string, token: string): Promise<void> {
+  await authFetch(`/dons/${id}/rejeter`, token, { method: 'PATCH' })
+}
+
 // ── Rapport dons ─────────────────────────────────────────────────────────────
 
 export async function getRapportDons(token: string) {

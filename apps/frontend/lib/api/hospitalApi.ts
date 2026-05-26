@@ -298,6 +298,7 @@ export interface HospitalMemberProfile {
   nom: string | null
   email: string
   role: string
+  photoProfil: string | null
   hopitalId: string | null
   hopital: HospitalData | null
 }

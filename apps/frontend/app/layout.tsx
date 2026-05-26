@@ -14,12 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" data-theme="light" className="light" >
+    <html lang="fr" data-theme="light" className="light" suppressHydrationWarning>
       <body
         className={clsx(
           "min-h-screen text-foreground font-sans antialiased",
           fonts.bricolageGrotesk.className,
         )}
+        suppressHydrationWarning
       >
         <Providers>
           {children}

@@ -15,7 +15,7 @@ function SignUpForm() {
         router.push(`/auth/signin?step=2&email=${encodeURIComponent(email)}`);
     };
 
-    const [whatsapp, setWhatsapp] = useState();
+    const [whatsapp, setWhatsapp] = useState("");
 
     return (
         <div className="space-y-4">

@@ -10,7 +10,6 @@ import {
   Notification,
   Setting2,
   LogoutCurve,
-  Hospital,
   ClipboardText,
   DocumentText,
   Calendar,
@@ -92,9 +91,12 @@ export function HospitalSidebar() {
       {/* Footer — user info */}
       <div className="px-3 py-4 border-t border-gray-100 space-y-1">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
-          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-            <Hospital size={14} color="#dc2626" variant="Bold" />
-          </div>
+          <img
+            src={profile?.photoProfil || "https://placehold.net/avatar-5.svg"}
+            alt={profile?.nomComplet || "Avatar"}
+            className="w-8 h-8 rounded-full object-cover shrink-0"
+            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
+          />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-900 truncate">
               {profile?.hopital?.nom ?? "Hôpital"}

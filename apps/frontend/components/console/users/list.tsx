@@ -25,7 +25,7 @@ function fmt(d: string | null) {
 }
 
 function initials(u: UserAPI) {
-  const name = u.nomComplet || `${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email;
+  const name = u.nomComplet || `${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email || "??";
   const parts = name.split(" ").filter(Boolean);
   return parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : name.slice(0, 2).toUpperCase();
 }
@@ -129,12 +129,20 @@ export function UsersList({
                   )}>
                   {/* Avatar + nom */}
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className={clsx(
-                      "w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0",
-                      u.estActif ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-400"
-                    )}>
-                      {initials(u)}
-                    </div>
+                    {u.photoProfil ? (
+                      <img
+                        src={u.photoProfil}
+                        alt={initials(u)}
+                        className="w-8 h-8 rounded-xl object-cover shrink-0"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
+                      />
+                    ) : (
+                      <img
+                        src="https://placehold.net/avatar-5.svg"
+                        alt={initials(u)}
+                        className="w-8 h-8 rounded-xl object-cover shrink-0"
+                      />
+                    )}
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">
                         {u.nomComplet || `${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || "—"}
@@ -201,12 +209,20 @@ export function UsersList({
             <div className="px-5 py-4 space-y-4">
               {/* Avatar + nom */}
               <div className="flex items-center gap-3">
-                <div className={clsx(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center text-base font-black",
-                  selected.estActif ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-400"
-                )}>
-                  {initials(selected)}
-                </div>
+                {selected.photoProfil ? (
+                  <img
+                    src={selected.photoProfil}
+                    alt={initials(selected)}
+                    className="w-12 h-12 rounded-2xl object-cover shrink-0"
+                    onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
+                  />
+                ) : (
+                  <img
+                    src="https://placehold.net/avatar-5.svg"
+                    alt={initials(selected)}
+                    className="w-12 h-12 rounded-2xl object-cover shrink-0"
+                  />
+                )}
                 <div>
                   <p className="text-sm font-bold text-gray-900">
                     {selected.nomComplet || `${selected.prenom ?? ""} ${selected.nom ?? ""}`.trim() || "—"}

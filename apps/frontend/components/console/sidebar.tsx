@@ -17,15 +17,15 @@ import {
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 
-const navItems = [
-  { label: "Vue d'ensemble",   href: "/console",            icon: Chart2        },
-  { label: "Hôpitaux & Centres", href: "/console/hospitals", icon: Hospital      },
-  { label: "Utilisateurs",     href: "/console/users",      icon: Profile2User  },
-  { label: "Demandes d'accès", href: "/console/members",    icon: ShieldTick    },
-  { label: "Stocks nationaux", href: "/console/stocks",     icon: Drop          },
-  { label: "Donneurs",         href: "/console/donors",     icon: People        },
-  { label: "Poches de sang",   href: "/console/donations",  icon: ClipboardText },
-  { label: "Rapports",         href: "/console/reports",    icon: DocumentText  },
+const navItems: { label: string; href: string; icon: typeof Chart2; badge?: number }[] = [
+  { label: "Vue d'ensemble",    href: "/console",           icon: Chart2        },
+  { label: "Hôpitaux & Centres",href: "/console/hospitals", icon: Hospital      },
+  { label: "Utilisateurs",      href: "/console/users",     icon: Profile2User  },
+  { label: "Demandes d'accès",  href: "/console/members",   icon: ShieldTick    },
+  { label: "Stocks nationaux",  href: "/console/stocks",    icon: Drop          },
+  { label: "Donneurs",          href: "/console/donors",    icon: People        },
+  { label: "Poches de sang",    href: "/console/donations", icon: ClipboardText },
+  { label: "Rapports",          href: "/console/reports",   icon: DocumentText  },
 ];
 
 export function ConsoleSidebar() {
@@ -99,9 +99,12 @@ export function ConsoleSidebar() {
           Paramètres
         </Link>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
-          <div className="w-8 h-8 bg-red-900 rounded-full flex items-center justify-center">
-            <ShieldTick size={14} color="#f87171" variant="Bold" />
-          </div>
+          <img
+            src={user?.photoProfil || "https://placehold.net/avatar-5.svg"}
+            alt={user?.nomComplet || "Avatar"}
+            className="w-8 h-8 rounded-full object-cover shrink-0"
+            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.net/avatar-5.svg"; }}
+          />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-white truncate">
               {user?.nomComplet || user?.email || "Super Admin"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { People, TickCircle, CloseCircle, ShieldTick, User, Stethoscope, Firstaid } from "iconsax-reactjs";
+import { People, TickCircle, CloseCircle, ShieldTick } from "iconsax-reactjs";
 import type { UserStatsAPI } from "@/lib/api/consoleApi";
 
 const ROLE_CFG: Record<string, { label: string; color: string }> = {

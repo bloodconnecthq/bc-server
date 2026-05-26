@@ -17,7 +17,14 @@
       "Bash(node -e \"const h = require\\('@heroui/react'\\); console.log\\(Object.keys\\(h\\).filter\\(k => /Tab|Table|Drawer|Slide/i.test\\(k\\)\\).join\\('\\\\n'\\)\\)\")",
       "WebFetch(domain:www.heroui.com)",
       "Bash(xargs ls)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(xargs cat)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(node -e \"const i = require\\('d:/bc-web/node_modules/iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /Trash|Warning|Clock/.test\\(k\\)\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e \"try { const i = require\\('./node_modules/iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer\\)/.test\\(k\\)\\).slice\\(0,15\\).join\\(', '\\)\\); } catch\\(e\\) { console.log\\('err:', e.message\\) }\")",
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer|Alarm|DocumentDownload|Document\\)/.test\\(k\\)\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Trash|Warning|Clock|Timer|DocumentDownload\\)/.test\\(k\\)\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const i = require\\('iconsax-reactjs'\\); console.log\\(Object.keys\\(i\\).filter\\(k => /^\\(Drop|TickCircle|CloseCircle|Clock|Warning2|DocumentDownload\\)$/.test\\(k\\)\\).join\\(', '\\)\\)\")"
     ],
     "additionalDirectories": [
       "d:\\bc-web\\apps\\backend\\app\\controllers"
