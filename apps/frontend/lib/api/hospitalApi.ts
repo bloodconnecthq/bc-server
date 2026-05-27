@@ -259,23 +259,55 @@ export interface RdvData {
   misAJourLe: string | null
 }
 
+export interface RdvMeta {
+  total: number
+  perPage: number
+  currentPage: number
+  lastPage: number
+  firstPage: number
+}
+
+export interface RdvPaginatedResponse {
+  data: RdvData[]
+  meta: RdvMeta
+}
+
 function extractRdvList(raw: any): RdvData[] {
   if (Array.isArray(raw)) return raw
   if (Array.isArray(raw?.data)) return raw.data
   if (Array.isArray(raw?.donnees)) return raw.donnees
-  // BaseTransformer collection
-  if (raw?.$type === 'collection' && Array.isArray(raw.transformerData?.[0])) return raw.transformerData[0]
   return []
 }
 
-export async function getMyHospitalRdv(token: string): Promise<RdvData[]> {
-  const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.hopitaux.moiRendezVous}`, { headers: createHeaders(token) })
-  return extractRdvList(await res.json())
+// File commune : RDVs non attribués de l'hôpital, paginés par 10
+export async function getMyHospitalRdv(token: string, page = 1): Promise<RdvPaginatedResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}${API_ENDPOINTS.hopitaux.moiRendezVous}?page=${page}`,
+    { headers: createHeaders(token) }
+  )
+  const raw = await res.json()
+  return {
+    data: Array.isArray(raw?.data) ? raw.data : [],
+    meta: raw?.meta ?? { total: 0, perPage: 10, currentPage: 1, lastPage: 1, firstPage: 1 },
+  }
 }
 
+// Mes RDVs attribués
 export async function getMyAssignedRdv(token: string): Promise<RdvData[]> {
   const res = await fetch(`${API_BASE_URL}/rendez-vous/attribues`, { headers: createHeaders(token) })
   return extractRdvList(await res.json())
+}
+
+// S'attribuer un RDV non pris en charge
+export async function sAttribuerRdv(id: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/rendez-vous/${id}/s-attribuer`, {
+    method: 'PATCH',
+    headers: createHeaders(token),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur lors de l\'attribution')
+  }
 }
 
 export async function marquerRdvEffectue(id: string, token: string): Promise<void> {

@@ -31,6 +31,18 @@ export default class NewAccountController {
         })
       }
 
+      // Vérifier l'âge minimum (18 ans)
+      if (dateNaissance) {
+        const seuil = new Date()
+        seuil.setFullYear(seuil.getFullYear() - 18)
+        if (new Date(dateNaissance as any) > seuil) {
+          return response.status(422).json({
+            succes: false,
+            erreur: 'Vous devez avoir au moins 18 ans pour créer un compte.',
+          })
+        }
+      }
+
       // Créer l'utilisateur avec rôle donneur par défaut
       const user = await User.create({
         nomComplet: nomComplet ?? `${prenom ?? ''} ${nom ?? ''}`.trim(),
@@ -79,14 +91,17 @@ export default class NewAccountController {
         },
       })
     } catch (error: any) {
-      const erreur = error.messages
-        ? Object.values(error.messages).join(', ')
-        : error.message
+      // VineJS validation error: messages is an array of { field, rule, message }
+      if (Array.isArray(error.messages)) {
+        return response.status(422).json({
+          succes: false,
+          erreur: error.messages.map((m: any) => m.message).join(' '),
+        })
+      }
 
       return response.status(400).json({
         succes: false,
-        erreur: "Erreur lors de l'inscription",
-        details: erreur,
+        erreur: error.message || "Erreur lors de l'inscription",
       })
     }
   }

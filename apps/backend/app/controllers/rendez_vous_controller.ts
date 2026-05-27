@@ -91,6 +91,42 @@ export default class RendezVousController {
     return serialize(rdv.map((r) => RendezVousTransformer.transform(r)))
   }
 
+  // Tout membre d'hôpital peut s'attribuer un RDV non encore pris en charge
+  async sAttribuer({ params, auth, response, serialize }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const rdv = await RendezVous.findOrFail(params.id)
+
+    if (rdv.membreId) {
+      return response.conflict({ succes: false, erreur: 'Ce rendez-vous a déjà été pris en charge par un autre membre.' })
+    }
+
+    rdv.membreId = user.id
+    if (rdv.statut === 'planifie') rdv.statut = 'confirme'
+    await rdv.save()
+
+    await rdv.load('donneur')
+    await rdv.load('hopital')
+
+    // Notifier le donneur
+    if (rdv.donneur) {
+      const dateRdv = rdv.dateRdv instanceof Date
+        ? DateTime.fromJSDate(rdv.dateRdv)
+        : typeof rdv.dateRdv === 'string'
+          ? DateTime.fromISO(rdv.dateRdv)
+          : rdv.dateRdv
+      const dateFormatee = dateRdv.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
+      await NotificationService.create({
+        utilisateurId: rdv.donneur.utilisateurId,
+        type: 'confirm',
+        titre: 'Rendez-vous confirmé ✅',
+        message: `Votre rendez-vous du ${dateFormatee} au ${rdv.hopital?.nom ?? 'centre'} a été pris en charge et confirmé.`,
+      })
+    }
+
+    return serialize(RendezVousTransformer.transform(rdv))
+  }
+
   async assigner({ params, request, response, serialize }: HttpContext) {
     const rdv = await RendezVous.findOrFail(params.id)
 
@@ -118,7 +154,8 @@ export default class RendezVousController {
     await rdv.load('hopital')
 
     if (rdv.donneur) {
-      const dateFormatee = rdv.dateRdv.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
+      const d1 = rdv.dateRdv instanceof Date ? DateTime.fromJSDate(rdv.dateRdv) : typeof rdv.dateRdv === 'string' ? DateTime.fromISO(rdv.dateRdv) : rdv.dateRdv
+      const dateFormatee = d1.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
       await NotificationService.create({
         utilisateurId: rdv.donneur.utilisateurId,
         type: 'confirm',
@@ -139,7 +176,8 @@ export default class RendezVousController {
     await rdv.load('hopital')
 
     if (rdv.donneur) {
-      const dateFormatee = rdv.dateRdv.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
+      const d2 = rdv.dateRdv instanceof Date ? DateTime.fromJSDate(rdv.dateRdv) : typeof rdv.dateRdv === 'string' ? DateTime.fromISO(rdv.dateRdv) : rdv.dateRdv
+      const dateFormatee = d2.setLocale('fr').toLocaleString(DateTime.DATETIME_MED)
       await NotificationService.create({
         utilisateurId: rdv.donneur.utilisateurId,
         type: 'urgent',

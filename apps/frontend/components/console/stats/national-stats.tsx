@@ -1,56 +1,80 @@
-export function NationalStats() {
+interface StatsData {
+  donneursActifs: number;
+  pochesCollectees: number;
+  centresActifs: number;
+  groupesCritiques: number;
+  demandesEnAttente: number;
+  donsEnAttente: number;
+}
+
+interface Props {
+  data: StatsData | null;
+  isLoading: boolean;
+}
+
+export function NationalStats({ data, isLoading }: Props) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-6 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
   const stats = [
     {
       label: "Donneurs actifs",
-      value: "12 847",
-      change: "+234 ce mois",
+      value: data?.donneursActifs ?? 0,
+      sub: "profils enregistrés",
       positive: true,
       emoji: "🩸",
       bg: "bg-red-50",
       text: "text-red-600",
     },
     {
-      label: "Poches collectées",
-      value: "3 241",
-      change: "+12% vs mars 2025",
-      positive: true,
+      label: "Poches validées",
+      value: data?.pochesCollectees ?? 0,
+      sub: `${data?.donsEnAttente ?? 0} en attente`,
+      positive: (data?.donsEnAttente ?? 0) === 0,
       emoji: "💉",
       bg: "bg-blue-50",
       text: "text-blue-600",
     },
     {
       label: "Centres actifs",
-      value: "47",
-      change: "12 départements",
+      value: data?.centresActifs ?? 0,
+      sub: "tous départements",
       positive: true,
       emoji: "🏥",
       bg: "bg-green-50",
       text: "text-green-600",
     },
     {
-      label: "Groupes en rupture",
-      value: "3",
-      change: "B-, AB-, O-",
-      positive: false,
+      label: "Groupes critiques",
+      value: data?.groupesCritiques ?? 0,
+      sub: (data?.groupesCritiques ?? 0) === 0 ? "stocks normaux" : "stock(s) en alerte",
+      positive: (data?.groupesCritiques ?? 0) === 0,
       emoji: "⚠️",
       bg: "bg-amber-50",
       text: "text-amber-600",
     },
     {
       label: "Demandes en attente",
-      value: "3",
-      change: "accès membres",
-      positive: false,
+      value: data?.demandesEnAttente ?? 0,
+      sub: "accès membres",
+      positive: (data?.demandesEnAttente ?? 0) === 0,
       emoji: "🔐",
       bg: "bg-purple-50",
       text: "text-purple-600",
     },
     {
-      label: "Campagnes actives",
-      value: "5",
-      change: "2 cette semaine",
-      positive: true,
-      emoji: "📢",
+      label: "Dons à valider",
+      value: data?.donsEnAttente ?? 0,
+      sub: "en cours de traitement",
+      positive: (data?.donsEnAttente ?? 0) === 0,
+      emoji: "📋",
       bg: "bg-indigo-50",
       text: "text-indigo-600",
     },
@@ -63,10 +87,10 @@ export function NationalStats() {
           <div className={`w-9 h-9 ${s.bg} rounded-xl flex items-center justify-center text-lg mb-3`}>
             {s.emoji}
           </div>
-          <p className={`text-2xl font-black ${s.text}`}>{s.value}</p>
+          <p className={`text-2xl font-black ${s.text}`}>{s.value.toLocaleString("fr-FR")}</p>
           <p className="text-xs font-medium text-gray-700 mt-1">{s.label}</p>
           <p className={`text-xs mt-0.5 ${s.positive ? "text-green-600" : "text-red-500"}`}>
-            {s.change}
+            {s.sub}
           </p>
         </div>
       ))}

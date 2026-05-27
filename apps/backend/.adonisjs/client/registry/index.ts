@@ -474,6 +474,12 @@ const routes = {
     tokens: [{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"api","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"v1","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"rendez-vous","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"attribues","end":""}],
     types: placeholder as Registry['rendezVous.rendez_vous.rendez_vous_attribues']['types'],
   },
+  'rendezVous.rendez_vous.s_attribuer': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/rendez-vous/:id/s-attribuer',
+    tokens: [{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"api","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"v1","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"rendez-vous","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":1,"val":"id","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"s-attribuer","end":""}],
+    types: placeholder as Registry['rendezVous.rendez_vous.s_attribuer']['types'],
+  },
   'rendezVous.rendez_vous.index': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/rendez-vous',

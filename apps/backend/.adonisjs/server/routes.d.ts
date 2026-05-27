@@ -82,6 +82,7 @@ export type ScannedRoutes = {
     'notifications.notifications.marquer_lue': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.mes_rendez_vous': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.rendez_vous_attribues': { paramsTuple?: []; params?: {} }
+    'rendezVous.rendez_vous.s_attribuer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.index': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.store': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -258,6 +259,7 @@ export type ScannedRoutes = {
     'membresdemandes.hopitaux.demandes_acces_rejeter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'notifications.notifications.marquer_toutes_lues': { paramsTuple?: []; params?: {} }
     'notifications.notifications.marquer_lue': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'rendezVous.rendez_vous.s_attribuer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.assigner': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.confirmer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rendezVous.rendez_vous.annuler': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

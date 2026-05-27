@@ -140,7 +140,7 @@ export default class HopitauxController {
       .orderBy('date_don', 'desc')
       .limit(10)
 
-    return dons.map((don) => new DonTransformer(don).toObject())
+    return dons.map((don) => DonTransformer.transform(don))
   }
 
   async mesDons({ auth, response }: HttpContext) {
@@ -163,7 +163,7 @@ export default class HopitauxController {
       .orderBy('date_don', 'desc')
       .limit(10)
 
-    return dons.map((don) => new DonTransformer(don).toObject())
+    return dons.map((don) => DonTransformer.transform(don))
   }
 
   async rendezVous({ params, auth, serialize, response }: HttpContext) {
@@ -180,24 +180,30 @@ export default class HopitauxController {
     return serialize(rendezVous.map((rdv) => RendezVousTransformer.transform(rdv)))
   }
 
-  async mesRendezVous({ auth, serialize, response }: HttpContext) {
+  async mesRendezVous({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (!['infirmier', 'medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
     const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
-
     if (!membre?.hopitalId) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    const rendezVous = await RendezVous.query()
+    const page = Math.max(1, Number(request.input('page', 1)))
+
+    const pagination = await RendezVous.query()
       .where('hopital_id', membre.hopitalId)
+      .whereNull('membre_id')
       .preload('donneur')
       .orderBy('date_rdv', 'asc')
+      .paginate(page, 10)
 
-    return serialize(rendezVous.map((rdv) => RendezVousTransformer.transform(rdv)))
+    return response.ok({
+      data: pagination.all().map((rdv) => RendezVousTransformer.transform(rdv)),
+      meta: pagination.getMeta(),
+    })
   }
 
   async getCentres({ serialize }: HttpContext) {

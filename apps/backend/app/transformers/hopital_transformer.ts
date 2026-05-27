@@ -1,22 +1,21 @@
 import type Hopital from '#models/hopital'
-import { BaseTransformer } from '@adonisjs/core/transformers'
 
-export default class HopitalTransformer extends BaseTransformer<Hopital> {
-  toObject() {
-    return this.pick(this.resource, [
-      'id',
-      'nom',
-      'type',
-      'adresse',
-      'commune',
-      'departement',
-      'telephone',
-      'email',
-      'latitude',
-      'longitude',
-      'estActif',
-      'created_at',
-      'updated_at',
-    ])
+export default class HopitalTransformer {
+  static transform(hopital: Hopital) {
+    return {
+      id: hopital.id,
+      nom: hopital.nom,
+      type: hopital.type,
+      adresse: hopital.adresse ?? null,
+      commune: hopital.commune ?? null,
+      departement: hopital.departement ?? null,
+      telephone: hopital.telephone ?? null,
+      email: hopital.email ?? null,
+      latitude: hopital.latitude ?? null,
+      longitude: hopital.longitude ?? null,
+      estActif: hopital.estActif,
+      createdAt: hopital.created_at?.toISO() ?? null,
+      updatedAt: hopital.updated_at?.toISO() ?? null,
+    }
   }
 }

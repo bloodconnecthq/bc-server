@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
 
   // Méthodes
-  inscription: (data: SignupData) => Promise<AuthResponse>;
+  inscription: (data: SignupData) => Promise<void>;
   connexion: (data: LoginData) => Promise<AuthResponse>;
   deconnexion: () => Promise<void>;
   verifierAuth: () => Promise<boolean>;
@@ -125,44 +125,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [refreshProfile, saveAuthData, token]);
 
-  // Inscription
-  const inscription = useCallback(async (data: SignupData): Promise<AuthResponse> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.auth.inscription}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+  // Inscription — crée le compte uniquement, sans connecter l'utilisateur
+  const inscription = useCallback(async (data: SignupData): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.auth.inscription}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erreur lors de l\'inscription');
-      }
-
-      const authData = (await response.json()) as any;
-      const { token, userData } = extractAuthResponse(authData)
-
-      // Sauvegarder token et user
-      saveAuthData(token, userData)
-      await chargerProfil()
-
-      return authData;
-    } catch (error) {
-      console.error('Erreur inscription:', error);
-      throw error;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.erreur || error.message || "Erreur lors de l'inscription");
     }
-  }, [extractAuthResponse, saveAuthData, chargerProfil]);
+    // Compte créé — l'appelant redirige vers la page de connexion
+  }, []);
 
-  // Connexion
+  // Connexion — charge le profil avec le token frais (pas le token du state React)
   const connexion = useCallback(async (data: LoginData): Promise<AuthResponse> => {
     try {
       const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.auth.connexion}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
@@ -172,19 +155,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const authData = (await response.json()) as any;
-      console.log('Données de connexion reçues:', authData);
-      const { token, userData } = extractAuthResponse(authData)
+      const { token: freshToken, userData } = extractAuthResponse(authData)
 
-      // Sauvegarder token et user
-      saveAuthData(token, userData)
-      await chargerProfil()
+      // Charger le profil complet avec le token frais avant de sauvegarder
+      // (évite le bug de closure sur le state `token` React qui serait encore l'ancien)
+      const profileUser = await refreshProfile(freshToken)
+      saveAuthData(freshToken, profileUser ?? userData)
 
       return authData;
     } catch (error) {
-      console.error('Erreur connexion:', error);
       throw error;
     }
-  }, [extractAuthResponse, saveAuthData, chargerProfil]);
+  }, [extractAuthResponse, saveAuthData, refreshProfile]);
 
   // Déconnexion
   const deconnexion = useCallback(async () => {

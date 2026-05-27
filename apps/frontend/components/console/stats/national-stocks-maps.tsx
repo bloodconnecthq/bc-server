@@ -2,40 +2,43 @@
 
 import clsx from "clsx";
 
-const departments = [
-  { name: "Littoral", capital: "Cotonou", status: "critical" as const, poches: 151, centers: 8 },
-  { name: "Ouémé", capital: "Porto-Novo", status: "low" as const, poches: 89, centers: 5 },
-  { name: "Borgou", capital: "Parakou", status: "ok" as const, poches: 203, centers: 6 },
-  { name: "Atlantique", capital: "Abomey-Calavi", status: "ok" as const, poches: 178, centers: 7 },
-  { name: "Zou", capital: "Abomey", status: "low" as const, poches: 64, centers: 4 },
-  { name: "Collines", capital: "Savalou", status: "ok" as const, poches: 112, centers: 3 },
-  { name: "Mono", capital: "Lokossa", status: "critical" as const, poches: 28, centers: 2 },
-  { name: "Couffo", capital: "Aplahoué", status: "low" as const, poches: 45, centers: 2 },
-  { name: "Atacora", capital: "Natitingou", status: "ok" as const, poches: 134, centers: 4 },
-  { name: "Donga", capital: "Djougou", status: "ok" as const, poches: 98, centers: 3 },
-  { name: "Alibori", capital: "Kandi", status: "low" as const, poches: 52, centers: 2 },
-  { name: "Plateau", capital: "Pobè", status: "ok" as const, poches: 87, centers: 3 },
-];
+type StockStatus = "ok" | "low" | "critical";
+
+interface DeptData {
+  name: string;
+  poches: number;
+  centers: number;
+  status: StockStatus;
+}
+
+interface Props {
+  departments: DeptData[];
+  isLoading: boolean;
+}
 
 const statusConfig = {
-  ok: { label: "Normal", dot: "bg-green-500", badge: "bg-green-50 text-green-700", row: "" },
-  low: { label: "Faible", dot: "bg-amber-500", badge: "bg-amber-50 text-amber-700", row: "bg-amber-50/40" },
-  critical: { label: "Critique", dot: "bg-red-500", badge: "bg-red-50 text-red-700", row: "bg-red-50/40" },
+  ok:       { label: "Normal",  dot: "bg-green-500", badge: "bg-green-50 text-green-700",   row: "" },
+  low:      { label: "Faible",  dot: "bg-amber-500", badge: "bg-amber-50 text-amber-700",   row: "bg-amber-50/40" },
+  critical: { label: "Critique",dot: "bg-red-500",   badge: "bg-red-50 text-red-700",       row: "bg-red-50/40" },
 };
 
-export function NationalStocksMap() {
+export function NationalStocksMap({ departments, isLoading }: Props) {
+  const sorted = [...departments].sort((a, b) => {
+    const order: Record<StockStatus, number> = { critical: 0, low: 1, ok: 2 };
+    return order[a.status] - order[b.status];
+  });
+
   const total = departments.reduce((s, d) => s + d.poches, 0);
   const criticals = departments.filter((d) => d.status === "critical");
+  const max = Math.max(...departments.map((d) => d.poches), 1);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">
-            Stocks par département
-          </h2>
+          <h2 className="text-base font-semibold text-gray-900">Stocks par département</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            {total.toLocaleString()} poches au total · 12 départements
+            {isLoading ? "Chargement…" : `${total.toLocaleString("fr-FR")} poches · ${departments.length} département${departments.length > 1 ? "s" : ""}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -48,8 +51,7 @@ export function NationalStocksMap() {
         </div>
       </div>
 
-      {/* Alerte critique */}
-      {criticals.length > 0 && (
+      {!isLoading && criticals.length > 0 && (
         <div className="px-6 py-3 bg-red-50 border-b border-red-100 flex items-center gap-2">
           <span className="text-sm">🚨</span>
           <p className="text-xs text-red-700 font-medium">
@@ -58,18 +60,19 @@ export function NationalStocksMap() {
         </div>
       )}
 
-      {/* Tableau */}
       <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
-        {departments
-          .sort((a, b) => {
-            const order = { critical: 0, low: 1, ok: 2 };
-            return order[a.status] - order[b.status];
-          })
-          .map((dept) => {
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="px-6 py-3 h-14 animate-pulse bg-gray-50/50" />
+          ))
+        ) : sorted.length === 0 ? (
+          <div className="px-6 py-12 text-center text-sm text-gray-400">
+            Aucune donnée de stock disponible
+          </div>
+        ) : (
+          sorted.map((dept) => {
             const config = statusConfig[dept.status];
-            const max = Math.max(...departments.map((d) => d.poches));
             const pct = Math.round((dept.poches / max) * 100);
-
             return (
               <div
                 key={dept.name}
@@ -81,24 +84,12 @@ export function NationalStocksMap() {
                 <div className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <div>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {dept.name}
-                      </span>
-                      <span className="text-xs text-gray-400 ml-2">
-                        {dept.capital}
-                      </span>
-                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{dept.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">
-                        {dept.poches} poches
+                        {dept.poches.toLocaleString("fr-FR")} poches
                       </span>
-                      <span
-                        className={clsx(
-                          "text-xs font-medium px-2 py-0.5 rounded-full",
-                          config.badge
-                        )}
-                      >
+                      <span className={clsx("text-xs font-medium px-2 py-0.5 rounded-full", config.badge)}>
                         {config.label}
                       </span>
                     </div>
@@ -107,22 +98,21 @@ export function NationalStocksMap() {
                     <div
                       className={clsx(
                         "h-full rounded-full",
-                        dept.status === "critical"
-                          ? "bg-red-500"
-                          : dept.status === "low"
-                          ? "bg-amber-500"
-                          : "bg-green-500"
+                        dept.status === "critical" ? "bg-red-500"
+                        : dept.status === "low" ? "bg-amber-500"
+                        : "bg-green-500"
                       )}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs text-gray-400">{dept.centers} centres</p>
+                  <p className="text-xs text-gray-400">{dept.centers} centre{dept.centers > 1 ? "s" : ""}</p>
                 </div>
               </div>
             );
-          })}
+          })
+        )}
       </div>
     </div>
   );

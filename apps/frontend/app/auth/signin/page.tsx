@@ -35,7 +35,8 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
 
-  const redirectParam = searchParams.get("redirect");
+  const redirectParam  = searchParams.get("redirect");
+  const compteCree     = searchParams.get("compte") === "cree";
 
   // Redirect already-authenticated users — honour ?redirect= if present
   useEffect(() => {
@@ -51,14 +52,10 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      const authData = await connexion({ email, motDePasse });
-      const role =
-        (authData as any)?.data?.user?.role ??
-        (authData as any)?.user?.role ??
-        null;
-      // After login, go to ?redirect= destination or role-based home
-      const dest = safeRedirect(redirectParam, getDashboardByRole(role));
-      router.push(dest);
+      await connexion({ email, motDePasse });
+      // Navigation handled by the useEffect watching isAuthenticated —
+      // it fires only after React commits the fresh token/user to context,
+      // preventing the stale-token race that caused wrong profile data on /donor.
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de connexion");
     } finally {
@@ -82,6 +79,12 @@ export default function SignInPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {compteCree && (
+          <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2">
+            <span>✓</span>
+            <span>Compte créé avec succès ! Connectez-vous pour accéder à votre espace.</span>
+          </div>
+        )}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
             {error}

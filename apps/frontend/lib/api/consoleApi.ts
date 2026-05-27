@@ -23,9 +23,14 @@ function extractList<T>(raw: any): T[] {
 }
 
 function extractData<T>(raw: any): T {
+  // Unwrap outer { data: ... } or { donnees: ... }
   const inner = raw?.donnees ?? raw?.data ?? raw
   if (inner?.$type === 'item' && Array.isArray(inner.transformerData)) {
     return inner.transformerData[0] as T
+  }
+  // Unwrap double-wrapped { data: { succes, donnees: {...} } }
+  if (inner?.donnees !== undefined) {
+    return inner.donnees as T
   }
   return inner as T
 }

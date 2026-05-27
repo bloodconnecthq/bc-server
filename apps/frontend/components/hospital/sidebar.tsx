@@ -23,7 +23,7 @@ const navItems = [
   { label: "Dons enregistrés",   href: "/hospital/donations",    icon: ClipboardText },
   { label: "Rendez-vous",        href: "/hospital/appointments", icon: Calendar      },
   { label: "Bons de demande",    href: "/hospital/requests",     icon: DocumentText  },
-  { label: "Alertes",            href: "/hospital/alerts",       icon: Notification  },
+  // { label: "Alertes",            href: "/hospital/alerts",       icon: Notification  },
   { label: "Paramètres",         href: "/hospital/settings",     icon: Setting2      },
 ];
 

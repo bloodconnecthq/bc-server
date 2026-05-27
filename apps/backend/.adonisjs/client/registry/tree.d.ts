@@ -130,6 +130,7 @@ export interface ApiDefinition {
     rendezVous: {
       mesRendezVous: typeof routes['rendezVous.rendez_vous.mes_rendez_vous']
       rendezVousAttribues: typeof routes['rendezVous.rendez_vous.rendez_vous_attribues']
+      sAttribuer: typeof routes['rendezVous.rendez_vous.s_attribuer']
       index: typeof routes['rendezVous.rendez_vous.index']
       store: typeof routes['rendezVous.rendez_vous.store']
       show: typeof routes['rendezVous.rendez_vous.show']

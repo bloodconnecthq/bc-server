@@ -36,7 +36,7 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      router.push("/donor");
+      router.replace("/donor");
     }
   }, [isAuthenticated, authLoading, router]);
 
@@ -102,7 +102,8 @@ export default function SignUpPage() {
         commune: commune || undefined,
         dateNaissance: dateNaissance || undefined,
       });
-      router.push("/donor");
+      // Compte créé — rediriger vers la connexion pour que l'utilisateur se connecte
+      router.push("/auth/signin?compte=cree");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'inscription");
     } finally {

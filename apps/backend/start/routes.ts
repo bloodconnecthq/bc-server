@@ -422,7 +422,11 @@ router
 
         router
           .get('attribues', [RendezVousController, 'rendezVousAttribues'])
-          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin']))
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital']))
+
+        router
+          .patch(':id/s-attribuer', [RendezVousController, 'sAttribuer'])
+          .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital']))
 
         // ✅ Routes générales
         router

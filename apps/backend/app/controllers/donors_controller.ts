@@ -108,7 +108,7 @@ export default class DonorsController {
         .orderBy('date_don', 'desc')
       return response.ok({
         succes: true,
-        donnees: dons.map((don) => new DonTransformer(don).toObject()),
+        donnees: dons.map((don) => DonTransformer.transform(don)),
       })
     } catch (_) {
       return response.notFound({ succes: false, erreur: 'Profil donneur non trouvé' })

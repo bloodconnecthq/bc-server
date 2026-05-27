@@ -943,6 +943,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'rendezVous.rendez_vous.s_attribuer': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/rendez-vous/:id/s-attribuer'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'rendezVous.rendez_vous.index': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/rendez-vous'

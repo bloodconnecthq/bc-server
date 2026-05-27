@@ -32,7 +32,7 @@ export default class DonsController {
         .preload('agent')
         .orderBy('date_don', 'desc')
 
-      return dons.map((don) => new DonTransformer(don).toObject())
+      return dons.map((don) => DonTransformer.transform(don))
     } catch (error) {
       return response.status(404).json({
         message: 'Historique des dons non trouvé',
@@ -56,7 +56,7 @@ export default class DonsController {
       .orderBy('created_at', 'desc')
 
     return dons.map((don) => ({
-      ...new DonTransformer(don).toObject(),
+      ...DonTransformer.transform(don),
       nomDonneur:
         don.donneur?.utilisateur?.nomComplet ||
         `${don.donneur?.utilisateur?.prenom ?? ''} ${don.donneur?.utilisateur?.nom ?? ''}`.trim() ||
@@ -99,7 +99,7 @@ export default class DonsController {
     await don.load('agent')
     await don.load('donneur')
 
-    return new DonTransformer(don).toObject()
+    return DonTransformer.transform(don)
   }
 
   async show({ params }: HttpContext) {
@@ -110,7 +110,7 @@ export default class DonsController {
       .preload('donneur')
       .firstOrFail()
 
-    return new DonTransformer(don).toObject()
+    return DonTransformer.transform(don)
   }
 
   async valider({ params, auth, response }: HttpContext) {
