@@ -18,6 +18,7 @@ export type ScannedRoutes = {
     'donors.mes_dons': { paramsTuple?: []; params?: {} }
     'donors.index': { paramsTuple?: []; params?: {} }
     'donors.store': { paramsTuple?: []; params?: {} }
+    'donors.par_code': { paramsTuple: [ParamValue]; params: {'code': ParamValue} }
     'donors.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'donors.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'donors.update_statut': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -28,6 +29,8 @@ export type ScannedRoutes = {
     'hopitaux.hopitaux.mon_hopital': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.update_mon_hopital': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_membres': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.creer_membre': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.modifier_membre': { paramsTuple: [ParamValue]; params: {'membreId': ParamValue} }
     'hopitaux.hopitaux.mes_stocks': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_dons': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_rendez_vous': { paramsTuple?: []; params?: {} }
@@ -117,6 +120,7 @@ export type ScannedRoutes = {
     'donors.mes_badges': { paramsTuple?: []; params?: {} }
     'donors.mes_dons': { paramsTuple?: []; params?: {} }
     'donors.index': { paramsTuple?: []; params?: {} }
+    'donors.par_code': { paramsTuple: [ParamValue]; params: {'code': ParamValue} }
     'donors.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.index': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.hopitaux_avec_stock': { paramsTuple?: []; params?: {} }
@@ -174,6 +178,7 @@ export type ScannedRoutes = {
     'donors.mes_badges': { paramsTuple?: []; params?: {} }
     'donors.mes_dons': { paramsTuple?: []; params?: {} }
     'donors.index': { paramsTuple?: []; params?: {} }
+    'donors.par_code': { paramsTuple: [ParamValue]; params: {'code': ParamValue} }
     'donors.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.index': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.hopitaux_avec_stock': { paramsTuple?: []; params?: {} }
@@ -230,6 +235,7 @@ export type ScannedRoutes = {
     'compte.profile.update_photo': { paramsTuple?: []; params?: {} }
     'donors.store': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.store': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.creer_membre': { paramsTuple?: []; params?: {} }
     'dons.dons.store': { paramsTuple?: []; params?: {} }
     'bonsDemande.dons.bon_demande_store': { paramsTuple?: []; params?: {} }
     'bonsDemande.dons.enregistrer_psl': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -244,6 +250,7 @@ export type ScannedRoutes = {
     'compte.profile.update_password': { paramsTuple?: []; params?: {} }
     'donors.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.update_mon_hopital': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.modifier_membre': { paramsTuple: [ParamValue]; params: {'membreId': ParamValue} }
     'hopitaux.hopitaux.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'bonsDemande.dons.bon_demande_update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'stocks.stocks.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

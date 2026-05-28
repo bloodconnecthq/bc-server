@@ -39,6 +39,17 @@ export default class DonorsController {
     }
   }
 
+  async parCode({ params, response }: HttpContext) {
+    const donneur = await Donneur.query()
+      .where('code_donneur', params.code.toUpperCase())
+      .preload('utilisateur')
+      .first()
+    if (!donneur) {
+      return response.notFound({ succes: false, erreur: `Aucun donneur trouvé avec le code ${params.code}` })
+    }
+    return response.ok({ succes: true, donnees: DonorTransformer.transform(donneur) })
+  }
+
   async monProfil({ auth, response }: HttpContext) {
     try {
       const user = auth.getUserOrFail()

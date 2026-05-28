@@ -588,6 +588,46 @@ export async function getMyMembers(token: string): Promise<MemberData[]> {
   return Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []
 }
 
+export interface CreateMembrePayload {
+  prenom: string
+  nom: string
+  email: string
+  motDePasse: string
+  role: 'medecin' | 'infirmier' | 'admin_hopital'
+  telephone?: string
+}
+
+export interface UpdateMembrePayload {
+  prenom?: string
+  nom?: string
+  telephone?: string
+  role?: 'medecin' | 'infirmier' | 'admin_hopital'
+}
+
+export async function creerMembreHopital(payload: CreateMembrePayload, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/hopitaux/moi/membres`, {
+    method: 'POST',
+    headers: createHeaders(token),
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur lors de la création du membre')
+  }
+}
+
+export async function modifierMembreHopital(membreId: string, payload: UpdateMembrePayload, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/hopitaux/moi/membres/${membreId}`, {
+    method: 'PUT',
+    headers: createHeaders(token),
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(data?.erreur ?? 'Erreur lors de la modification du membre')
+  }
+}
+
 export async function supprimerMembre(membreId: string, token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/membres/demandes/${membreId}`, {
     method: 'DELETE',

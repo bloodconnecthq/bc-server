@@ -175,6 +175,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'donors.par_code': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/donneurs/par-code/:code'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { code: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'donors.show': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/donneurs/:id'
@@ -290,6 +302,30 @@ export interface Registry {
       body: {}
       paramsTuple: []
       params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.creer_membre': {
+    methods: ["POST"]
+    pattern: '/api/v1/hopitaux/moi/membres'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.modifier_membre': {
+    methods: ["PUT"]
+    pattern: '/api/v1/hopitaux/moi/membres/:membreId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { membreId: ParamValue }
       query: {}
       response: unknown
       errorResponse: unknown

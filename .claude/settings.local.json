@@ -60,7 +60,8 @@
       "Bash(node -e \"const h = require\\('@heroui/react'\\); console.log\\(Object.keys\\(h\\).filter\\(k => k.includes\\('Calendar'\\) || k.includes\\('calendar'\\)\\)\\)\")",
       "Bash(xargs grep '\"version\"')",
       "Bash(xargs grep -l \"rapport.*donneur\\\\|rapportDonneur\\\\|RapportDonneur\")",
-      "Bash(xargs grep -l \"carte\\\\|card\\\\|qr\\\\|QR\\\\|groupeSanguin\")"
+      "Bash(xargs grep -l \"carte\\\\|card\\\\|qr\\\\|QR\\\\|groupeSanguin\")",
+      "WebFetch(domain:docs.mailzeet.com)"
     ],
     "additionalDirectories": [
       "d:\\bc-web\\apps\\backend\\app\\controllers"

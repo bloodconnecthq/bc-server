@@ -90,6 +90,12 @@ const routes = {
     tokens: [{"old":"/api/v1/donneurs","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs","type":0,"val":"donneurs","end":""}],
     types: placeholder as Registry['donors.store']['types'],
   },
+  'donors.par_code': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/donneurs/par-code/:code',
+    tokens: [{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"par-code","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":1,"val":"code","end":""}],
+    types: placeholder as Registry['donors.par_code']['types'],
+  },
   'donors.show': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/donneurs/:id',
@@ -149,6 +155,18 @@ const routes = {
     pattern: '/api/v1/hopitaux/moi/membres',
     tokens: [{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"membres","end":""}],
     types: placeholder as Registry['hopitaux.hopitaux.mes_membres']['types'],
+  },
+  'hopitaux.hopitaux.creer_membre': {
+    methods: ["POST"],
+    pattern: '/api/v1/hopitaux/moi/membres',
+    tokens: [{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"membres","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.creer_membre']['types'],
+  },
+  'hopitaux.hopitaux.modifier_membre': {
+    methods: ["PUT"],
+    pattern: '/api/v1/hopitaux/moi/membres/:membreId',
+    tokens: [{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"membres","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":1,"val":"membreId","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.modifier_membre']['types'],
   },
   'hopitaux.hopitaux.mes_stocks': {
     methods: ["GET","HEAD"],

@@ -431,6 +431,119 @@ export default class HopitauxController {
     })
   }
 
+  async creerMembre({ request, auth, response }: HttpContext) {
+    const adminUser = auth.getUserOrFail()
+    if (adminUser.role !== 'admin_hopital') {
+      return response.forbidden({ erreur: "Seul un administrateur d'hôpital peut créer des membres" })
+    }
+
+    const adminMembre = await MembresHopital.query()
+      .where('utilisateur_id', adminUser.id)
+      .preload('hopital')
+      .first()
+    if (!adminMembre?.hopitalId) {
+      return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    const { prenom, nom, email, motDePasse, role, telephone } = request.only([
+      'prenom', 'nom', 'email', 'motDePasse', 'role', 'telephone',
+    ])
+
+    if (!email || !motDePasse || !role) {
+      return response.badRequest({ erreur: 'Email, mot de passe et rôle sont requis' })
+    }
+    if (!['medecin', 'infirmier', 'admin_hopital'].includes(role as string)) {
+      return response.badRequest({ erreur: 'Rôle invalide. Valeurs: medecin, infirmier, admin_hopital' })
+    }
+    if ((motDePasse as string).length < 8) {
+      return response.badRequest({ erreur: 'Le mot de passe doit contenir au moins 8 caractères' })
+    }
+
+    const existing = await User.findBy('email', email)
+    if (existing) return response.conflict({ erreur: 'Cet email est déjà utilisé' })
+
+    const newUser = await User.create({
+      prenom: prenom ?? null,
+      nom: nom ?? null,
+      nomComplet: `${prenom ?? ''} ${nom ?? ''}`.trim() || null,
+      email,
+      motDePasse,
+      role,
+      telephone: telephone ?? null,
+      estActif: true,
+    })
+
+    await MembresHopital.create({ utilisateurId: newUser.id, hopitalId: adminMembre.hopitalId })
+
+    const { sendWelcomeMembreEmail } = await import('#services/mailzeet_service')
+    const siteUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
+    await sendWelcomeMembreEmail({
+      to: email as string,
+      name: `${prenom ?? ''} ${nom ?? ''}`.trim() || (email as string),
+      email: email as string,
+      motDePasse: motDePasse as string,
+      role: role as string,
+      hopitalNom: adminMembre.hopital?.nom ?? 'l\'hôpital',
+      siteUrl,
+    }).catch(() => {})
+
+    return response.created({
+      succes: true,
+      message: 'Membre créé et email de bienvenue envoyé',
+      data: {
+        utilisateur: {
+          id: newUser.id,
+          nomComplet: newUser.nomComplet,
+          email: newUser.email,
+          role: newUser.role,
+          telephone: newUser.telephone,
+        },
+      },
+    })
+  }
+
+  async modifierMembre({ params, request, auth, response }: HttpContext) {
+    const adminUser = auth.getUserOrFail()
+    if (adminUser.role !== 'admin_hopital') {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const membre = await MembresHopital.findOrFail(params.membreId)
+    const adminMembre = await MembresHopital.query().where('utilisateur_id', adminUser.id).first()
+    if (!adminMembre || adminMembre.hopitalId !== membre.hopitalId) {
+      return response.forbidden({ erreur: "Ce membre ne fait pas partie de votre hôpital" })
+    }
+
+    const target = await User.findOrFail(membre.utilisateurId)
+    const { prenom, nom, telephone, role } = request.only(['prenom', 'nom', 'telephone', 'role'])
+
+    if (prenom !== undefined) target.prenom = prenom
+    if (nom !== undefined) target.nom = nom
+    if (prenom !== undefined || nom !== undefined) {
+      target.nomComplet = `${target.prenom ?? ''} ${target.nom ?? ''}`.trim() || null
+    }
+    if (telephone !== undefined) target.telephone = telephone
+    if (role && ['medecin', 'infirmier', 'admin_hopital'].includes(role as string)) {
+      target.role = role as typeof target.role
+    }
+
+    await target.save()
+
+    return response.ok({
+      succes: true,
+      data: {
+        id: membre.id,
+        utilisateur: {
+          id: target.id,
+          nomComplet: target.nomComplet,
+          email: target.email,
+          role: target.role,
+          telephone: target.telephone,
+        },
+      },
+    })
+  }
+
   async supprimerMembre({ params, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
 

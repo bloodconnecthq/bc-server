@@ -83,6 +83,10 @@ router
       )
 
     // ✅ Routes avec paramètre EN DERNIER
+    router
+      .get('/donneurs/par-code/:code', [DonorsController, 'parCode'])
+      .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin']))
+
     router.get('/donneurs/:id', [DonorsController, 'show']).use(middleware.auth())
 
     router
@@ -122,6 +126,14 @@ router
         router
           .get('moi/membres', [HopitauxController, 'mesMembres'])
           .use(middleware.auth(), middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin']))
+
+        router
+          .post('moi/membres', [HopitauxController, 'creerMembre'])
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital']))
+
+        router
+          .put('moi/membres/:membreId', [HopitauxController, 'modifierMembre'])
+          .use(middleware.auth(), middleware.verifierRole(['admin_hopital']))
 
         router
           .get('moi/stocks', [HopitauxController, 'mesStocks'])

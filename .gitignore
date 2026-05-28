@@ -14,6 +14,7 @@ dist
 
 # Temp files
 /tmp
+/apps/ebloodsys
 
 # Logs
 npm-debug.log

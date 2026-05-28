@@ -14,19 +14,20 @@ import {
   DocumentText,
   Calendar,
   Book,
+  People,
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { getMyMemberProfile, type HospitalMemberProfile } from "@/lib/api/hospitalApi";
 
 const navItems = [
-  { label: "Tableau de bord",    href: "/hospital",              icon: Chart2        },
-  { label: "Stocks sanguins",    href: "/hospital/stocks",       icon: Drop          },
-  { label: "Dons enregistrés",   href: "/hospital/donations",    icon: ClipboardText },
-  { label: "Rendez-vous",        href: "/hospital/appointments", icon: Calendar      },
-  { label: "Bons de demande",    href: "/hospital/requests",     icon: DocumentText  },
-  { label: "Registre PSL",       href: "/hospital/psl",          icon: Book          },
-  // { label: "Alertes",            href: "/hospital/alerts",       icon: Notification  },
-  { label: "Paramètres",         href: "/hospital/settings",     icon: Setting2      },
+  { label: "Tableau de bord",    href: "/hospital",              icon: Chart2,        adminOnly: false },
+  { label: "Stocks sanguins",    href: "/hospital/stocks",       icon: Drop,          adminOnly: false },
+  { label: "Dons enregistrés",   href: "/hospital/donations",    icon: ClipboardText, adminOnly: false },
+  { label: "Rendez-vous",        href: "/hospital/appointments", icon: Calendar,      adminOnly: false },
+  { label: "Bons de demande",    href: "/hospital/requests",     icon: DocumentText,  adminOnly: false },
+  { label: "Registre PSL",       href: "/hospital/psl",          icon: Book,          adminOnly: false },
+  { label: "Membres",            href: "/hospital/members",      icon: People,        adminOnly: true  },
+  { label: "Paramètres",         href: "/hospital/settings",     icon: Setting2,      adminOnly: false },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -65,29 +66,31 @@ export function HospitalSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={clsx(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                isActive
-                  ? "bg-red-50 text-red-600"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-              )}
-            >
-              <Icon
-                size={18}
-                variant={isActive ? "Bold" : "Linear"}
-                color={isActive ? "#dc2626" : "currentColor"}
-              />
-              {item.label}
-            </Link>
-          );
-        })}
+        {navItems
+          .filter((item) => !item.adminOnly || profile?.role === "admin_hopital")
+          .map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={clsx(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-red-50 text-red-600"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                )}
+              >
+                <Icon
+                  size={18}
+                  variant={isActive ? "Bold" : "Linear"}
+                  color={isActive ? "#dc2626" : "currentColor"}
+                />
+                {item.label}
+              </Link>
+            );
+          })}
       </nav>
 
       {/* Footer — user info */}
