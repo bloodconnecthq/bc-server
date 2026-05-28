@@ -331,6 +331,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'hopitaux.hopitaux.registre_psl': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/hopitaux/moi/registre-psl'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'hopitaux.hopitaux.show': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/hopitaux/:id'
@@ -345,6 +357,18 @@ export interface Registry {
   }
   'hopitaux.hopitaux.update': {
     methods: ["PUT"]
+    pattern: '/api/v1/hopitaux/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'hopitaux.hopitaux.destroy': {
+    methods: ["DELETE"]
     pattern: '/api/v1/hopitaux/:id'
     types: {
       body: {}
@@ -1089,6 +1113,18 @@ export interface Registry {
   }
   'users.users.index': {
     methods: ["GET","HEAD"]
+    pattern: '/api/v1/users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'users.users.store': {
+    methods: ["POST"]
     pattern: '/api/v1/users'
     types: {
       body: {}

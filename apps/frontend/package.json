@@ -13,6 +13,7 @@
     "@heroui/styles": "3.0.0-rc.1",
     "@heroui/system": "^2.4.27",
     "@heroui/theme": "^2.4.26",
+    "@internationalized/date": "^3.12.1",
     "@react-types/shared": "^3.33.0",
     "clsx": "^2.1.1",
     "iconsax-reactjs": "^0.0.8",

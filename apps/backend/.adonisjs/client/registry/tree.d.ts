@@ -43,8 +43,10 @@ export interface ApiDefinition {
       mesStocks: typeof routes['hopitaux.hopitaux.mes_stocks']
       mesDons: typeof routes['hopitaux.hopitaux.mes_dons']
       mesRendezVous: typeof routes['hopitaux.hopitaux.mes_rendez_vous']
+      registrePsl: typeof routes['hopitaux.hopitaux.registre_psl']
       show: typeof routes['hopitaux.hopitaux.show']
       update: typeof routes['hopitaux.hopitaux.update']
+      destroy: typeof routes['hopitaux.hopitaux.destroy']
       updateStatut: typeof routes['hopitaux.hopitaux.update_statut']
       membres: typeof routes['hopitaux.hopitaux.membres']
       stocks: typeof routes['hopitaux.hopitaux.stocks']
@@ -151,6 +153,7 @@ export interface ApiDefinition {
     users: {
       stats: typeof routes['users.users.stats']
       index: typeof routes['users.users.index']
+      store: typeof routes['users.users.store']
       show: typeof routes['users.users.show']
       update: typeof routes['users.users.update']
       updateStatut: typeof routes['users.users.update_statut']

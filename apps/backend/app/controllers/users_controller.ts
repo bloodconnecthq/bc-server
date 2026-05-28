@@ -1,9 +1,75 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 import User from '#models/user'
+import Donneur from '#models/donneur'
 import MembresHopital from '#models/membres_hopital'
 import UserTransformer from '#transformers/user_transformer'
 
 export default class UsersController {
+  async store({ request, auth, response }: HttpContext) {
+    const caller = auth.getUserOrFail()
+    if (caller.role !== 'super_admin') {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const {
+      prenom, nom, email, motDePasse, telephone,
+      commune, departement, role, hopitalId, groupeSanguin, dateNaissance,
+    } = request.only([
+      'prenom', 'nom', 'email', 'motDePasse', 'telephone',
+      'commune', 'departement', 'role', 'hopitalId', 'groupeSanguin', 'dateNaissance',
+    ])
+
+    const ROLES = ['donneur', 'infirmier', 'medecin', 'admin_hopital', 'super_admin']
+    if (!email || !motDePasse || !role || !ROLES.includes(role)) {
+      return response.badRequest({ erreur: 'Email, mot de passe et rôle valide sont requis' })
+    }
+    if ((motDePasse as string).length < 8) {
+      return response.badRequest({ erreur: 'Le mot de passe doit contenir au moins 8 caractères' })
+    }
+
+    const existing = await User.findBy('email', email)
+    if (existing) return response.conflict({ erreur: 'Cet email est déjà utilisé' })
+
+    const newUser = await User.create({
+      prenom:     prenom     ?? null,
+      nom:        nom        ?? null,
+      nomComplet: `${prenom ?? ''} ${nom ?? ''}`.trim() || null,
+      email,
+      motDePasse,
+      role,
+      telephone:  telephone  ?? null,
+      commune:    commune    ?? null,
+      departement:departement?? null,
+      dateNaissance: dateNaissance ? DateTime.fromISO(dateNaissance as string) : null,
+      estActif: true,
+    })
+
+    if (role === 'donneur') {
+      const annee  = new Date().getFullYear()
+      const random = Math.floor(10000 + Math.random() * 90000)
+      const code   = `BC-${annee}-${random}`
+      await Donneur.create({
+        utilisateurId: newUser.id,
+        codeDonneur:   code,
+        groupeSanguin: groupeSanguin ?? null,
+        totalDons:     0,
+        niveauBadge:   'aucun',
+        donneesQrCode: JSON.stringify({ id: newUser.id, code, email }),
+      })
+    }
+
+    if (['medecin', 'infirmier', 'admin_hopital'].includes(role) && hopitalId) {
+      await MembresHopital.create({ utilisateurId: newUser.id, hopitalId })
+    }
+
+    return response.created({
+      data: UserTransformer.transform(newUser),
+      succes: true,
+      message: 'Utilisateur créé avec succès',
+    })
+  }
+
   async index({ request, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
     if (user.role !== 'super_admin') {
@@ -135,6 +201,21 @@ export default class UsersController {
     }
 
     const target = await User.findOrFail(params.id)
+
+    // Cascade: clean up role-specific records before deleting the user
+    if (target.role === 'donneur') {
+      const donneur = await Donneur.findBy('utilisateur_id', target.id)
+      if (donneur) {
+        const { default: Don }   = await import('#models/don')
+        const { default: Badge } = await import('#models/badge')
+        await Don.query().where('donneur_id', donneur.id).delete()
+        await Badge.query().where('donneur_id', donneur.id).delete()
+        await donneur.delete()
+      }
+    } else {
+      await MembresHopital.query().where('utilisateur_id', target.id).delete()
+    }
+
     await target.delete()
 
     return response.ok({ succes: true, message: 'Utilisateur supprimé' })

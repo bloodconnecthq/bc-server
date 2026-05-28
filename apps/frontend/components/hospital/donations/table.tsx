@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { SearchNormal1, Eye, TickCircle, CloseCircle } from "iconsax-reactjs";
+import { SearchNormal1, Eye, TickCircle, CloseCircle, TickSquare, CloseSquare } from "iconsax-reactjs";
 
 type DonationStatus = "validated" | "pending" | "rejected";
 
@@ -225,7 +225,9 @@ export function DonationsTable({ donations, onValider, onRejeter }: DonationsTab
                         "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium",
                         pos ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
                       )}>
-                        <span>{pos ? "✕" : "✓"}</span>
+                        {pos
+                          ? <CloseSquare size={13} variant="Bold" color="#b91c1c" />
+                          : <TickSquare size={13} variant="Bold" color="#15803d" />}
                         {labels[key]}
                       </div>
                     );

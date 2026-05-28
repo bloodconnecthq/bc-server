@@ -16,11 +16,14 @@ const STATUT_MAP = {
 } as const;
 
 export function mapDonor(d: DonneurAPI) {
+  const nomCompletParts = (d.utilisateur?.nomComplet ?? "").trim().split(" ");
+  const prenom = d.utilisateur?.prenom || nomCompletParts[0] || "";
+  const nom    = d.utilisateur?.nom    || nomCompletParts.slice(1).join(" ") || "";
   return {
     _id: d.id,
     id: d.codeDonneur || d.id,
-    firstName: d.utilisateur?.prenom || "",
-    lastName: d.utilisateur?.nom || "",
+    firstName: prenom,
+    lastName:  nom,
     bloodGroup: d.groupeSanguin || "?",
     phone: d.utilisateur?.telephone || "",
     email: d.utilisateur?.email || "",
@@ -60,6 +63,12 @@ export default function DonorsPage() {
     refetch();
   };
 
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!token) return;
+    await Promise.all(ids.map((id) => deleteDonneur(id, token)));
+    refetch();
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -84,7 +93,7 @@ export default function DonorsPage() {
         <DonorsStats
           total={rapport?.total ?? donors.length}
           active={rapport?.actifs ?? donors.filter((d) => d.status === "active").length}
-          suspended={donors.filter((d) => d.status === "suspended").length}
+          suspended={rapport?.suspendus ?? donors.filter((d) => d.status === "suspended").length}
           inactive={rapport?.inactifs ?? donors.filter((d) => d.status === "inactive").length}
           eligible={rapport?.eligibles ?? donors.filter((d) => d.nextEligible && new Date(d.nextEligible) <= new Date()).length}
         />
@@ -102,6 +111,7 @@ export default function DonorsPage() {
           onStatusChange={handleStatusChange}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onBulkDelete={handleBulkDelete}
         />
       )}
     </div>

@@ -1,9 +1,12 @@
+import type { ComponentType } from "react";
+
 interface ActivityItem {
   id: string;
   type: string;
   text: string;
   time: string;
-  emoji: string;
+  icon: ComponentType<{ size?: number; color?: string; variant?: string }>;
+  iconColor: string;
   color: string;
 }
 
@@ -38,20 +41,23 @@ export function RecentActivity({ activities, isLoading }: Props) {
             Aucune activité récente
           </div>
         ) : (
-          activities.map((a) => (
-            <div
-              key={a.id}
-              className="px-5 py-3.5 flex items-start gap-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className={`w-8 h-8 ${a.color} rounded-xl flex items-center justify-center text-sm shrink-0`}>
-                {a.emoji}
+          activities.map((a) => {
+            const Icon = a.icon;
+            return (
+              <div
+                key={a.id}
+                className="px-5 py-3.5 flex items-start gap-3 hover:bg-gray-50 transition-colors"
+              >
+                <div className={`w-8 h-8 ${a.color} rounded-xl flex items-center justify-center shrink-0`}>
+                  <Icon size={15} color={a.iconColor} variant="Bold" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-800 leading-relaxed">{a.text}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-800 leading-relaxed">{a.text}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

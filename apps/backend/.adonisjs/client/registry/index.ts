@@ -168,6 +168,12 @@ const routes = {
     tokens: [{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"rendez-vous","end":""}],
     types: placeholder as Registry['hopitaux.hopitaux.mes_rendez_vous']['types'],
   },
+  'hopitaux.hopitaux.registre_psl': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/hopitaux/moi/registre-psl',
+    tokens: [{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"registre-psl","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.registre_psl']['types'],
+  },
   'hopitaux.hopitaux.show': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/hopitaux/:id',
@@ -179,6 +185,12 @@ const routes = {
     pattern: '/api/v1/hopitaux/:id',
     tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['hopitaux.hopitaux.update']['types'],
+  },
+  'hopitaux.hopitaux.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/hopitaux/:id',
+    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.destroy']['types'],
   },
   'hopitaux.hopitaux.update_statut': {
     methods: ["PATCH"],
@@ -551,6 +563,12 @@ const routes = {
     pattern: '/api/v1/users',
     tokens: [{"old":"/api/v1/users","type":0,"val":"api","end":""},{"old":"/api/v1/users","type":0,"val":"v1","end":""},{"old":"/api/v1/users","type":0,"val":"users","end":""}],
     types: placeholder as Registry['users.users.index']['types'],
+  },
+  'users.users.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/users',
+    tokens: [{"old":"/api/v1/users","type":0,"val":"api","end":""},{"old":"/api/v1/users","type":0,"val":"v1","end":""},{"old":"/api/v1/users","type":0,"val":"users","end":""}],
+    types: placeholder as Registry['users.users.store']['types'],
   },
   'users.users.show': {
     methods: ["GET","HEAD"],

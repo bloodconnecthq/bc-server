@@ -13,6 +13,7 @@ import {
   ClipboardText,
   DocumentText,
   Calendar,
+  Book,
 } from "iconsax-reactjs";
 import { useAuth } from "@/app/providers/auth-provider";
 import { getMyMemberProfile, type HospitalMemberProfile } from "@/lib/api/hospitalApi";
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Dons enregistrés",   href: "/hospital/donations",    icon: ClipboardText },
   { label: "Rendez-vous",        href: "/hospital/appointments", icon: Calendar      },
   { label: "Bons de demande",    href: "/hospital/requests",     icon: DocumentText  },
+  { label: "Registre PSL",       href: "/hospital/psl",          icon: Book          },
   // { label: "Alertes",            href: "/hospital/alerts",       icon: Notification  },
   { label: "Paramètres",         href: "/hospital/settings",     icon: Setting2      },
 ];

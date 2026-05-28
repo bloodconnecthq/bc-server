@@ -31,8 +31,10 @@ export type ScannedRoutes = {
     'hopitaux.hopitaux.mes_stocks': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_dons': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_rendez_vous': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.registre_psl': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'hopitaux.hopitaux.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.update_statut': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.membres': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.stocks': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -95,6 +97,7 @@ export type ScannedRoutes = {
     'resultats.resultats.update': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
     'users.users.stats': { paramsTuple?: []; params?: {} }
     'users.users.index': { paramsTuple?: []; params?: {} }
+    'users.users.store': { paramsTuple?: []; params?: {} }
     'users.users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.users.update_statut': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -122,6 +125,7 @@ export type ScannedRoutes = {
     'hopitaux.hopitaux.mes_stocks': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_dons': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_rendez_vous': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.registre_psl': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.membres': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.stocks': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -178,6 +182,7 @@ export type ScannedRoutes = {
     'hopitaux.hopitaux.mes_stocks': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_dons': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.mes_rendez_vous': { paramsTuple?: []; params?: {} }
+    'hopitaux.hopitaux.registre_psl': { paramsTuple?: []; params?: {} }
     'hopitaux.hopitaux.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.membres': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'hopitaux.hopitaux.stocks': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -232,6 +237,7 @@ export type ScannedRoutes = {
     'membresdemandes.hopitaux.demandes_acces_store': { paramsTuple?: []; params?: {} }
     'rendezVous.rendez_vous.store': { paramsTuple?: []; params?: {} }
     'resultats.resultats.store': { paramsTuple: [ParamValue]; params: {'donId': ParamValue} }
+    'users.users.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'compte.profile.update': { paramsTuple?: []; params?: {} }
@@ -269,6 +275,7 @@ export type ScannedRoutes = {
   }
   DELETE: {
     'donors.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'hopitaux.hopitaux.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'bonsDemande.dons.bon_demande_destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'membresdemandes.hopitaux.supprimer_membre': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.users.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

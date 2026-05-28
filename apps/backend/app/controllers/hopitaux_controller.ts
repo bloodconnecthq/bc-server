@@ -10,6 +10,8 @@ import RendezVous from '#models/rendez_vous'
 import RendezVousTransformer from '#transformers/rendez_vous_transformer'
 import DemandesAcces from '#models/demandes_acces'
 import User from '#models/user'
+import RegistrePsl from '#models/registre_psl'
+import BonDemande from '#models/bon_demande'
 import { randomUUID } from 'crypto'
 
 export default class HopitauxController {
@@ -45,6 +47,16 @@ export default class HopitauxController {
     await hopital.save()
 
     return serialize(HopitalTransformer.transform(hopital))
+  }
+
+  async destroy({ params, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    if (user.role !== 'super_admin') {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+    const hopital = await Hopital.findOrFail(params.id)
+    await hopital.delete()
+    return response.ok({ succes: true, message: 'Établissement supprimé' })
   }
 
   async updateStatut({ params, request, auth, response, serialize }: HttpContext) {
@@ -473,6 +485,58 @@ export default class HopitauxController {
         parDepartement,
         parActivite,
       },
+    })
+  }
+
+  async registrePsl({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+
+    if (!membre?.hopitalId) {
+      return response.forbidden({ succes: false, erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    const entries = await RegistrePsl.query()
+      .whereHas('bonDemande', (q) => {
+        q.where('hopital_id', membre.hopitalId)
+      })
+      .preload('bonDemande', (q) => {
+        q.preload('medecin')
+      })
+      .orderBy('created_at', 'desc')
+
+    return response.ok({
+      succes: true,
+      data: entries.map((e) => ({
+        id: e.id,
+        bonDemandeId: e.bonDemandeId,
+        motif: e.motif,
+        transfereVers: e.transfereVers,
+        traceLe: e.traceLe instanceof Date
+          ? e.traceLe.toISOString()
+          : e.traceLe?.toISO?.() ?? null,
+        retourLe: e.retourLe instanceof Date
+          ? e.retourLe.toISOString()
+          : e.retourLe?.toISO?.() ?? null,
+        creeLe: e.creeLe instanceof Date
+          ? e.creeLe.toISOString()
+          : e.creeLe?.toISO?.() ?? null,
+        bonDemande: e.bonDemande
+          ? {
+              id: e.bonDemande.id,
+              nomPatient: e.bonDemande.nomPatient,
+              groupeSanguinPatient: e.bonDemande.groupeSanguinPatient,
+              quantiteNecessaire: e.bonDemande.quantiteNecessaire,
+              statut: e.bonDemande.statut,
+              medecin: e.bonDemande.medecin
+                ? {
+                    id: e.bonDemande.medecin.id,
+                    nomComplet: e.bonDemande.medecin.nomComplet,
+                  }
+                : null,
+            }
+          : null,
+      })),
     })
   }
 }

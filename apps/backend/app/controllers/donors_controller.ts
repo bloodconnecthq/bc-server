@@ -204,8 +204,10 @@ export default class DonorsController {
   async rapportDonneurs({ response }: HttpContext) {
     const donneurs = await Donneur.query().preload('utilisateur')
 
-    const total = donneurs.length
-    const actifs = donneurs.filter((d) => d.utilisateur?.estActif).length
+    const total     = donneurs.length
+    const actifs    = donneurs.filter((d) => d.statut === 'actif').length
+    const inactifs  = donneurs.filter((d) => d.statut === 'inactif').length
+    const suspendus = donneurs.filter((d) => d.statut === 'suspendu').length
     const eligibles = donneurs.filter((d) => d.estEligible()).length
     const ayantDonne = donneurs.filter((d) => d.totalDons > 0).length
 
@@ -227,7 +229,8 @@ export default class DonorsController {
       donnees: {
         total,
         actifs,
-        inactifs: total - actifs,
+        inactifs,
+        suspendus,
         eligibles,
         nonEligibles: total - eligibles,
         ayantDonne,

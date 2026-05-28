@@ -430,11 +430,11 @@ export async function nonSatisfaireBonDemande(id: string, token: string): Promis
   }
 }
 
-export async function transfererBonDemande(id: string, hopitalId: string, token: string): Promise<void> {
+export async function transfererBonDemande(id: string, hopitalId: string, token: string, motif?: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/bons-demande/${id}/transferer`, {
     method: 'PATCH',
     headers: createHeaders(token),
-    body: JSON.stringify({ hopitalId }),
+    body: JSON.stringify({ hopitalId, ...(motif ? { motif } : {}) }),
   })
   if (!res.ok) {
     const data = await res.json()
@@ -642,6 +642,34 @@ export async function rejeterDemandeAcces(id: string, token: string): Promise<vo
     const data = await res.json()
     throw new Error(data?.erreur ?? 'Erreur lors du rejet')
   }
+}
+
+// ── Registre PSL ──────────────────────────────────────────────────────────────
+
+export interface RegistrePslData {
+  id: string
+  bonDemandeId: string
+  motif: string | null
+  transfereVers: string | null
+  traceLe: string | null
+  retourLe: string | null
+  creeLe: string | null
+  bonDemande: {
+    id: string
+    nomPatient: string
+    groupeSanguinPatient: string
+    quantiteNecessaire: number
+    statut: string
+    medecin: { id: string; nomComplet: string | null } | null
+  } | null
+}
+
+export async function getRegistrePsl(token: string): Promise<RegistrePslData[]> {
+  const res = await fetch(`${API_BASE_URL}/hopitaux/moi/registre-psl`, {
+    headers: createHeaders(token),
+  })
+  const raw = await res.json()
+  return Array.isArray(raw?.data) ? raw.data : []
 }
 
 export async function updateStockSeuils(

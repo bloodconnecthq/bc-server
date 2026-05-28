@@ -6,6 +6,7 @@ import DonorService from '#services/donor_service'
 import NotificationService from '#services/notification_service'
 import PocheSang from '#models/poche_sang'
 import BonDemande from '#models/bon_demande'
+import Hopital from '#models/hopital'
 import RegistrePsl from '#models/registre_psl'
 import MembresHopital from '#models/membres_hopital'
 import StockSanguin from '#models/stock_sanguin'
@@ -339,7 +340,8 @@ export default class DonsController {
       return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    const { hopitalId: hopitalCibleId } = request.only(['hopitalId'])
+    const data = request.only(['hopitalId', 'motif'])
+    const hopitalCibleId = data.hopitalId
     if (!hopitalCibleId) {
       return response.badRequest({ erreur: 'hopitalId cible requis' })
     }
@@ -349,7 +351,20 @@ export default class DonsController {
     bon.transfereVersHopitalId = hopitalCibleId
     await bon.save()
 
-    return { succes: true, message: 'Bon transféré vers un autre hôpital' }
+    // Enregistrement automatique dans le registre PSL
+    const hopitalCible = await Hopital.find(hopitalCibleId)
+    const entreeExistante = await RegistrePsl.query().where('bon_demande_id', bon.id).first()
+    if (!entreeExistante) {
+      await RegistrePsl.create({
+        bonDemandeId: bon.id,
+        motif: data.motif ?? 'Groupe sanguin non disponible dans l\'établissement',
+        transfereVers: hopitalCible?.nom ?? null,
+        traceLe: DateTime.now(),
+        retourLe: null,
+      })
+    }
+
+    return { succes: true, message: 'Bon transféré et enregistré dans le registre PSL' }
   }
 
   async bonsDemandeRecus({ auth, response }: HttpContext) {

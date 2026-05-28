@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/providers/auth-provider";
+import { Drop, ShieldTick } from "iconsax-reactjs";
 import { RecentActivity } from "@/components/console/recent-activity";
 import { NationalStats } from "@/components/console/stats/national-stats";
 import { NationalStocksMap } from "@/components/console/stats/national-stocks-maps";
@@ -65,7 +66,7 @@ export default function ConsoleDashboard() {
   >([]);
 
   const [activities, setActivities] = useState<
-    { id: string; type: string; text: string; time: string; emoji: string; color: string }[]
+    { id: string; type: string; text: string; time: string; icon: typeof Drop; iconColor: string; color: string }[]
   >([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -174,7 +175,8 @@ export default function ConsoleDashboard() {
             type: string;
             text: string;
             time: string;
-            emoji: string;
+            icon: typeof Drop;
+            iconColor: string;
             color: string;
             _ts: number;
           };
@@ -190,7 +192,8 @@ export default function ConsoleDashboard() {
               type: "donation",
               text: `Don ${d.donneur?.groupeSanguin ?? ""} — ${d.hopital?.nom ?? "Centre inconnu"}`,
               time: fmtRel(d.creeLe),
-              emoji: "🩸",
+              icon: Drop,
+              iconColor: "#dc2626",
               color: "bg-red-50",
               _ts: new Date(d.creeLe ?? "").getTime(),
             }));
@@ -206,7 +209,8 @@ export default function ConsoleDashboard() {
               type: "request",
               text: `Demande d'accès — ${d.nomDemandeur}${d.hopital ? ` (${d.hopital.nom})` : ""}`,
               time: fmtRel(d.createdAt),
-              emoji: "🔐",
+              icon: ShieldTick,
+              iconColor: "#7c3aed",
               color: "bg-purple-50",
               _ts: new Date(d.createdAt ?? "").getTime(),
             }));
@@ -215,7 +219,7 @@ export default function ConsoleDashboard() {
             [...fromDons, ...fromDemandes]
               .sort((a, b) => b._ts - a._ts)
               .slice(0, 8)
-              .map(({ _ts, ...rest }) => rest)
+              .map(({ _ts, ...rest }) => rest) as typeof activities
           );
         }
       )

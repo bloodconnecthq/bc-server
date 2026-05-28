@@ -144,12 +144,23 @@ router
             middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin'])
           )
 
+        router
+          .get('moi/registre-psl', [HopitauxController, 'registrePsl'])
+          .use(
+            middleware.auth(),
+            middleware.verifierRole(['infirmier', 'medecin', 'admin_hopital', 'super_admin'])
+          )
+
         // ✅ Routes avec paramètre EN DERNIER
         router.get(':id', [HopitauxController, 'show']).use(middleware.auth())
 
         router
           .put(':id', [HopitauxController, 'update'])
           .use(middleware.auth(), middleware.verifierRole(['admin_hopital', 'super_admin']))
+
+        router
+          .delete(':id', [HopitauxController, 'destroy'])
+          .use(middleware.auth(), middleware.verifierRole(['super_admin']))
 
         router
           .patch(':id/statut', [HopitauxController, 'updateStatut'])
@@ -494,6 +505,7 @@ router
       .group(() => {
         router.get('stats', [UsersController, 'stats'])
         router.get('', [UsersController, 'index'])
+        router.post('', [UsersController, 'store'])
         router.get(':id', [UsersController, 'show'])
         router.put(':id', [UsersController, 'update'])
         router.patch(':id/statut', [UsersController, 'updateStatut'])

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { CloseCircle, User, Sms, Call, Lock } from "iconsax-reactjs";
+import { Select, ListBox } from "@heroui/react";
 import type { UserAPI, UpdateUserPayload } from "@/lib/api/consoleApi";
 
 const ROLES = [
@@ -18,16 +19,18 @@ type ModalMode = "edit" | "reset-password";
 interface Props {
   user: UserAPI | null;
   mode: ModalMode;
+  hospitals: { id: string; nom: string }[];
   onClose: () => void;
   onSave: (id: string, data: UpdateUserPayload) => Promise<void>;
   onResetPassword: (id: string, password: string) => Promise<void>;
 }
 
-export function UserModal({ user, mode, onClose, onSave, onResetPassword }: Props) {
-  const [form, setForm] = useState<UpdateUserPayload>({});
-  const [password, setPassword] = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+export function UserModal({ user, mode, hospitals, onClose, onSave, onResetPassword }: Props) {
+  const [form, setForm]           = useState<UpdateUserPayload>({});
+  const [hopitalId, setHopitalId] = useState<string>("");
+  const [password, setPassword]   = useState("");
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -40,6 +43,7 @@ export function UserModal({ user, mode, onClose, onSave, onResetPassword }: Prop
       role:        user.role,
       estActif:    user.estActif,
     });
+    setHopitalId(user.hopital?.id ?? "");
     setPassword("");
     setError(null);
   }, [user]);
@@ -55,7 +59,7 @@ export function UserModal({ user, mode, onClose, onSave, onResetPassword }: Prop
         }
         await onResetPassword(user.id, password);
       } else {
-        await onSave(user.id, form);
+        await onSave(user.id, { ...form, hopitalId: hopitalId || null });
       }
       onClose();
     } catch (e: any) {
@@ -155,6 +159,34 @@ export function UserModal({ user, mode, onClose, onSave, onResetPassword }: Prop
                   ))}
                 </div>
               </div>
+
+              {/* Établissement — visible for non-donneur roles */}
+              {form.role && form.role !== "donneur" && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Établissement</label>
+                  <Select
+                    placeholder="— Choisir un établissement —"
+                    value={hopitalId || null}
+                    onChange={(key) => setHopitalId((key as string) ?? "")}
+                    className="w-full shadow-none!"
+                  >
+                    <Select.Trigger className="px-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-white data-[focused]:border-red-400 shadow-none! font-medium text-gray-800">
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {hospitals.map((h) => (
+                          <ListBox.Item key={h.id} id={h.id} textValue={h.nom}>
+                            {h.nom}
+                            <ListBox.ItemIndicator />
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                </div>
+              )}
 
               {/* Statut */}
               <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl">

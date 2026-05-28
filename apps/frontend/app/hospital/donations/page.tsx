@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { Add } from "iconsax-reactjs";
+import { Add, TickCircle, Warning2 } from "iconsax-reactjs";
 import { DonationsStats } from "@/components/hospital/donations/stats";
 import { DonationsTable } from "@/components/hospital/donations/table";
 import { DonationFlow } from "@/components/hospital/donations/donation-flow";
@@ -106,7 +106,10 @@ export default function DonationsPage() {
             ? "bg-green-50 border-green-200 text-green-700"
             : "bg-red-50 border-red-200 text-red-700"
         )}>
-          {toast.ok ? "✅" : "⚠️"} {toast.msg}
+          {toast.ok
+            ? <TickCircle size={16} variant="Bold" color="#16a34a" />
+            : <Warning2 size={16} variant="Bold" color="#dc2626" />}
+          {toast.msg}
         </div>
       )}
 

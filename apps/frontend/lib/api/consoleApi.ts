@@ -118,6 +118,7 @@ export async function getRapportDonneurs(token: string) {
     total: number
     actifs: number
     inactifs: number
+    suspendus: number
     eligibles: number
     nonEligibles: number
     ayantDonne: number
@@ -179,6 +180,10 @@ export async function updateHopitalStatut(id: string, estActif: boolean, token: 
     method: 'PATCH',
     body: JSON.stringify({ estActif }),
   })
+}
+
+export async function deleteHopital(id: string, token: string) {
+  return authFetch(`/hopitaux/${id}`, token, { method: 'DELETE' })
 }
 
 // ── Stocks ───────────────────────────────────────────────────────────────────
@@ -243,6 +248,7 @@ export interface DemandeAccesAPI {
   nomDemandeur: string
   emailDemandeur: string
   roleDemande: string
+  message?: string | null
   hopital?: { id: string; nom: string } | null
   statut: string
   createdAt?: string
@@ -299,6 +305,29 @@ export interface UpdateUserPayload {
   departement?: string
   role?: string
   estActif?: boolean
+  hopitalId?: string | null
+}
+
+export interface CreateUserPayload {
+  prenom: string
+  nom: string
+  email: string
+  motDePasse: string
+  role: string
+  telephone?: string
+  commune?: string
+  departement?: string
+  hopitalId?: string
+  groupeSanguin?: string
+  dateNaissance?: string
+}
+
+export async function createUser(data: CreateUserPayload, token: string): Promise<UserAPI> {
+  const raw = await authFetch('/users', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  return raw?.data ?? raw
 }
 
 export async function getUsers(token: string, params?: { search?: string; role?: string; statut?: string }): Promise<UserAPI[]> {

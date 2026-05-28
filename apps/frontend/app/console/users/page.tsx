@@ -2,14 +2,16 @@
 
 import { useState, useCallback } from "react";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useUsers, useUserStats } from "@/lib/hooks/useConsole";
+import { useUsers, useUserStats, useHopitaux } from "@/lib/hooks/useConsole";
 import {
-  updateUser, updateUserStatut, deleteUser, resetUserPassword,
-  type UserAPI, type UpdateUserPayload,
+  updateUser, updateUserStatut, deleteUser, resetUserPassword, createUser,
+  type UserAPI, type UpdateUserPayload, type CreateUserPayload,
 } from "@/lib/api/consoleApi";
-import { UsersStats }  from "@/components/console/users/stats";
-import { UsersList }   from "@/components/console/users/list";
-import { UserModal }   from "@/components/console/users/user-modal";
+import { UsersStats }      from "@/components/console/users/stats";
+import { UsersList }       from "@/components/console/users/list";
+import { UserModal }       from "@/components/console/users/user-modal";
+import { CreateUserModal } from "@/components/console/users/create-modal";
+import { ConfirmModal }   from "@/components/ui/confirm-modal";
 
 function Toast({ msg, ok }: { msg: string; ok: boolean }) {
   return (
@@ -25,7 +27,6 @@ type ModalState = { user: UserAPI; mode: "edit" | "reset-password" } | null;
 export default function UsersPage() {
   const { token } = useAuth();
 
-  // Controlled filter state — passed to hook so refetch reruns on change
   const [search,  setSearch]  = useState("");
   const [role,    setRole]    = useState("Tous");
   const [statut,  setStatut]  = useState("Tous");
@@ -36,12 +37,16 @@ export default function UsersPage() {
     statut:  statut !== "Tous" ? statut : undefined,
   };
 
-  const { data: users,   isLoading: loadingUsers, refetch } = useUsers(token, params);
-  const { data: stats,   isLoading: loadingStats, refetch: refetchStats } = useUserStats(token);
+  const { data: users,    isLoading: loadingUsers, refetch } = useUsers(token, params);
+  const { data: stats,    isLoading: loadingStats, refetch: refetchStats } = useUserStats(token);
+  const { data: hopitaux } = useHopitaux(token);
 
-  const [modal,    setModal]    = useState<ModalState>(null);
-  const [actionId, setActionId] = useState<string | null>(null);
-  const [toast,    setToast]    = useState<{ msg: string; ok: boolean } | null>(null);
+  const [modal,         setModal]         = useState<ModalState>(null);
+  const [showCreate,    setShowCreate]    = useState(false);
+  const [deleteTarget,  setDeleteTarget]  = useState<UserAPI | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [actionId,      setActionId]      = useState<string | null>(null);
+  const [toast,         setToast]         = useState<{ msg: string; ok: boolean } | null>(null);
 
   const notify = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -49,6 +54,13 @@ export default function UsersPage() {
   };
 
   const reload = useCallback(() => { refetch(); refetchStats(); }, [refetch, refetchStats]);
+
+  const handleCreate = async (data: CreateUserPayload) => {
+    if (!token) return;
+    await createUser(data, token);
+    notify("Compte créé avec succès");
+    reload();
+  };
 
   const handleSave = async (id: string, data: UpdateUserPayload) => {
     if (!token) return;
@@ -75,18 +87,39 @@ export default function UsersPage() {
     } finally { setActionId(null); }
   };
 
-  const handleDelete = async (u: UserAPI) => {
-    if (!token) return;
-    if (!window.confirm(`Supprimer définitivement le compte de ${u.nomComplet || u.email} ?`)) return;
-    setActionId(u.id);
+  const handleDelete = (u: UserAPI) => setDeleteTarget(u);
+
+  const handleDeleteConfirm = async () => {
+    if (!token || !deleteTarget) return;
+    setDeleteLoading(true);
+    setActionId(deleteTarget.id);
     try {
-      await deleteUser(u.id, token);
+      await deleteUser(deleteTarget.id, token);
       notify("Utilisateur supprimé");
+      setDeleteTarget(null);
       reload();
     } catch (e: any) {
       notify(e?.message ?? "Erreur", false);
-    } finally { setActionId(null); }
+    } finally {
+      setDeleteLoading(false);
+      setActionId(null);
+    }
   };
+
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!token) return;
+    await Promise.all(ids.map((id) => deleteUser(id, token)));
+    reload();
+  };
+
+  const handleQuickUpdate = async (id: string, data: UpdateUserPayload) => {
+    if (!token) return;
+    await updateUser(id, data, token);
+    notify("Modifications enregistrées");
+    reload();
+  };
+
+  const hospitals = (hopitaux ?? []).map((h) => ({ id: h.id, nom: h.nom }));
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -100,10 +133,18 @@ export default function UsersPage() {
             Gestion de tous les comptes utilisateurs du système
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl">
-          <span className="text-xs font-semibold text-gray-600">
-            {loadingUsers ? "…" : `${(users ?? []).length} résultat${(users ?? []).length > 1 ? "s" : ""}`}
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl">
+            <span className="text-xs font-semibold text-gray-600">
+              {loadingUsers ? "…" : `${(users ?? []).length} résultat${(users ?? []).length > 1 ? "s" : ""}`}
+            </span>
+          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors"
+          >
+            + Créer un utilisateur
+          </button>
         </div>
       </div>
 
@@ -113,6 +154,7 @@ export default function UsersPage() {
       {/* List */}
       <UsersList
         users={users ?? []}
+        hospitals={hospitals}
         loading={loadingUsers}
         search={search}
         onSearchChange={setSearch}
@@ -125,18 +167,41 @@ export default function UsersPage() {
         onDelete={handleDelete}
         onToggleStatut={handleToggleStatut}
         onResetPassword={(u) => setModal({ user: u, mode: "reset-password" })}
+        onBulkDelete={handleBulkDelete}
+        onQuickUpdate={handleQuickUpdate}
       />
 
-      {/* Modal */}
+      {/* Edit / Reset password modal */}
       {modal && (
         <UserModal
           user={modal.user}
           mode={modal.mode}
+          hospitals={hospitals}
           onClose={() => setModal(null)}
           onSave={handleSave}
           onResetPassword={handleResetPassword}
         />
       )}
+
+      {/* Create user modal */}
+      {showCreate && (
+        <CreateUserModal
+          hospitals={hospitals}
+          onClose={() => setShowCreate(false)}
+          onCreate={handleCreate}
+        />
+      )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Supprimer le compte"
+        description={`Vous allez supprimer définitivement le compte de ${deleteTarget?.nomComplet || deleteTarget?.email || "cet utilisateur"}. Cette action est irréversible.`}
+        confirmLabel="Supprimer"
+        loading={deleteLoading}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

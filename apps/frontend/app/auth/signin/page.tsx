@@ -10,7 +10,7 @@ import { useAuth } from "@/app/providers/auth-provider";
 function getDashboardByRole(role: string | undefined | null): string {
   if (role === "donneur") return "/donor";
   if (role === "infirmier" || role === "medecin" || role === "admin_hopital") return "/hospital";
-  if (role === "super_admin") return "/console/donors";
+  if (role === "super_admin") return "/console";
   return "/auth/signin";
 }
 

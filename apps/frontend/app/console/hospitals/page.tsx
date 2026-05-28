@@ -7,6 +7,7 @@ import {
   createHopital,
   updateHopital,
   updateHopitalStatut,
+  deleteHopital,
   type HopitalAPI,
   type RapportStocksAPI,
   type HospitalPayload,
@@ -92,6 +93,18 @@ export default function HospitalsPage() {
     refetch();
   };
 
+  const handleDelete = async (id: string) => {
+    if (!token) return;
+    await deleteHopital(id, token);
+    refetch();
+  };
+
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!token) return;
+    await Promise.all(ids.map((id) => deleteHopital(id, token)));
+    refetch();
+  };
+
   return (
     <div className="space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
@@ -137,6 +150,8 @@ export default function HospitalsPage() {
             if (raw) setModalTarget(raw);
           }}
           onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
+          onBulkDelete={handleBulkDelete}
         />
       )}
 
