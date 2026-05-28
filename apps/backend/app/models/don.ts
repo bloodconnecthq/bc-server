@@ -35,6 +35,9 @@ export default class Don extends BaseModel {
   @column()
   declare statut: 'en_attente' | 'valide' | 'rejete'
 
+  @column()
+  declare questionnaireReponses: Record<string, unknown> | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

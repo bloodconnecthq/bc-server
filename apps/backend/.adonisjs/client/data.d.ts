@@ -8,10 +8,10 @@ import type { InferData, InferVariants } from '@adonisjs/core/types/transformers
 import type DonTransformer from '#transformers/don_transformer'
 import type DonorTransformer from '#transformers/donor_transformer'
 import type HopitalTransformer from '#transformers/hopital_transformer'
+import type NotificationTransformer from '#transformers/notification_transformer'
 import type RendezVousTransformer from '#transformers/rendez_vous_transformer'
 import type StockSanguinTransformer from '#transformers/stock_sanguin_transformer'
 import type UserTransformer from '#transformers/user_transformer'
-import type NotificationTransformer from '#transformers/notification_transformer'
 
 export namespace Data {
   export type Don = InferData<DonTransformer>
@@ -26,6 +26,10 @@ export namespace Data {
   export namespace Hopital {
     export type Variants = InferVariants<HopitalTransformer>
   }
+  export type Notification = InferData<NotificationTransformer>
+  export namespace Notification {
+    export type Variants = InferVariants<NotificationTransformer>
+  }
   export type RendezVous = InferData<RendezVousTransformer>
   export namespace RendezVous {
     export type Variants = InferVariants<RendezVousTransformer>
@@ -37,9 +41,5 @@ export namespace Data {
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
-  }
-  export type Notification = InferData<NotificationTransformer>
-  export namespace Notification {
-    export type Variants = InferVariants<NotificationTransformer>
   }
 }

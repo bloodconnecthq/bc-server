@@ -27,21 +27,31 @@ export interface ApiDefinition {
     mesDons: typeof routes['donors.mes_dons']
     index: typeof routes['donors.index']
     store: typeof routes['donors.store']
+    parCode: typeof routes['donors.par_code']
     show: typeof routes['donors.show']
     update: typeof routes['donors.update']
     updateStatut: typeof routes['donors.update_statut']
+    destroy: typeof routes['donors.destroy']
   }
   hopitaux: {
     hopitaux: {
       index: typeof routes['hopitaux.hopitaux.index']
       store: typeof routes['hopitaux.hopitaux.store']
-      show: typeof routes['hopitaux.hopitaux.show']
-      update: typeof routes['hopitaux.hopitaux.update']
-      updateStatut: typeof routes['hopitaux.hopitaux.update_statut']
-      membres: typeof routes['hopitaux.hopitaux.membres']
+      hopitauxAvecStock: typeof routes['hopitaux.hopitaux.hopitaux_avec_stock']
+      monHopital: typeof routes['hopitaux.hopitaux.mon_hopital']
+      updateMonHopital: typeof routes['hopitaux.hopitaux.update_mon_hopital']
+      mesMembres: typeof routes['hopitaux.hopitaux.mes_membres']
+      creerMembre: typeof routes['hopitaux.hopitaux.creer_membre']
+      modifierMembre: typeof routes['hopitaux.hopitaux.modifier_membre']
       mesStocks: typeof routes['hopitaux.hopitaux.mes_stocks']
       mesDons: typeof routes['hopitaux.hopitaux.mes_dons']
       mesRendezVous: typeof routes['hopitaux.hopitaux.mes_rendez_vous']
+      registrePsl: typeof routes['hopitaux.hopitaux.registre_psl']
+      show: typeof routes['hopitaux.hopitaux.show']
+      update: typeof routes['hopitaux.hopitaux.update']
+      destroy: typeof routes['hopitaux.hopitaux.destroy']
+      updateStatut: typeof routes['hopitaux.hopitaux.update_statut']
+      membres: typeof routes['hopitaux.hopitaux.membres']
       stocks: typeof routes['hopitaux.hopitaux.stocks']
       dons: typeof routes['hopitaux.hopitaux.dons']
       rendezVous: typeof routes['hopitaux.hopitaux.rendez_vous']
@@ -76,9 +86,14 @@ export interface ApiDefinition {
     dons: {
       bonsDemandeIndex: typeof routes['bonsDemande.dons.bons_demande_index']
       bonDemandeStore: typeof routes['bonsDemande.dons.bon_demande_store']
+      bonsDemandeRecus: typeof routes['bonsDemande.dons.bons_demande_recus']
       bonDemandeShow: typeof routes['bonsDemande.dons.bon_demande_show']
       bonDemandeSatisfaire: typeof routes['bonsDemande.dons.bon_demande_satisfaire']
       bonDemandeNonSatisfaire: typeof routes['bonsDemande.dons.bon_demande_non_satisfaire']
+      bonDemandeUpdate: typeof routes['bonsDemande.dons.bon_demande_update']
+      bonDemandeDestroy: typeof routes['bonsDemande.dons.bon_demande_destroy']
+      bonDemandeTransferer: typeof routes['bonsDemande.dons.bon_demande_transferer']
+      bonDemandeDecliner: typeof routes['bonsDemande.dons.bon_demande_decliner']
       enregistrerPsl: typeof routes['bonsDemande.dons.enregistrer_psl']
     }
   }
@@ -120,6 +135,7 @@ export interface ApiDefinition {
     rendezVous: {
       mesRendezVous: typeof routes['rendezVous.rendez_vous.mes_rendez_vous']
       rendezVousAttribues: typeof routes['rendezVous.rendez_vous.rendez_vous_attribues']
+      sAttribuer: typeof routes['rendezVous.rendez_vous.s_attribuer']
       index: typeof routes['rendezVous.rendez_vous.index']
       store: typeof routes['rendezVous.rendez_vous.store']
       show: typeof routes['rendezVous.rendez_vous.show']
@@ -134,6 +150,18 @@ export interface ApiDefinition {
       store: typeof routes['resultats.resultats.store']
       show: typeof routes['resultats.resultats.show']
       update: typeof routes['resultats.resultats.update']
+    }
+  }
+  users: {
+    users: {
+      stats: typeof routes['users.users.stats']
+      index: typeof routes['users.users.index']
+      store: typeof routes['users.users.store']
+      show: typeof routes['users.users.show']
+      update: typeof routes['users.users.update']
+      updateStatut: typeof routes['users.users.update_statut']
+      resetPassword: typeof routes['users.users.reset_password']
+      destroy: typeof routes['users.users.destroy']
     }
   }
   rapports: {

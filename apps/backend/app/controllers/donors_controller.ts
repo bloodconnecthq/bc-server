@@ -16,7 +16,10 @@ export default class DonorsController {
 
   async index({ response }: HttpContext) {
     const donneurs = await this.donorService.getAll()
-    return response.ok({ succes: true, donnees: donneurs })
+    return response.ok({
+      succes: true,
+      donnees: donneurs.map((d) => DonorTransformer.transform(d)),
+    })
   }
 
   async store({ request, auth, response }: HttpContext) {
@@ -34,6 +37,17 @@ export default class DonorsController {
     } catch (_) {
       return response.notFound({ succes: false, erreur: 'Donneur non trouvé' })
     }
+  }
+
+  async parCode({ params, response }: HttpContext) {
+    const donneur = await Donneur.query()
+      .where('code_donneur', params.code.toUpperCase())
+      .preload('utilisateur')
+      .first()
+    if (!donneur) {
+      return response.notFound({ succes: false, erreur: `Aucun donneur trouvé avec le code ${params.code}` })
+    }
+    return response.ok({ succes: true, donnees: DonorTransformer.transform(donneur) })
   }
 
   async monProfil({ auth, response }: HttpContext) {
@@ -105,7 +119,7 @@ export default class DonorsController {
         .orderBy('date_don', 'desc')
       return response.ok({
         succes: true,
-        donnees: dons.map((don) => new DonTransformer(don).toObject()),
+        donnees: dons.map((don) => DonTransformer.transform(don)),
       })
     } catch (_) {
       return response.notFound({ succes: false, erreur: 'Profil donneur non trouvé' })
@@ -178,11 +192,33 @@ export default class DonorsController {
     }
   }
 
+  async destroy({ params, auth, response }: HttpContext) {
+    try {
+      const donneur = await this.donorService.findById(params.id)
+      const userId = donneur.utilisateurId
+
+      await Don.query().where('donneur_id', donneur.id).delete()
+      await Badge.query().where('donneur_id', donneur.id).delete()
+      await donneur.delete()
+
+      if (userId) {
+        await User.query().where('id', userId).delete()
+      }
+
+      await this.logService.create('DELETE', 'DONNEUR', auth.user?.id, `Donneur supprimé: ${params.id}`)
+      return response.ok({ succes: true, message: 'Donneur supprimé avec succès' })
+    } catch (_) {
+      return response.notFound({ succes: false, erreur: 'Donneur non trouvé' })
+    }
+  }
+
   async rapportDonneurs({ response }: HttpContext) {
     const donneurs = await Donneur.query().preload('utilisateur')
 
-    const total = donneurs.length
-    const actifs = donneurs.filter((d) => d.utilisateur?.estActif).length
+    const total     = donneurs.length
+    const actifs    = donneurs.filter((d) => d.statut === 'actif').length
+    const inactifs  = donneurs.filter((d) => d.statut === 'inactif').length
+    const suspendus = donneurs.filter((d) => d.statut === 'suspendu').length
     const eligibles = donneurs.filter((d) => d.estEligible()).length
     const ayantDonne = donneurs.filter((d) => d.totalDons > 0).length
 
@@ -204,7 +240,8 @@ export default class DonorsController {
       donnees: {
         total,
         actifs,
-        inactifs: total - actifs,
+        inactifs,
+        suspendus,
         eligibles,
         nonEligibles: total - eligibles,
         ayantDonne,

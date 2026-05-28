@@ -1,108 +1,137 @@
-import { MemberRequests } from "@/components/console/members/requests";
+"use client";
 
-const requests = [
-    {
-        id: "REQ-001",
-        name: "Dr. Céleste Gbénou",
-        email: "gbenou@chu-cotonou.bj",
-        role: "Médecin",
-        hospital: "CHU de Cotonou",
-        hospitalId: "h2",
-        requestedAt: "2026-03-16T07:30:00",
-        status: "pending" as const,
-        message: "Je souhaite accéder au système pour gérer les transfusions du service de chirurgie.",
-    },
-    {
-        id: "REQ-002",
-        name: "Inf. Rodrigue Amoussou",
-        email: "amoussou@hz-portonovo.bj",
-        role: "Infirmier",
-        hospital: "Hôpital de Zone Porto-Novo",
-        hospitalId: "h4",
-        requestedAt: "2026-03-15T14:20:00",
-        status: "pending" as const,
-        message: "Demande d'accès pour enregistrement des dons et suivi des stocks.",
-    },
-    {
-        id: "REQ-003",
-        name: "Tech. Brice Kpénou",
-        email: "kpenou@cs-godomey.bj",
-        role: "Technicien de laboratoire",
-        hospital: "Centre de Santé Godomey",
-        hospitalId: "h5",
-        requestedAt: "2026-03-15T09:00:00",
-        status: "pending" as const,
-        message: "Accès nécessaire pour la qualification biologique des dons.",
-    },
-    {
-        id: "REQ-004",
-        name: "Dr. Fatou Sawadogo",
-        email: "sawadogo@cnts-parakou.bj",
-        role: "Médecin",
-        hospital: "Antenne CNTS Parakou",
-        hospitalId: "h3",
-        requestedAt: "2026-03-10T11:15:00",
-        status: "approved" as const,
-        message: "Renfort médical pour la campagne de collecte de mars.",
-    },
-    {
-        id: "REQ-005",
-        name: "Inf. Théodore Wabi",
-        email: "wabi@hz-lokossa.bj",
-        role: "Infirmier",
-        hospital: "Hôpital de Zone Lokossa",
-        hospitalId: "h7",
-        requestedAt: "2026-03-08T16:40:00",
-        status: "rejected" as const,
-        message: "Demande d'accès pour gestion des stocks de l'hôpital.",
-    },
-    {
-        id: "REQ-006",
-        name: "Dr. Aminatou Chabi",
-        email: "chabi@cnts-natitingou.bj",
-        role: "Médecin",
-        hospital: "Antenne CNTS Natitingou",
-        hospitalId: "h6",
-        requestedAt: "2026-03-05T08:00:00",
-        status: "approved" as const,
-        message: "Intégration dans l'équipe médicale de l'antenne nord.",
-    },
-];
+import { useCallback, useEffect, useState } from "react";
+import { Clock, TickCircle, CloseCircle } from "iconsax-reactjs";
+import { useAuth } from "@/app/providers/auth-provider";
+import { MemberRequests, type MemberRequest } from "@/components/console/members/requests";
+import {
+  getDemandesAcces,
+  approuverDemande,
+  rejeterDemande,
+} from "@/lib/api/consoleApi";
+
+function mapStatut(statut: string): MemberRequest["status"] {
+  if (statut === "approuvee") return "approved";
+  if (statut === "rejetee")   return "rejected";
+  return "pending";
+}
 
 export default function MembersPage() {
-    const pending = requests.filter((r) => r.status === "pending").length;
-    const approved = requests.filter((r) => r.status === "approved").length;
-    const rejected = requests.filter((r) => r.status === "rejected").length;
+  const { token } = useAuth();
+  const authToken =
+    token ?? (typeof window !== "undefined" ? localStorage.getItem("auth_token") : null);
 
-    return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                    Demandes d'accès
-                </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                    {pending} demande{pending > 1 ? "s" : ""} en attente de validation
-                </p>
-            </div>
+  const [requests, setRequests]   = useState<MemberRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [toast, setToast]         = useState<{ msg: string; ok: boolean } | null>(null);
 
-            { }
-            <div className="grid grid-cols-3 gap-4">
-                {[
-                    { label: "En attente", value: pending, bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", emoji: "⏳" },
-                    { label: "Approuvées", value: approved, bg: "bg-green-50", text: "text-green-600", border: "border-green-200", emoji: "✅" },
-                    { label: "Rejetées", value: rejected, bg: "bg-red-50", text: "text-red-600", border: "border-red-200", emoji: "❌" },
-                ].map((s) => (
-                    <div key={s.label} className={`bg-white rounded-2xl p-5 border ${s.border}`}>
-                        <div className={`w-9 h-9 ${s.bg} rounded-xl flex items-center justify-center text-lg mb-3`}>
-                            {s.emoji}
-                        </div>
-                        <p className={`text-2xl font-black ${s.text}`}>{s.value}</p>
-                        <p className="text-xs font-medium text-gray-700 mt-1">{s.label}</p>
-                    </div>
-                ))}
-            </div>
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
 
-            <MemberRequests requests={requests} />
+  const load = useCallback(async () => {
+    if (!authToken) return;
+    setIsLoading(true);
+    try {
+      const data = await getDemandesAcces(authToken);
+      setRequests(
+        data.map((d) => ({
+          id:          d.id,
+          name:        d.nomDemandeur,
+          email:       d.emailDemandeur,
+          role:        d.roleDemande,
+          hospital:    d.hopital?.nom ?? "Sans établissement",
+          hospitalId:  d.hopital?.id ?? null,
+          requestedAt: d.createdAt ?? new Date().toISOString(),
+          status:      mapStatut(d.statut),
+          message:     d.message ?? "",
+        }))
+      );
+    } catch {
+      showToast("Erreur de chargement", false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [authToken]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleApprove = async (id: string) => {
+    if (!authToken) return;
+    await approuverDemande(id, authToken);
+    showToast("Accès approuvé — l'utilisateur a été notifié");
+    await load();
+  };
+
+  const handleReject = async (id: string) => {
+    if (!authToken) return;
+    await rejeterDemande(id, authToken);
+    showToast("Demande rejetée");
+    await load();
+  };
+
+  const pending  = requests.filter((r) => r.status === "pending").length;
+  const approved = requests.filter((r) => r.status === "approved").length;
+  const rejected = requests.filter((r) => r.status === "rejected").length;
+
+  const kpis = [
+    { label: "En attente", value: pending,  bg: "bg-amber-50",  text: "text-amber-600",  border: "border-amber-200",  icon: Clock,        iconColor: "#d97706" },
+    { label: "Approuvées", value: approved, bg: "bg-green-50",  text: "text-green-600",  border: "border-green-200",  icon: TickCircle,   iconColor: "#16a34a" },
+    { label: "Rejetées",   value: rejected, bg: "bg-red-50",    text: "text-red-600",    border: "border-red-200",    icon: CloseCircle,  iconColor: "#dc2626" },
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium border ${
+          toast.ok
+            ? "bg-green-50 border-green-200 text-green-700"
+            : "bg-red-50 border-red-200 text-red-700"
+        }`}>
+          {toast.ok
+            ? <TickCircle size={16} variant="Bold" color="#16a34a" />
+            : <CloseCircle size={16} variant="Bold" color="#dc2626" />}
+          {toast.msg}
         </div>
-    );
+      )}
+
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Demandes d'accès</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {isLoading
+            ? "Chargement…"
+            : `${pending} demande${pending > 1 ? "s" : ""} en attente de validation`}
+        </p>
+      </div>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-4">
+        {kpis.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className={`bg-white rounded-2xl p-5 border ${s.border}`}>
+              <div className={`w-9 h-9 ${s.bg} rounded-xl flex items-center justify-center mb-3`}>
+                <Icon size={18} color={s.iconColor} variant="Bold" />
+              </div>
+              <p className={`text-2xl font-black ${s.text}`}>
+                {isLoading ? "…" : s.value}
+              </p>
+              <p className="text-xs font-medium text-gray-700 mt-1">{s.label}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* List */}
+      <MemberRequests
+        requests={requests}
+        isLoading={isLoading}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+    </div>
+  );
 }

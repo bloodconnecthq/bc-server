@@ -80,11 +80,17 @@ export interface AuthResponse {
 
 export interface SignupData {
   nomComplet: string
+  prenom?: string
+  nom?: string
   email: string
   motDePasse: string
   motDePasseConfirmation: string
   role?: 'donneur' | 'infirmier' | 'medecin' | 'admin_hopital' | 'super_admin'
   telephone?: string
+  groupeSanguin?: string
+  commune?: string
+  departement?: string
+  dateNaissance?: string
 }
 
 export interface LoginData {

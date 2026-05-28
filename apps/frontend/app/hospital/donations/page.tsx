@@ -1,175 +1,171 @@
-'use client';
+"use client";
 
+import { useCallback, useEffect, useState } from "react";
+import clsx from "clsx";
+import { Add, TickCircle, Warning2 } from "iconsax-reactjs";
 import { DonationsStats } from "@/components/hospital/donations/stats";
 import { DonationsTable } from "@/components/hospital/donations/table";
-import { useHospitalDashboard } from "@/lib/hooks/useHospitalDashboard";
+import { DonationFlow } from "@/components/hospital/donations/donation-flow";
 import { useAuth } from "@/app/providers/auth-provider";
+import {
+  getMyHospitalDonations,
+  validerDon,
+  rejeterDon,
+  getMyMemberProfile,
+  type DonationData,
+} from "@/lib/api/hospitalApi";
 
-const donations = [
-    {
-        id: "DON-2841",
-        donorName: "Koffi Agossou",
-        donorId: "BC-2024-08412",
-        bloodGroup: "O+",
-        volume: 450,
-        date: "2026-03-16T10:32:00",
-        agent: "Dr. Hounkpè",
-        center: "CNTS Cotonou",
-        status: "validated" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2840",
-        donorName: "Mèdéssè Dossou",
-        donorId: "BC-2024-07234",
-        bloodGroup: "A+",
-        volume: 450,
-        date: "2026-03-16T09:15:00",
-        agent: "Dr. Hounkpè",
-        center: "CNTS Cotonou",
-        status: "validated" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2839",
-        donorName: "Fèmi Hounkpè",
-        donorId: "BC-2023-05891",
-        bloodGroup: "B-",
-        volume: 450,
-        date: "2026-03-15T16:48:00",
-        agent: "Inf. Tossou",
-        center: "CNTS Cotonou",
-        status: "pending" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: true, syphilis: false },
-    },
-    {
-        id: "DON-2838",
-        donorName: "Roland Tossou",
-        donorId: "BC-2024-09102",
-        bloodGroup: "AB+",
-        volume: 450,
-        date: "2026-03-15T14:20:00",
-        agent: "Dr. Ahounou",
-        center: "CNTS Cotonou",
-        status: "validated" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2837",
-        donorName: "Adjoua Kpèdé",
-        donorId: "BC-2024-06543",
-        bloodGroup: "O-",
-        volume: 450,
-        date: "2026-03-15T11:05:00",
-        agent: "Inf. Tossou",
-        center: "CNTS Cotonou",
-        status: "rejected" as const,
-        tests: { hiv: true, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2836",
-        donorName: "Brice Sènou",
-        donorId: "BC-2023-04321",
-        bloodGroup: "A-",
-        volume: 450,
-        date: "2026-03-14T15:30:00",
-        agent: "Dr. Ahounou",
-        center: "Antenne Porto-Novo",
-        status: "validated" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2835",
-        donorName: "Céleste Gbénou",
-        donorId: "BC-2024-08899",
-        bloodGroup: "B+",
-        volume: 450,
-        date: "2026-03-14T10:10:00",
-        agent: "Dr. Hounkpè",
-        center: "CNTS Cotonou",
-        status: "validated" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    },
-    {
-        id: "DON-2834",
-        donorName: "Théodore Akpovi",
-        donorId: "BC-2023-03210",
-        bloodGroup: "O+",
-        volume: 450,
-        date: "2026-03-13T08:45:00",
-        agent: "Inf. Tossou",
-        center: "Collecte UAC",
-        status: "pending" as const,
-        tests: { hiv: false, hepatiteB: true, hepatiteC: false, syphilis: false },
-    },
-];
+function mapDonation(don: DonationData) {
+  return {
+    id:          `DON-${don.id.slice(0, 8).toUpperCase()}`,
+    apiId:       don.id,
+    donorName:   don.donneur?.codeDonneur ?? "Donneur inconnu",
+    donorId:     don.donneur?.codeDonneur ?? don.donneurId ?? "—",
+    bloodGroup:  don.donneur?.groupeSanguin ?? "?",
+    volume:      don.volume ?? 450,
+    date:        don.dateDon ?? don.creeLe ?? new Date().toISOString(),
+    agent:       don.agent?.nomComplet ?? "Agent",
+    center:      don.hopital?.nom ?? "—",
+    status:      (don.statut === "valide"
+                    ? "validated"
+                    : don.statut === "en_attente"
+                      ? "pending"
+                      : "rejected") as "validated" | "pending" | "rejected",
+    tests:       { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
+  };
+}
 
 export default function DonationsPage() {
-    const { user } = useAuth();
-    const { donations: apiDonations, isLoading: loading, donationsError } = useHospitalDashboard();
+  const { token } = useAuth();
+  const [donations, setDonations] = useState<DonationData[]>([]);
+  const [hopitalId, setHopitalId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showFlow, setShowFlow]   = useState(false);
+  const [toast, setToast]         = useState<{ msg: string; ok: boolean } | null>(null);
 
-    // Convertir les données API au format attendu par les composants
-    const donationsData = apiDonations?.map(don => ({
-        id: `DON-${don.id}`,
-        donorName: don.donneur?.codeDonneur || "Anonyme",
-        donorId: don.donneur?.codeDonneur ? `BC-${don.donneur.codeDonneur}` : `BC-${don.id}`,
-        bloodGroup: don.donneur?.groupeSanguin || 'O+',
-        volume: don.volume ?? 450,
-        date: don.dateDon || don.creeLe || new Date().toISOString(),
-        agent: don.agent?.nomComplet || user?.nomComplet || "Agent inconnu",
-        center: "CNTS Cotonou",
-        status: don.statut === 'valide' ? "validated" as const : don.statut === 'en_attente' ? "pending" as const : "rejected" as const,
-        tests: { hiv: false, hepatiteB: false, hepatiteC: false, syphilis: false },
-    })) || [];
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
 
-    const validated = donationsData.filter((d) => d.status === "validated").length;
-    const pending = donationsData.filter((d) => d.status === "pending").length;
-    const rejected = donationsData.filter((d) => d.status === "rejected").length;
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Chargement des dons...</p>
-                </div>
-            </div>
-        );
+  const load = useCallback(async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const [profile, data] = await Promise.all([
+        getMyMemberProfile(token),
+        getMyHospitalDonations(token),
+      ]);
+      setHopitalId(profile.hopitalId);
+      setDonations(data);
+    } catch {
+      /* errors surfaced in loading state */
+    } finally {
+      setIsLoading(false);
     }
+  }, [token]);
 
-    if (donationsError) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <p className="text-red-600">Erreur lors du chargement des dons</p>
-                    <p className="text-sm text-gray-500 mt-2">{donationsError}</p>
-                </div>
-            </div>
-        );
+  useEffect(() => { load(); }, [load]);
+
+  const handleValider = async (apiId: string) => {
+    if (!token) return;
+    try {
+      await validerDon(apiId, token);
+      showToast("Don validé avec succès");
+      await load();
+    } catch (e: any) {
+      showToast(e?.message ?? "Erreur lors de la validation", false);
+      throw e;
     }
+  };
 
-    return (
-        <div className="space-y-8 max-w-6xl">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Dons enregistrés</h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Suivi et validation des dons de sang
-                    </p>
-                </div>
-                <button className="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">
-                    + Enregistrer un don
-                </button>
-            </div>
+  const handleRejeter = async (apiId: string) => {
+    if (!token) return;
+    try {
+      await rejeterDon(apiId, token);
+      showToast("Don rejeté");
+      await load();
+    } catch (e: any) {
+      showToast(e?.message ?? "Erreur lors du rejet", false);
+      throw e;
+    }
+  };
 
-            <DonationsStats
-                total={donationsData.length}
-                validated={validated}
-                pending={pending}
-                rejected={rejected}
-            />
+  const mapped   = donations.map(mapDonation);
+  const validated = mapped.filter((d) => d.status === "validated").length;
+  const pending   = mapped.filter((d) => d.status === "pending").length;
+  const rejected  = mapped.filter((d) => d.status === "rejected").length;
 
-            <DonationsTable donations={donationsData} />
+  return (
+    <div className="space-y-8 max-w-6xl">
+      {/* Toast */}
+      {toast && (
+        <div className={clsx(
+          "fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium border",
+          toast.ok
+            ? "bg-green-50 border-green-200 text-green-700"
+            : "bg-red-50 border-red-200 text-red-700"
+        )}>
+          {toast.ok
+            ? <TickCircle size={16} variant="Bold" color="#16a34a" />
+            : <Warning2 size={16} variant="Bold" color="#dc2626" />}
+          {toast.msg}
         </div>
-    );
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dons enregistrés</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Suivi et validation des dons de sang
+          </p>
+        </div>
+        <button
+          onClick={() => setShowFlow(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+        >
+          <Add size={16} color="white" />
+          Enregistrer un don
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="text-center">
+            <div className="w-10 h-10 border-2 border-red-600/20 border-t-red-600 rounded-full animate-spin mx-auto" />
+            <p className="mt-4 text-sm text-gray-400">Chargement des dons...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <DonationsStats
+            total={mapped.length}
+            validated={validated}
+            pending={pending}
+            rejected={rejected}
+          />
+          <DonationsTable
+            donations={mapped}
+            onValider={handleValider}
+            onRejeter={handleRejeter}
+          />
+        </>
+      )}
+
+      {token && (
+        <DonationFlow
+          open={showFlow}
+          token={token}
+          hopitalId={hopitalId}
+          onClose={() => setShowFlow(false)}
+          onDone={() => {
+            setShowFlow(false);
+            showToast("Don enregistré — en attente de validation");
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
 }

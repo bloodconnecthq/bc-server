@@ -18,7 +18,10 @@ export function useDonor(token: string | null): UseDonorState {
   const [error, setError] = useState<string | null>(null)
 
   const fetchDonor = useCallback(async () => {
-    if (!token) {
+    // Prefer the context token; fall back to localStorage in case React
+    // context hasn't committed the latest token yet (concurrent rendering).
+    const authToken = token ?? (typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null)
+    if (!authToken) {
       setDonor(null)
       setError(null)
       return
@@ -28,7 +31,7 @@ export function useDonor(token: string | null): UseDonorState {
     setError(null)
 
     try {
-      const profileData = await getDonorProfile(token)
+      const profileData = await getDonorProfile(authToken)
       console.log("Profil du donneur récupéré:", profileData)
       setDonor(profileData)
     } catch (err) {

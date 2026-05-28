@@ -14,6 +14,13 @@ export default class DonorTransformer {
       estEligible: donneur.estEligible(),
       niveauBadge: donneur.niveauBadge,
       donneesQrCode: donneur.donneesQrCode,
+      statut: !user
+        ? 'inactif'
+        : !user.estActif
+          ? 'suspendu'
+          : donneur.totalDons === 0
+            ? 'inactif'
+            : 'actif',
       utilisateur: user
         ? {
             id: user.id,
@@ -25,6 +32,8 @@ export default class DonorTransformer {
             commune: user.commune,
             departement: user.departement,
             dateNaissance: user.dateNaissance?.toISO() ?? null,
+            estActif: user.estActif,
+            photoProfil: user.photoProfil,
           }
         : null,
       creeLe: donneur.createdAt.toISO(),

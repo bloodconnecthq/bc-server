@@ -62,6 +62,29 @@ export async function updateProfile(profileData: UpdateProfileData, token: strin
 }
 
 /**
+ * Change le mot de passe de l'utilisateur connecté
+ */
+export async function changerMotDePasse(
+  ancienMotDePasse: string,
+  nouveauMotDePasse: string,
+  token: string,
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/compte/mot-de-passe`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ ancienMotDePasse, nouveauMotDePasse }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.erreur || error.message || 'Erreur lors du changement de mot de passe')
+  }
+}
+
+/**
  * Met à jour la photo de profil (base64)
  */
 export async function uploadProfilePhoto(photoBase64: string, token: string): Promise<{ photoProfil: string }> {

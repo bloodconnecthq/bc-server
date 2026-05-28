@@ -6,7 +6,10 @@ import DonorService from '#services/donor_service'
 import NotificationService from '#services/notification_service'
 import PocheSang from '#models/poche_sang'
 import BonDemande from '#models/bon_demande'
+import Hopital from '#models/hopital'
 import RegistrePsl from '#models/registre_psl'
+import MembresHopital from '#models/membres_hopital'
+import StockSanguin from '#models/stock_sanguin'
 import { DateTime } from 'luxon'
 
 const BADGE_LABELS: Record<string, string> = {
@@ -30,7 +33,7 @@ export default class DonsController {
         .preload('agent')
         .orderBy('date_don', 'desc')
 
-      return dons.map((don) => new DonTransformer(don).toObject())
+      return dons.map((don) => DonTransformer.transform(don))
     } catch (error) {
       return response.status(404).json({
         message: 'Historique des dons non trouvé',
@@ -49,20 +52,30 @@ export default class DonsController {
     const dons = await Don.query()
       .preload('hopital')
       .preload('agent')
-      .preload('donneur')
-      .orderBy('date_don', 'desc')
+      .preload('donneur', (q) => q.preload('utilisateur'))
+      .preload('poche')
+      .orderBy('created_at', 'desc')
 
-    return dons.map((don) => new DonTransformer(don).toObject())
+    return dons.map((don) => ({
+      ...DonTransformer.transform(don),
+      nomDonneur:
+        don.donneur?.utilisateur?.nomComplet ||
+        `${don.donneur?.utilisateur?.prenom ?? ''} ${don.donneur?.utilisateur?.nom ?? ''}`.trim() ||
+        null,
+      dateExpiration: don.poche?.dateExpiration
+        ? don.poche.dateExpiration.toISOString()
+        : null,
+    }))
   }
 
   async store({ request, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
 
-    if (user.role !== 'infirmier') {
-      return response.forbidden({ erreur: 'Seul un infirmier peut enregistrer un don' })
+    if (!['infirmier', 'medecin'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    const data = request.only(['donneurId', 'hopitalId', 'dateDon', 'typePoche', 'volume'])
+    const data = request.only(['donneurId', 'hopitalId', 'dateDon', 'typePoche', 'volume', 'questionnaireReponses'])
     const donneur = await Donor.findOrFail(data.donneurId)
 
     if (
@@ -87,7 +100,7 @@ export default class DonsController {
     await don.load('agent')
     await don.load('donneur')
 
-    return new DonTransformer(don).toObject()
+    return DonTransformer.transform(don)
   }
 
   async show({ params }: HttpContext) {
@@ -98,7 +111,7 @@ export default class DonsController {
       .preload('donneur')
       .firstOrFail()
 
-    return new DonTransformer(don).toObject()
+    return DonTransformer.transform(don)
   }
 
   async valider({ params, auth, response }: HttpContext) {
@@ -235,14 +248,64 @@ export default class DonsController {
     return poches.map((poche) => this.serializePoche(poche))
   }
 
+  // ── Helper : serialize a bon with stock info ─────────────────────────────────
+
+  private async serializeBonAvecStock(bon: BonDemande, hopitalId: string) {
+    const stock = await StockSanguin.query()
+      .where('hopital_id', hopitalId)
+      .where('groupe_sanguin', bon.groupeSanguinPatient)
+      .first()
+
+    const stockDisponible = stock?.quantite ?? 0
+    return {
+      id: bon.id,
+      medecinId: bon.medecinId,
+      hopitalId: bon.hopitalId,
+      nomPatient: bon.nomPatient,
+      groupeSanguinPatient: bon.groupeSanguinPatient,
+      quantiteNecessaire: bon.quantiteNecessaire,
+      statut: bon.statut,
+      transfereVersHopitalId: bon.transfereVersHopitalId,
+      transfereVers: bon.transfereVers
+        ? { id: bon.transfereVers.id, nom: bon.transfereVers.nom }
+        : null,
+      stockDisponible,
+      peutEtreSatisfait: stockDisponible >= bon.quantiteNecessaire,
+      medecin: bon.medecin ? { id: bon.medecin.id, nomComplet: bon.medecin.nomComplet } : null,
+      hopital: bon.hopital ? { id: bon.hopital.id, nom: bon.hopital.nom } : null,
+      creeLe: bon.creeLe?.toISO() ?? null,
+    }
+  }
+
+  // ── Bons de demande ───────────────────────────────────────────────────────────
+
   async bonsDemandeIndex({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
 
-    if (!['medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
+    if (!['medecin', 'admin_hopital', 'super_admin', 'infirmier'].includes(user.role)) {
       return response.forbidden({ erreur: 'Accès non autorisé' })
     }
 
-    return BonDemande.query().preload('medecin').preload('hopital').orderBy('created_at', 'desc')
+    let hopitalId: string | null = null
+
+    if (user.role !== 'super_admin') {
+      const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+      if (!membre?.hopitalId) {
+        return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+      }
+      hopitalId = membre.hopitalId
+    }
+
+    const query = BonDemande.query()
+      .preload('medecin')
+      .preload('hopital')
+      .preload('transfereVers')
+      .orderBy('created_at', 'desc')
+
+    if (hopitalId) query.where('hopital_id', hopitalId)
+
+    const bons = await query
+    return Promise.all(bons.map((bon) => this.serializeBonAvecStock(bon, hopitalId ?? bon.hopitalId)))
   }
 
   async bonDemandeStore({ request, auth, response }: HttpContext) {
@@ -259,11 +322,122 @@ export default class DonsController {
       'quantiteNecessaire',
     ])
 
-    return BonDemande.create({
+    const bon = await BonDemande.create({
       ...data,
       medecinId: user.id,
       statut: 'en_attente',
     })
+
+    await bon.load('medecin')
+    await bon.load('hopital')
+    return this.serializeBonAvecStock(bon, data.hopitalId)
+  }
+
+  async bonDemandeTransferer({ params, request, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    if (!['medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const data = request.only(['hopitalId', 'motif'])
+    const hopitalCibleId = data.hopitalId
+    if (!hopitalCibleId) {
+      return response.badRequest({ erreur: 'hopitalId cible requis' })
+    }
+
+    const bon = await BonDemande.findOrFail(params.id)
+    bon.statut = 'transfere'
+    bon.transfereVersHopitalId = hopitalCibleId
+    await bon.save()
+
+    // Enregistrement automatique dans le registre PSL
+    const hopitalCible = await Hopital.find(hopitalCibleId)
+    const entreeExistante = await RegistrePsl.query().where('bon_demande_id', bon.id).first()
+    if (!entreeExistante) {
+      await RegistrePsl.create({
+        bonDemandeId: bon.id,
+        motif: data.motif ?? 'Groupe sanguin non disponible dans l\'établissement',
+        transfereVers: hopitalCible?.nom ?? null,
+        traceLe: DateTime.now(),
+        retourLe: null,
+      })
+    }
+
+    return { succes: true, message: 'Bon transféré et enregistré dans le registre PSL' }
+  }
+
+  async bonsDemandeRecus({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    if (!['medecin', 'admin_hopital', 'infirmier', 'super_admin'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const membre = await MembresHopital.query().where('utilisateur_id', user.id).first()
+    if (!membre?.hopitalId) {
+      return response.forbidden({ erreur: "Vous n'êtes membre d'aucun hôpital" })
+    }
+
+    const bons = await BonDemande.query()
+      .where('transfere_vers_hopital_id', membre.hopitalId)
+      .preload('medecin')
+      .preload('hopital')
+      .preload('transfereVers')
+      .orderBy('created_at', 'desc')
+
+    return Promise.all(bons.map((bon) => this.serializeBonAvecStock(bon, membre.hopitalId)))
+  }
+
+  async bonDemandeUpdate({ params, request, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    if (user.role !== 'medecin') {
+      return response.forbidden({ erreur: 'Seul un médecin peut modifier un bon de demande' })
+    }
+
+    const bon = await BonDemande.findOrFail(params.id)
+    if (bon.statut !== 'en_attente') {
+      return response.badRequest({ erreur: 'Seul un bon en attente peut être modifié' })
+    }
+
+    const data = request.only(['nomPatient', 'groupeSanguinPatient', 'quantiteNecessaire'])
+    bon.merge(data)
+    await bon.save()
+    await bon.load('medecin')
+    await bon.load('hopital')
+    return this.serializeBonAvecStock(bon, bon.hopitalId)
+  }
+
+  async bonDemandeDestroy({ params, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    if (!['medecin', 'admin_hopital', 'super_admin'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const bon = await BonDemande.findOrFail(params.id)
+    if (bon.statut !== 'en_attente') {
+      return response.badRequest({ erreur: 'Seul un bon en attente peut être supprimé' })
+    }
+
+    await bon.delete()
+    return { succes: true }
+  }
+
+  async bonDemandeDecliner({ params, auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    if (!['medecin', 'admin_hopital', 'infirmier'].includes(user.role)) {
+      return response.forbidden({ erreur: 'Accès non autorisé' })
+    }
+
+    const bon = await BonDemande.findOrFail(params.id)
+    bon.statut = 'en_attente'
+    bon.transfereVersHopitalId = null
+    await bon.save()
+
+    return { succes: true, message: 'Transfert décliné — bon remis en attente' }
   }
 
   async bonDemandeShow({ params, auth, response }: HttpContext) {

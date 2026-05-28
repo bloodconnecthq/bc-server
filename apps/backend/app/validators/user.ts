@@ -3,6 +3,20 @@ import vine from '@vinejs/vine'
 const email = () => vine.string().email().maxLength(254)
 const password = () => vine.string().minLength(8).maxLength(32)
 
+// Rejects registration when the person is under 18
+const majeur = vine.createRule((value: unknown, _options: unknown, field: any) => {
+  if (!(value instanceof Date)) return
+  const seuil = new Date()
+  seuil.setFullYear(seuil.getFullYear() - 18)
+  if (value > seuil) {
+    field.report(
+      'Vous devez avoir au moins 18 ans pour créer un compte.',
+      'ageMinium',
+      field
+    )
+  }
+})
+
 // Validator inscription — donneur uniquement
 export const signupValidator = vine.create({
   nomComplet: vine.string().maxLength(255).optional(),
@@ -15,7 +29,9 @@ export const signupValidator = vine.create({
   groupeSanguin: vine
     .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
     .optional(),
-  dateNaissance: vine.date().optional(),
+  commune: vine.string().maxLength(100).optional(),
+  departement: vine.string().maxLength(100).optional(),
+  dateNaissance: vine.date().use(majeur()).optional(),
 })
 
 // Validator connexion

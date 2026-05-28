@@ -23,6 +23,7 @@ export interface DonorProfile {
     telephone: string | null
     commune: string | null
     dateNaissance: string | null
+    photoProfil: string | null
   } | null
   creeLe: string
   misAJourLe: string

@@ -90,6 +90,12 @@ const routes = {
     tokens: [{"old":"/api/v1/donneurs","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs","type":0,"val":"donneurs","end":""}],
     types: placeholder as Registry['donors.store']['types'],
   },
+  'donors.par_code': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/donneurs/par-code/:code',
+    tokens: [{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":0,"val":"par-code","end":""},{"old":"/api/v1/donneurs/par-code/:code","type":1,"val":"code","end":""}],
+    types: placeholder as Registry['donors.par_code']['types'],
+  },
   'donors.show': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/donneurs/:id',
@@ -108,6 +114,12 @@ const routes = {
     tokens: [{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/:id/statut","type":1,"val":"id","end":""},{"old":"/api/v1/donneurs/:id/statut","type":0,"val":"statut","end":""}],
     types: placeholder as Registry['donors.update_statut']['types'],
   },
+  'donors.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/donneurs/:id',
+    tokens: [{"old":"/api/v1/donneurs/:id","type":0,"val":"api","end":""},{"old":"/api/v1/donneurs/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/donneurs/:id","type":0,"val":"donneurs","end":""},{"old":"/api/v1/donneurs/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['donors.destroy']['types'],
+  },
   'hopitaux.hopitaux.index': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/hopitaux',
@@ -120,29 +132,41 @@ const routes = {
     tokens: [{"old":"/api/v1/hopitaux","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux","type":0,"val":"hopitaux","end":""}],
     types: placeholder as Registry['hopitaux.hopitaux.store']['types'],
   },
-  'hopitaux.hopitaux.show': {
+  'hopitaux.hopitaux.hopitaux_avec_stock': {
     methods: ["GET","HEAD"],
-    pattern: '/api/v1/hopitaux/:id',
-    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
-    types: placeholder as Registry['hopitaux.hopitaux.show']['types'],
+    pattern: '/api/v1/hopitaux/avec-stock',
+    tokens: [{"old":"/api/v1/hopitaux/avec-stock","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/avec-stock","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/avec-stock","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/avec-stock","type":0,"val":"avec-stock","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.hopitaux_avec_stock']['types'],
   },
-  'hopitaux.hopitaux.update': {
+  'hopitaux.hopitaux.mon_hopital': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/hopitaux/moi',
+    tokens: [{"old":"/api/v1/hopitaux/moi","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"moi","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.mon_hopital']['types'],
+  },
+  'hopitaux.hopitaux.update_mon_hopital': {
     methods: ["PUT"],
-    pattern: '/api/v1/hopitaux/:id',
-    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
-    types: placeholder as Registry['hopitaux.hopitaux.update']['types'],
+    pattern: '/api/v1/hopitaux/moi',
+    tokens: [{"old":"/api/v1/hopitaux/moi","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi","type":0,"val":"moi","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.update_mon_hopital']['types'],
   },
-  'hopitaux.hopitaux.update_statut': {
-    methods: ["PATCH"],
-    pattern: '/api/v1/hopitaux/:id/statut',
-    tokens: [{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":1,"val":"id","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"statut","end":""}],
-    types: placeholder as Registry['hopitaux.hopitaux.update_statut']['types'],
-  },
-  'hopitaux.hopitaux.membres': {
+  'hopitaux.hopitaux.mes_membres': {
     methods: ["GET","HEAD"],
-    pattern: '/api/v1/hopitaux/:id/membres',
-    tokens: [{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":1,"val":"id","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"membres","end":""}],
-    types: placeholder as Registry['hopitaux.hopitaux.membres']['types'],
+    pattern: '/api/v1/hopitaux/moi/membres',
+    tokens: [{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"membres","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.mes_membres']['types'],
+  },
+  'hopitaux.hopitaux.creer_membre': {
+    methods: ["POST"],
+    pattern: '/api/v1/hopitaux/moi/membres',
+    tokens: [{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres","type":0,"val":"membres","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.creer_membre']['types'],
+  },
+  'hopitaux.hopitaux.modifier_membre': {
+    methods: ["PUT"],
+    pattern: '/api/v1/hopitaux/moi/membres/:membreId',
+    tokens: [{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":0,"val":"membres","end":""},{"old":"/api/v1/hopitaux/moi/membres/:membreId","type":1,"val":"membreId","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.modifier_membre']['types'],
   },
   'hopitaux.hopitaux.mes_stocks': {
     methods: ["GET","HEAD"],
@@ -161,6 +185,42 @@ const routes = {
     pattern: '/api/v1/hopitaux/moi/rendez-vous',
     tokens: [{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/rendez-vous","type":0,"val":"rendez-vous","end":""}],
     types: placeholder as Registry['hopitaux.hopitaux.mes_rendez_vous']['types'],
+  },
+  'hopitaux.hopitaux.registre_psl': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/hopitaux/moi/registre-psl',
+    tokens: [{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"moi","end":""},{"old":"/api/v1/hopitaux/moi/registre-psl","type":0,"val":"registre-psl","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.registre_psl']['types'],
+  },
+  'hopitaux.hopitaux.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/hopitaux/:id',
+    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.show']['types'],
+  },
+  'hopitaux.hopitaux.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/hopitaux/:id',
+    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.update']['types'],
+  },
+  'hopitaux.hopitaux.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/hopitaux/:id',
+    tokens: [{"old":"/api/v1/hopitaux/:id","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.destroy']['types'],
+  },
+  'hopitaux.hopitaux.update_statut': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/hopitaux/:id/statut',
+    tokens: [{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":1,"val":"id","end":""},{"old":"/api/v1/hopitaux/:id/statut","type":0,"val":"statut","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.update_statut']['types'],
+  },
+  'hopitaux.hopitaux.membres': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/hopitaux/:id/membres',
+    tokens: [{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"api","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"v1","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"hopitaux","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":1,"val":"id","end":""},{"old":"/api/v1/hopitaux/:id/membres","type":0,"val":"membres","end":""}],
+    types: placeholder as Registry['hopitaux.hopitaux.membres']['types'],
   },
   'hopitaux.hopitaux.stocks': {
     methods: ["GET","HEAD"],
@@ -270,6 +330,12 @@ const routes = {
     tokens: [{"old":"/api/v1/bons-demande","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande","type":0,"val":"bons-demande","end":""}],
     types: placeholder as Registry['bonsDemande.dons.bon_demande_store']['types'],
   },
+  'bonsDemande.dons.bons_demande_recus': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/bons-demande/recus',
+    tokens: [{"old":"/api/v1/bons-demande/recus","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/recus","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/recus","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/recus","type":0,"val":"recus","end":""}],
+    types: placeholder as Registry['bonsDemande.dons.bons_demande_recus']['types'],
+  },
   'bonsDemande.dons.bon_demande_show': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/bons-demande/:id',
@@ -287,6 +353,30 @@ const routes = {
     pattern: '/api/v1/bons-demande/:id/non-satisfaire',
     tokens: [{"old":"/api/v1/bons-demande/:id/non-satisfaire","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/:id/non-satisfaire","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/:id/non-satisfaire","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/:id/non-satisfaire","type":1,"val":"id","end":""},{"old":"/api/v1/bons-demande/:id/non-satisfaire","type":0,"val":"non-satisfaire","end":""}],
     types: placeholder as Registry['bonsDemande.dons.bon_demande_non_satisfaire']['types'],
+  },
+  'bonsDemande.dons.bon_demande_update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/bons-demande/:id',
+    tokens: [{"old":"/api/v1/bons-demande/:id","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/:id","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['bonsDemande.dons.bon_demande_update']['types'],
+  },
+  'bonsDemande.dons.bon_demande_destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/bons-demande/:id',
+    tokens: [{"old":"/api/v1/bons-demande/:id","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/:id","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['bonsDemande.dons.bon_demande_destroy']['types'],
+  },
+  'bonsDemande.dons.bon_demande_transferer': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/bons-demande/:id/transferer',
+    tokens: [{"old":"/api/v1/bons-demande/:id/transferer","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/:id/transferer","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/:id/transferer","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/:id/transferer","type":1,"val":"id","end":""},{"old":"/api/v1/bons-demande/:id/transferer","type":0,"val":"transferer","end":""}],
+    types: placeholder as Registry['bonsDemande.dons.bon_demande_transferer']['types'],
+  },
+  'bonsDemande.dons.bon_demande_decliner': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/bons-demande/:id/decliner',
+    tokens: [{"old":"/api/v1/bons-demande/:id/decliner","type":0,"val":"api","end":""},{"old":"/api/v1/bons-demande/:id/decliner","type":0,"val":"v1","end":""},{"old":"/api/v1/bons-demande/:id/decliner","type":0,"val":"bons-demande","end":""},{"old":"/api/v1/bons-demande/:id/decliner","type":1,"val":"id","end":""},{"old":"/api/v1/bons-demande/:id/decliner","type":0,"val":"decliner","end":""}],
+    types: placeholder as Registry['bonsDemande.dons.bon_demande_decliner']['types'],
   },
   'bonsDemande.dons.enregistrer_psl': {
     methods: ["POST"],
@@ -414,6 +504,12 @@ const routes = {
     tokens: [{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"api","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"v1","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"rendez-vous","end":""},{"old":"/api/v1/rendez-vous/attribues","type":0,"val":"attribues","end":""}],
     types: placeholder as Registry['rendezVous.rendez_vous.rendez_vous_attribues']['types'],
   },
+  'rendezVous.rendez_vous.s_attribuer': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/rendez-vous/:id/s-attribuer',
+    tokens: [{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"api","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"v1","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"rendez-vous","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":1,"val":"id","end":""},{"old":"/api/v1/rendez-vous/:id/s-attribuer","type":0,"val":"s-attribuer","end":""}],
+    types: placeholder as Registry['rendezVous.rendez_vous.s_attribuer']['types'],
+  },
   'rendezVous.rendez_vous.index': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/rendez-vous',
@@ -473,6 +569,54 @@ const routes = {
     pattern: '/api/v1/dons/:donId/resultats',
     tokens: [{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"api","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"v1","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"dons","end":""},{"old":"/api/v1/dons/:donId/resultats","type":1,"val":"donId","end":""},{"old":"/api/v1/dons/:donId/resultats","type":0,"val":"resultats","end":""}],
     types: placeholder as Registry['resultats.resultats.update']['types'],
+  },
+  'users.users.stats': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/users/stats',
+    tokens: [{"old":"/api/v1/users/stats","type":0,"val":"api","end":""},{"old":"/api/v1/users/stats","type":0,"val":"v1","end":""},{"old":"/api/v1/users/stats","type":0,"val":"users","end":""},{"old":"/api/v1/users/stats","type":0,"val":"stats","end":""}],
+    types: placeholder as Registry['users.users.stats']['types'],
+  },
+  'users.users.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/users',
+    tokens: [{"old":"/api/v1/users","type":0,"val":"api","end":""},{"old":"/api/v1/users","type":0,"val":"v1","end":""},{"old":"/api/v1/users","type":0,"val":"users","end":""}],
+    types: placeholder as Registry['users.users.index']['types'],
+  },
+  'users.users.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/users',
+    tokens: [{"old":"/api/v1/users","type":0,"val":"api","end":""},{"old":"/api/v1/users","type":0,"val":"v1","end":""},{"old":"/api/v1/users","type":0,"val":"users","end":""}],
+    types: placeholder as Registry['users.users.store']['types'],
+  },
+  'users.users.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/users/:id',
+    tokens: [{"old":"/api/v1/users/:id","type":0,"val":"api","end":""},{"old":"/api/v1/users/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/users/:id","type":0,"val":"users","end":""},{"old":"/api/v1/users/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['users.users.show']['types'],
+  },
+  'users.users.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/users/:id',
+    tokens: [{"old":"/api/v1/users/:id","type":0,"val":"api","end":""},{"old":"/api/v1/users/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/users/:id","type":0,"val":"users","end":""},{"old":"/api/v1/users/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['users.users.update']['types'],
+  },
+  'users.users.update_statut': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/users/:id/statut',
+    tokens: [{"old":"/api/v1/users/:id/statut","type":0,"val":"api","end":""},{"old":"/api/v1/users/:id/statut","type":0,"val":"v1","end":""},{"old":"/api/v1/users/:id/statut","type":0,"val":"users","end":""},{"old":"/api/v1/users/:id/statut","type":1,"val":"id","end":""},{"old":"/api/v1/users/:id/statut","type":0,"val":"statut","end":""}],
+    types: placeholder as Registry['users.users.update_statut']['types'],
+  },
+  'users.users.reset_password': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/users/:id/reset-password',
+    tokens: [{"old":"/api/v1/users/:id/reset-password","type":0,"val":"api","end":""},{"old":"/api/v1/users/:id/reset-password","type":0,"val":"v1","end":""},{"old":"/api/v1/users/:id/reset-password","type":0,"val":"users","end":""},{"old":"/api/v1/users/:id/reset-password","type":1,"val":"id","end":""},{"old":"/api/v1/users/:id/reset-password","type":0,"val":"reset-password","end":""}],
+    types: placeholder as Registry['users.users.reset_password']['types'],
+  },
+  'users.users.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/users/:id',
+    tokens: [{"old":"/api/v1/users/:id","type":0,"val":"api","end":""},{"old":"/api/v1/users/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/users/:id","type":0,"val":"users","end":""},{"old":"/api/v1/users/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['users.users.destroy']['types'],
   },
   'rapports.stocks.rapport_dons': {
     methods: ["GET","HEAD"],

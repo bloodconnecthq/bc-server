@@ -1,145 +1,73 @@
-import { DonorsList } from "@/components/console/donors/list";
-import { DonorsStats } from "@/components/console/donors/stats";
+"use client";
 
-const donors = [
-  {
-    id: "BC-2024-08412",
-    firstName: "Koffi",
-    lastName: "Agossou",
-    bloodGroup: "O+",
-    phone: "+229 97 45 12 38",
-    email: "koffi.agossou@gmail.com",
-    commune: "Cotonou",
-    department: "Littoral",
-    totalDonations: 7,
-    lastDonation: "2025-12-18",
-    nextEligible: "2026-03-18",
-    badge: "silver" as const,
-    status: "active" as const,
-    registeredAt: "2024-01-10",
-  },
-  {
-    id: "BC-2024-07234",
-    firstName: "Mèdéssè",
-    lastName: "Dossou",
-    bloodGroup: "A+",
-    phone: "+229 96 32 11 45",
-    email: "m.dossou@gmail.com",
-    commune: "Cotonou",
-    department: "Littoral",
-    totalDonations: 4,
-    lastDonation: "2026-03-16",
-    nextEligible: "2026-06-14",
-    badge: "silver" as const,
-    status: "active" as const,
-    registeredAt: "2024-02-14",
-  },
-  {
-    id: "BC-2023-05891",
-    firstName: "Fèmi",
-    lastName: "Hounkpè",
-    bloodGroup: "B-",
-    phone: "+229 95 78 23 67",
-    email: "femi.hounkpe@yahoo.fr",
-    commune: "Abomey-Calavi",
-    department: "Atlantique",
-    totalDonations: 12,
-    lastDonation: "2025-11-20",
-    nextEligible: "2026-02-18",
-    badge: "gold" as const,
-    status: "active" as const,
-    registeredAt: "2023-06-01",
-  },
-  {
-    id: "BC-2024-09102",
-    firstName: "Roland",
-    lastName: "Tossou",
-    bloodGroup: "AB+",
-    phone: "+229 97 11 44 89",
-    email: "roland.tossou@gmail.com",
-    commune: "Porto-Novo",
-    department: "Ouémé",
-    totalDonations: 2,
-    lastDonation: "2026-03-15",
-    nextEligible: "2026-06-13",
-    badge: "bronze" as const,
-    status: "active" as const,
-    registeredAt: "2024-03-20",
-  },
-  {
-    id: "BC-2024-06543",
-    firstName: "Adjoua",
-    lastName: "Kpèdé",
-    bloodGroup: "O-",
-    phone: "+229 96 55 33 21",
-    email: "adjoua.kpede@gmail.com",
-    commune: "Parakou",
-    department: "Borgou",
-    totalDonations: 1,
-    lastDonation: "2026-03-15",
-    nextEligible: "2026-06-13",
-    badge: "bronze" as const,
-    status: "suspended" as const,
-    registeredAt: "2024-04-05",
-  },
-  {
-    id: "BC-2023-04321",
-    firstName: "Brice",
-    lastName: "Sènou",
-    bloodGroup: "A-",
-    phone: "+229 97 88 12 34",
-    email: "brice.senou@gmail.com",
-    commune: "Cotonou",
-    department: "Littoral",
-    totalDonations: 28,
-    lastDonation: "2026-02-10",
-    nextEligible: "2026-05-10",
-    badge: "platinum" as const,
-    status: "active" as const,
-    registeredAt: "2023-01-15",
-  },
-  {
-    id: "BC-2024-08899",
-    firstName: "Céleste",
-    lastName: "Gbénou",
-    bloodGroup: "B+",
-    phone: "+229 95 44 67 89",
-    email: "celeste.gbenou@gmail.com",
-    commune: "Abomey-Calavi",
-    department: "Atlantique",
-    totalDonations: 6,
-    lastDonation: "2026-03-14",
-    nextEligible: "2026-06-12",
-    badge: "silver" as const,
-    status: "active" as const,
-    registeredAt: "2024-02-28",
-  },
-  {
-    id: "BC-2023-03210",
-    firstName: "Théodore",
-    lastName: "Akpovi",
-    bloodGroup: "O+",
-    phone: "+229 96 22 55 78",
-    email: "t.akpovi@gmail.com",
-    commune: "Bohicon",
-    department: "Zou",
-    totalDonations: 0,
-    lastDonation: "",
-    nextEligible: "",
-    badge: "none" as const,
-    status: "inactive" as const,
-    registeredAt: "2023-08-10",
-  },
-];
+import { useAuth } from "@/app/providers/auth-provider";
+import { useDonneurs, useRapportDonneurs } from "@/lib/hooks/useConsole";
+import { updateDoneurStatut, updateDoneurAdmin, deleteDonneur, type UpdateDonneurPayload } from "@/lib/api/consoleApi";
+import { DonorsStats } from "@/components/console/donors/stats";
+import { DonorsList } from "@/components/console/donors/list";
+import type { DonneurAPI } from "@/lib/api/consoleApi";
+
+const BADGE_MAP = {
+  aucun: "none", bronze: "bronze", argent: "silver", or: "gold", platine: "platinum",
+} as const;
+
+const STATUT_MAP = {
+  actif: "active", inactif: "inactive", suspendu: "suspended",
+} as const;
+
+export function mapDonor(d: DonneurAPI) {
+  const nomCompletParts = (d.utilisateur?.nomComplet ?? "").trim().split(" ");
+  const prenom = d.utilisateur?.prenom || nomCompletParts[0] || "";
+  const nom    = d.utilisateur?.nom    || nomCompletParts.slice(1).join(" ") || "";
+  return {
+    _id: d.id,
+    id: d.codeDonneur || d.id,
+    firstName: prenom,
+    lastName:  nom,
+    bloodGroup: d.groupeSanguin || "?",
+    phone: d.utilisateur?.telephone || "",
+    email: d.utilisateur?.email || "",
+    commune: d.utilisateur?.commune || "",
+    department: d.utilisateur?.departement || "",
+    totalDonations: d.totalDons,
+    lastDonation: d.dateDernierDon || "",
+    nextEligible: d.dateEligibiliteSuivante || "",
+    badge: (BADGE_MAP[d.niveauBadge] ?? "none") as "none" | "bronze" | "silver" | "gold" | "platinum",
+    status: (STATUT_MAP[d.statut] ?? "inactive") as "active" | "suspended" | "inactive",
+    registeredAt: d.creeLe || "",
+  };
+}
 
 export default function DonorsPage() {
-  const active = donors.filter((d) => d.status === "active").length;
-  const suspended = donors.filter((d) => d.status === "suspended").length;
-  const inactive = donors.filter((d) => d.status === "inactive").length;
-  const eligible = donors.filter((d) => {
-    if (!d.nextEligible) return false;
-    return new Date(d.nextEligible) <= new Date();
-  }).length;
+  const { token } = useAuth();
+  const { data: donneurs, isLoading, error, refetch } = useDonneurs(token);
+  const { data: rapport } = useRapportDonneurs(token);
+
+  const donors = (donneurs ?? []).map(mapDonor);
+
+  const handleStatusChange = async (id: string, estActif: boolean) => {
+    if (!token) return;
+    await updateDoneurStatut(id, estActif, token);
+    refetch();
+  };
+
+  const handleEdit = async (id: string, data: UpdateDonneurPayload) => {
+    if (!token) return;
+    await updateDoneurAdmin(id, data, token);
+    refetch();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!token) return;
+    await deleteDonneur(id, token);
+    refetch();
+  };
+
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!token) return;
+    await Promise.all(ids.map((id) => deleteDonneur(id, token)));
+    refetch();
+  };
 
   return (
     <div className="space-y-8">
@@ -155,15 +83,37 @@ export default function DonorsPage() {
         </button>
       </div>
 
-      <DonorsStats
-        active={active}
-        suspended={suspended}
-        inactive={inactive}
-        eligible={eligible}
-        total={donors.length}
-      />
+      {isLoading ? (
+        <div className="grid grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <DonorsStats
+          total={rapport?.total ?? donors.length}
+          active={rapport?.actifs ?? donors.filter((d) => d.status === "active").length}
+          suspended={rapport?.suspendus ?? donors.filter((d) => d.status === "suspended").length}
+          inactive={rapport?.inactifs ?? donors.filter((d) => d.status === "inactive").length}
+          eligible={rapport?.eligibles ?? donors.filter((d) => d.nextEligible && new Date(d.nextEligible) <= new Date()).length}
+        />
+      )}
 
-      <DonorsList donors={donors} />
+      {error ? (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-600 text-sm">
+          Erreur : {error}
+        </div>
+      ) : (
+        <DonorsList
+          donors={donors}
+          isLoading={isLoading}
+          token={token}
+          onStatusChange={handleStatusChange}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onBulkDelete={handleBulkDelete}
+        />
+      )}
     </div>
   );
 }

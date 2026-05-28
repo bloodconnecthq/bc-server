@@ -50,7 +50,7 @@ export class AuthAccessTokenSchema extends BaseModel {
   @column()
   declare name: string | null
   @column()
-  declare tokenableId: number
+  declare tokenableId: string
   @column()
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -75,7 +75,7 @@ export class BadgeSchema extends BaseModel {
 }
 
 export class BonsDemandeSchema extends BaseModel {
-  static $columns = ['createdAt', 'groupeSanguinPatient', 'hopitalId', 'id', 'medecinId', 'nomPatient', 'quantiteNecessaire', 'statut', 'updatedAt'] as const
+  static $columns = ['createdAt', 'groupeSanguinPatient', 'hopitalId', 'id', 'medecinId', 'nomPatient', 'quantiteNecessaire', 'statut', 'transfereVersHopitalId', 'updatedAt'] as const
   $columns = BonsDemandeSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -93,6 +93,8 @@ export class BonsDemandeSchema extends BaseModel {
   declare quantiteNecessaire: number | null
   @column()
   declare statut: string | null
+  @column()
+  declare transfereVersHopitalId: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -148,7 +150,7 @@ export class DonneurSchema extends BaseModel {
 }
 
 export class DonSchema extends BaseModel {
-  static $columns = ['agentId', 'createdAt', 'dateDon', 'donneurId', 'hopitalId', 'id', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
+  static $columns = ['agentId', 'createdAt', 'dateDon', 'donneurId', 'hopitalId', 'id', 'questionnaireReponses', 'statut', 'typePoche', 'updatedAt', 'volume'] as const
   $columns = DonSchema.$columns
   @column()
   declare agentId: string
@@ -162,6 +164,8 @@ export class DonSchema extends BaseModel {
   declare hopitalId: string
   @column({ isPrimary: true })
   declare id: string
+  @column()
+  declare questionnaireReponses: any | null
   @column()
   declare statut: string
   @column()

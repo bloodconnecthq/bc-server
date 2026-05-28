@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { SearchNormal1, Location } from "iconsax-reactjs";
+import { SearchNormal1, Location, Drop } from "iconsax-reactjs";
 import { CenterCard } from "./center-card";
 import { Button, Input, TextField } from "@heroui/react";
 import { useCenters } from "@/lib/hooks/useCenters";
@@ -77,8 +77,14 @@ export function CentersPageClient() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-gray-600">Chargement des centres...</p>
+      <div className="text-center space-y-4">
+        <div className="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-red-200">
+          <Drop size={24} color="white" variant="Bold" />
+        </div>
+        <div className="space-y-1">
+          <div className="w-6 h-6 border-2 border-red-600/20 border-t-red-600 rounded-full animate-spin mx-auto" />
+          <p className="text-xs text-gray-400 font-medium">Chargement des centres…</p>
+        </div>
       </div>
     );
   }
